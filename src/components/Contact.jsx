@@ -110,7 +110,9 @@ export default function Contact() {
             {/* Outlined Action Buttons */}
             <div ref={buttonsRef} className="flex flex-wrap items-center gap-4">
               <a
-                href="mailto:vathsanphotography@gmail.com"
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=vathsanphotography@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl border border-white/15 bg-white/5 backdrop-blur-md text-xs font-semibold tracking-[0.2em] text-white/90 hover:text-white hover:border-[#D946EF] hover:bg-white/10 hover:shadow-[0_0_25px_rgba(217,70,239,0.3)] transition-all cursor-pointer group"
               >
                 <Mail className="w-4 h-4 text-[#D946EF] group-hover:scale-110 transition-transform" />
