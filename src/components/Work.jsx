@@ -331,7 +331,7 @@ export default function Work() {
     { id: 15, title: 'Celebrity Feature 15', category: 'CELEBRITIES', src: '/images/Celebrities/13.JPG' },
     { id: 16, title: 'Celebrity Feature 16', category: 'CELEBRITIES', src: '/images/Celebrities/14.JPG' },
 
-    // PORTRAITS IN EXACT FILE ORDER (12 PHOTOS)
+    // PORTRAITS IN EXACT FILE ORDER (11 PHOTOS)
     { id: 17, title: 'Portrait Feature 01', category: 'PORTRAITS', src: '/images/Potraits/1.jpg' },
     { id: 18, title: 'Portrait Feature 02', category: 'PORTRAITS', src: '/images/Potraits/1000189348.jpg' },
     { id: 19, title: 'Portrait Feature 03', category: 'PORTRAITS', src: '/images/Potraits/DV_04889.JPG' },
@@ -341,11 +341,10 @@ export default function Work() {
     { id: 23, title: 'Portrait Feature 07', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260329_002734.jpg' },
     { id: 24, title: 'Portrait Feature 08', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260417_154531.jpg' },
     { id: 25, title: 'Portrait Feature 09', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260417_155522.jpg' },
-    { id: 26, title: 'Portrait Feature 10', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260530_150501.jpg' },
-    { id: 27, title: 'Portrait Feature 11', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260530_150809.jpg' },
-    { id: 28, title: 'Portrait Feature 12', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260530_151137.jpg' },
+    { id: 27, title: 'Portrait Feature 10', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260530_150809.jpg' },
+    { id: 28, title: 'Portrait Feature 11', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260530_151137.jpg' },
 
-    // EVENTS IN EXACT FILE ORDER (12 PHOTOS - LANDSCAPE FORMAT)
+    // EVENTS IN EXACT FILE ORDER (11 PHOTOS - LANDSCAPE FORMAT)
     { id: 29, title: 'Event Feature 01', category: 'EVENTS', src: '/images/Events/1.JPG' },
     { id: 30, title: 'Event Feature 02', category: 'EVENTS', src: '/images/Events/2.jpg' },
     { id: 31, title: 'Event Feature 03', category: 'EVENTS', src: '/images/Events/3.JPG' },
@@ -357,7 +356,6 @@ export default function Work() {
     { id: 37, title: 'Event Feature 09', category: 'EVENTS', src: '/images/Events/IMG_20260812_224948.jpg' },
     { id: 38, title: 'Event Feature 10', category: 'EVENTS', src: '/images/Events/ChatGPT Image Aug 12, 2026, 10_39_21 PM.png' },
     { id: 39, title: 'Event Feature 11', category: 'EVENTS', src: '/images/Events/ChatGPT Image Aug 12, 2026, 11_05_02 PM.png' },
-    { id: 40, title: 'Event Feature 12', category: 'EVENTS', src: '/images/events.jpg' },
 
     // NATURE IN EXACT FILE ORDER (6 PHOTOS)
     { id: 41, title: 'Nature Feature 01', category: 'NATURE', src: '/images/Nature/1.jpg' },
