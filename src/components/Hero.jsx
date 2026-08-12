@@ -1,0 +1,172 @@
+import React, { useEffect, useRef } from 'react';
+import { Plus } from 'lucide-react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
+
+export default function Hero({ scrollToSection }) {
+  const sectionRef = useRef(null);
+  const tagRef = useRef(null);
+  const headingLinesRef = useRef([]);
+  const textRef = useRef(null);
+  const buttonRef = useRef(null);
+  const imageCardRef = useRef(null);
+  const scrollBarRef = useRef(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // 1. Entrance Animations on Mount
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1.2 } });
+
+      tl.fromTo(tagRef.current, { y: 30, opacity: 0 }, { y: 0, opacity: 1, delay: 0.2 })
+        .fromTo(
+          headingLinesRef.current,
+          { y: 60, opacity: 0, rotateX: 20 },
+          { y: 0, opacity: 1, rotateX: 0, stagger: 0.15 },
+          '-=0.8'
+        )
+        .fromTo(textRef.current, { y: 30, opacity: 0 }, { y: 0, opacity: 1 }, '-=0.8')
+        .fromTo(buttonRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1 }, '-=0.8')
+        .fromTo(
+          imageCardRef.current,
+          { scale: 0.9, opacity: 0, y: 50 },
+          { scale: 1, opacity: 1, y: 0, duration: 1.4 },
+          '-=1.2'
+        )
+        .fromTo(scrollBarRef.current, { opacity: 0, x: 20 }, { opacity: 0.6, x: 0 }, '-=1.0');
+
+      // 2. Scroll-Driven Parallax Scrub on Exit
+      gsap.to(imageCardRef.current, {
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1,
+        },
+        y: 80,
+        rotateY: -6,
+        rotateX: 4,
+        scale: 0.95,
+      });
+
+      gsap.to([tagRef.current, ...headingLinesRef.current, textRef.current, buttonRef.current], {
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1,
+        },
+        y: -60,
+        opacity: 0.3,
+        stagger: 0.05,
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <section
+      ref={sectionRef}
+      id="hero"
+      className="relative min-h-screen flex items-center pt-28 pb-16 lg:pt-36 lg:pb-24 overflow-hidden"
+    >
+      {/* Hero Ambient Glow */}
+      <div className="absolute top-1/3 left-1/4 w-[450px] h-[450px] bg-gradient-to-tr from-purple-600/20 via-magenta-500/20 to-orange-500/10 rounded-full blur-[120px] pointer-events-none animate-pulse-glow" />
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-16 w-full relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
+          {/* LEFT SIDE: Heading & Intro */}
+          <div className="lg:col-span-7 flex flex-col justify-center">
+            
+            {/* Small purple uppercase label */}
+            <div ref={tagRef} className="flex items-center gap-3 mb-6">
+              <span className="w-2 h-2 rounded-full bg-[#A855F7] shadow-[0_0_10px_#A855F7] animate-pulse" />
+              <span className="text-xs font-semibold tracking-[0.3em] text-[#A855F7] uppercase font-sans">
+                VISUAL STORYTELLER
+              </span>
+            </div>
+
+            {/* Editorial Heading lines */}
+            <h1 className="font-oswald text-5xl sm:text-7xl lg:text-8xl xl:text-[92px] font-bold leading-[0.92] tracking-tight uppercase mb-8 text-white perspective-[1000px]">
+              <span ref={(el) => (headingLinesRef.current[0] = el)} className="block">
+                I CAPTURE
+              </span>
+              <span ref={(el) => (headingLinesRef.current[1] = el)} className="text-gradient-purple block">
+                MOMENTS THAT
+              </span>
+              <span ref={(el) => (headingLinesRef.current[2] = el)} className="block">
+                STAY.
+              </span>
+            </h1>
+
+            {/* Subtext */}
+            <p ref={textRef} className="text-sm sm:text-base leading-relaxed text-[#85848D] max-w-md font-light mb-12">
+              Photography for me is not just clicking, <br className="hidden sm:inline" />
+              it's feeling, observing and preserving memories.
+            </p>
+
+            {/* SCROLL TO EXPLORE button */}
+            <div ref={buttonRef}>
+              <button
+                onClick={() => scrollToSection('about')}
+                className="inline-flex items-center gap-4 group text-left cursor-pointer w-fit"
+              >
+                <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#D946EF] transition-colors uppercase font-sans">
+                  SCROLL TO EXPLORE
+                </span>
+                <div className="relative w-8 h-8 rounded-full border border-white/15 flex items-center justify-center group-hover:border-purple-500/50 transition-colors">
+                  <span className="w-2 h-2 rounded-full bg-[#D946EF] shadow-[0_0_8px_#D946EF] group-hover:scale-125 transition-transform" />
+                </div>
+              </button>
+            </div>
+
+          </div>
+
+          {/* RIGHT SIDE: Portrait Photography Card with Scroll Parallax */}
+          <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
+            <div
+              ref={imageCardRef}
+              className="relative w-full max-w-[360px] sm:max-w-[400px] aspect-[3/4] rounded-3xl overflow-hidden card-border-glow group shadow-[0_25px_60px_rgba(0,0,0,0.85)] transform-gpu"
+            >
+              <img
+                src="/images/hero.jpg"
+                alt="Srivathsan photography golden hour silhouette"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-t from-[#03050B] via-transparent to-transparent opacity-80" />
+              <div className="absolute inset-0 rounded-3xl border border-white/10 pointer-events-none group-hover:border-purple-500/30 transition-colors" />
+
+              <div className="absolute bottom-5 left-6 right-6 flex items-center justify-between z-10">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-mono tracking-widest text-white/90 font-medium">
+                    01 / 05
+                  </span>
+                  <div className="w-16 h-[2px] bg-white/20 rounded-full overflow-hidden">
+                    <div className="w-1/3 h-full bg-[#D946EF] shadow-[0_0_6px_#D946EF]" />
+                  </div>
+                </div>
+
+                <div className="w-7 h-7 rounded-full border border-white/20 bg-black/40 backdrop-blur-md flex items-center justify-center text-white/80 group-hover:text-white group-hover:border-purple-400 transition-all">
+                  <Plus className="w-3.5 h-3.5" />
+                </div>
+              </div>
+            </div>
+
+            {/* Vertical Scroll Bar on Far Right Edge */}
+            <div ref={scrollBarRef} className="hidden xl:flex flex-col items-center gap-3 absolute -right-12 top-1/2 -translate-y-1/2">
+              <span className="text-[10px] tracking-[0.3em] font-mono text-white/60 uppercase rotate-90 my-4">
+                SCROLL
+              </span>
+              <div className="w-[1.5px] h-12 bg-gradient-to-b from-[#D946EF] to-transparent rounded-full animate-pulse" />
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
