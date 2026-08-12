@@ -15,7 +15,7 @@ export default function Hero({ scrollToSection }) {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // 1. Entrance Animations on Mount
+      // 1. Entrance Animations on Page Mount
       const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1.0 } });
 
       tl.fromTo(tagRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, delay: 0.1 })
@@ -33,6 +33,28 @@ export default function Hero({ scrollToSection }) {
           { scale: 1, opacity: 1, duration: 1.0 },
           '-=0.8'
         );
+
+      // 2. Smooth Scroll Fade-Out (Scroll Down) & Fade-In (Scroll Up) at Medium Speed
+      const scrollTargets = [
+        tagRef.current,
+        ...headingLinesRef.current,
+        textRef.current,
+        buttonRef.current,
+        imageCardRef.current,
+      ].filter(Boolean);
+
+      gsap.to(scrollTargets, {
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: 'bottom 25%',
+          scrub: 0.6,
+        },
+        y: -60,
+        opacity: 0,
+        stagger: 0.03,
+        ease: 'power1.inOut',
+      });
     }, sectionRef);
 
     return () => ctx.revert();
