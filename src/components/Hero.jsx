@@ -12,55 +12,27 @@ export default function Hero({ scrollToSection }) {
   const textRef = useRef(null);
   const buttonRef = useRef(null);
   const imageCardRef = useRef(null);
-  const scrollBarRef = useRef(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       // 1. Entrance Animations on Mount
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1.2 } });
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1.0 } });
 
-      tl.fromTo(tagRef.current, { y: 30, opacity: 0 }, { y: 0, opacity: 1, delay: 0.2 })
+      tl.fromTo(tagRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, delay: 0.1 })
         .fromTo(
           headingLinesRef.current,
-          { y: 60, opacity: 0, rotateX: 20 },
-          { y: 0, opacity: 1, rotateX: 0, stagger: 0.15 },
-          '-=0.8'
+          { y: 40, opacity: 0 },
+          { y: 0, opacity: 1, stagger: 0.1 },
+          '-=0.6'
         )
-        .fromTo(textRef.current, { y: 30, opacity: 0 }, { y: 0, opacity: 1 }, '-=0.8')
-        .fromTo(buttonRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1 }, '-=0.8')
+        .fromTo(textRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1 }, '-=0.6')
+        .fromTo(buttonRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1 }, '-=0.6')
         .fromTo(
           imageCardRef.current,
-          { scale: 0.9, opacity: 0, y: 50 },
-          { scale: 1, opacity: 1, y: 0, duration: 1.4 },
-          '-=1.2'
-        )
-        .fromTo(scrollBarRef.current, { opacity: 0, x: 20 }, { opacity: 0.6, x: 0 }, '-=1.0');
-
-      // 2. Scroll-Driven Parallax Scrub on Exit
-      gsap.to(imageCardRef.current, {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 1,
-        },
-        y: 80,
-        rotateY: -6,
-        rotateX: 4,
-        scale: 0.95,
-      });
-
-      gsap.to([tagRef.current, ...headingLinesRef.current, textRef.current, buttonRef.current], {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 1,
-        },
-        y: -60,
-        opacity: 0.3,
-        stagger: 0.05,
-      });
+          { scale: 0.95, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 1.0 },
+          '-=0.8'
+        );
     }, sectionRef);
 
     return () => ctx.revert();
@@ -90,7 +62,7 @@ export default function Hero({ scrollToSection }) {
             </div>
 
             {/* Editorial Heading lines */}
-            <h1 className="font-oswald text-5xl sm:text-7xl lg:text-8xl xl:text-[92px] font-bold leading-[0.92] tracking-tight uppercase mb-8 text-white perspective-[1000px]">
+            <h1 className="font-oswald text-5xl sm:text-7xl lg:text-8xl xl:text-[90px] font-bold leading-[0.95] tracking-tight uppercase mb-8 text-white">
               <span ref={(el) => (headingLinesRef.current[0] = el)} className="block">
                 I CAPTURE
               </span>
@@ -125,7 +97,7 @@ export default function Hero({ scrollToSection }) {
 
           </div>
 
-          {/* RIGHT SIDE: Portrait Photography Card with Scroll Parallax */}
+          {/* RIGHT SIDE: Portrait Photography Card */}
           <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
             <div
               ref={imageCardRef}
@@ -137,7 +109,7 @@ export default function Hero({ scrollToSection }) {
                 className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
               />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-[#03050B] via-transparent to-transparent opacity-80" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#03050B] via-transparent to-transparent opacity-80 pointer-events-none" />
               <div className="absolute inset-0 rounded-3xl border border-white/10 pointer-events-none group-hover:border-purple-500/30 transition-colors" />
 
               <div className="absolute bottom-5 left-6 right-6 flex items-center justify-between z-10">
@@ -154,14 +126,6 @@ export default function Hero({ scrollToSection }) {
                   <Plus className="w-3.5 h-3.5" />
                 </div>
               </div>
-            </div>
-
-            {/* Vertical Scroll Bar on Far Right Edge */}
-            <div ref={scrollBarRef} className="hidden xl:flex flex-col items-center gap-3 absolute -right-12 top-1/2 -translate-y-1/2">
-              <span className="text-[10px] tracking-[0.3em] font-mono text-white/60 uppercase rotate-90 my-4">
-                SCROLL
-              </span>
-              <div className="w-[1.5px] h-12 bg-gradient-to-b from-[#D946EF] to-transparent rounded-full animate-pulse" />
             </div>
           </div>
 
