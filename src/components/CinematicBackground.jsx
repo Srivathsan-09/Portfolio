@@ -6,7 +6,7 @@ export default function CinematicBackground() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true });
     let animationFrameId;
 
     let width = (canvas.width = window.innerWidth);
@@ -17,33 +17,33 @@ export default function CinematicBackground() {
       height = canvas.height = window.innerHeight;
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
 
-    // Particles configuration
-    const particlesCount = Math.floor((width * height) / 18000);
+    // Particles configuration (lightweight floaters)
+    const particlesCount = Math.min(30, Math.floor((width * height) / 25000));
     const particles = [];
     
     for (let i = 0; i < particlesCount; i++) {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        radius: Math.random() * 1.8 + 0.5,
+        radius: Math.random() * 1.6 + 0.6,
         color: Math.random() > 0.4 ? 'rgba(217, 70, 239, ' : Math.random() > 0.5 ? 'rgba(168, 85, 247, ' : 'rgba(255, 154, 60, ',
-        alpha: Math.random() * 0.5 + 0.1,
-        speedX: (Math.random() - 0.5) * 0.3,
-        speedY: (Math.random() - 0.5) * 0.3,
-        pulseSpeed: Math.random() * 0.02 + 0.005,
+        alpha: Math.random() * 0.4 + 0.1,
+        speedX: (Math.random() - 0.5) * 0.25,
+        speedY: (Math.random() - 0.5) * 0.25,
+        pulseSpeed: Math.random() * 0.015 + 0.005,
       });
     }
 
     // Plus symbols grid coordinates
     const plusSymbols = [];
-    const stepX = 140;
-    const stepY = 160;
-    for (let x = 60; x < width; x += stepX) {
-      for (let y = 80; y < height; y += stepY) {
-        if (Math.random() > 0.6) {
-          plusSymbols.push({ x, y, alpha: Math.random() * 0.15 + 0.05 });
+    const stepX = 180;
+    const stepY = 200;
+    for (let x = 80; x < width; x += stepX) {
+      for (let y = 100; y < height; y += stepY) {
+        if (Math.random() > 0.5) {
+          plusSymbols.push({ x, y, alpha: Math.random() * 0.12 + 0.04 });
         }
       }
     }
@@ -51,28 +51,24 @@ export default function CinematicBackground() {
     let time = 0;
     let mouseX = width / 2;
     let mouseY = height / 2;
+    let targetMouseX = width / 2;
+    let targetMouseY = height / 2;
 
     const handleMouseMove = (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
+      targetMouseX = e.clientX;
+      targetMouseY = e.clientY;
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     const render = () => {
       time += 0.008;
+      mouseX += (targetMouseX - mouseX) * 0.04;
+      mouseY += (targetMouseY - mouseY) * 0.04;
+
       ctx.clearRect(0, 0, width, height);
 
-      // Draw faint grid dots in background
-      ctx.fillStyle = 'rgba(168, 85, 247, 0.04)';
-      const dotSpacing = 40;
-      for (let x = 20; x < width; x += dotSpacing) {
-        for (let y = 20; y < height; y += dotSpacing) {
-          ctx.fillRect(x, y, 1, 1);
-        }
-      }
-
-      // Draw faint plus '+' marks
+      // Draw faint plus '+' marks (lightweight GPU strokes)
       ctx.strokeStyle = 'rgba(217, 70, 239, 0.12)';
       ctx.lineWidth = 1;
       plusSymbols.forEach((p) => {
@@ -87,47 +83,43 @@ export default function CinematicBackground() {
       });
       ctx.globalAlpha = 1.0;
 
-      // Draw flowing energy light waves
-      const waveCount = 4;
+      // Draw flowing energy light waves (Fast linear gradient strokes with 0 shadow blur)
+      const waveCount = 3;
       for (let w = 0; w < waveCount; w++) {
         ctx.beginPath();
-        const baseOffsetY = height * (0.2 + w * 0.22);
-        const amplitude = 35 + w * 15;
-        const frequency = 0.0015 - w * 0.0002;
+        const baseOffsetY = height * (0.25 + w * 0.26);
+        const amplitude = 30 + w * 12;
+        const frequency = 0.0014 - w * 0.0002;
         const colorGradient = ctx.createLinearGradient(0, 0, width, 0);
 
         if (w % 2 === 0) {
           colorGradient.addColorStop(0, 'rgba(168, 85, 247, 0)');
-          colorGradient.addColorStop(0.3, 'rgba(168, 85, 247, 0.25)');
-          colorGradient.addColorStop(0.65, 'rgba(217, 70, 239, 0.35)');
-          colorGradient.addColorStop(0.85, 'rgba(255, 154, 60, 0.2)');
+          colorGradient.addColorStop(0.3, 'rgba(168, 85, 247, 0.22)');
+          colorGradient.addColorStop(0.65, 'rgba(217, 70, 239, 0.3)');
+          colorGradient.addColorStop(0.85, 'rgba(255, 154, 60, 0.18)');
           colorGradient.addColorStop(1, 'rgba(168, 85, 247, 0)');
         } else {
           colorGradient.addColorStop(0, 'rgba(217, 70, 239, 0)');
-          colorGradient.addColorStop(0.25, 'rgba(255, 154, 60, 0.3)');
-          colorGradient.addColorStop(0.6, 'rgba(192, 38, 211, 0.3)');
-          colorGradient.addColorStop(0.9, 'rgba(168, 85, 247, 0.15)');
+          colorGradient.addColorStop(0.25, 'rgba(255, 154, 60, 0.25)');
+          colorGradient.addColorStop(0.6, 'rgba(192, 38, 211, 0.25)');
+          colorGradient.addColorStop(0.9, 'rgba(168, 85, 247, 0.12)');
           colorGradient.addColorStop(1, 'rgba(217, 70, 239, 0)');
         }
 
         ctx.strokeStyle = colorGradient;
-        ctx.lineWidth = 1.5 + (w % 2) * 0.8;
-        ctx.shadowColor = 'rgba(217, 70, 239, 0.4)';
-        ctx.shadowBlur = 12;
+        ctx.lineWidth = 1.5;
 
-        for (let x = 0; x <= width; x += 15) {
-          // Slight parallax pull from mouse
+        for (let x = 0; x <= width; x += 25) {
           const distToMouse = (x - mouseX) / width;
-          const mouseOffset = Math.sin(distToMouse * Math.PI) * 15;
-          const y = baseOffsetY + Math.sin(x * frequency + time + w) * amplitude + Math.cos(x * 0.001 + time * 0.8) * 20 + mouseOffset;
+          const mouseOffset = Math.sin(distToMouse * Math.PI) * 12;
+          const y = baseOffsetY + Math.sin(x * frequency + time + w) * amplitude + Math.cos(x * 0.001 + time * 0.8) * 16 + mouseOffset;
           if (x === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
         ctx.stroke();
-        ctx.shadowBlur = 0; // reset
       }
 
-      // Draw floating glowing particles
+      // Draw floating glowing particles (Direct arc fill, no canvas shadow blur)
       particles.forEach((p) => {
         p.x += p.speedX;
         p.y += p.speedY;
@@ -138,15 +130,12 @@ export default function CinematicBackground() {
         if (p.y > height) p.y = 0;
 
         p.alpha += Math.sin(time * 5) * p.pulseSpeed;
-        const currentAlpha = Math.max(0.1, Math.min(0.7, p.alpha));
+        const currentAlpha = Math.max(0.1, Math.min(0.6, p.alpha));
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `${p.color}${currentAlpha})`;
-        ctx.shadowColor = `${p.color}0.8)`;
-        ctx.shadowBlur = p.radius * 4;
         ctx.fill();
-        ctx.shadowBlur = 0;
       });
 
       animationFrameId = requestAnimationFrame(render);

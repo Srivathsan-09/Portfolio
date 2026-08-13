@@ -23,10 +23,11 @@ export default function App() {
   // Initialize Lenis Smooth Scrolling & GSAP ScrollTrigger ticker integration
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 0.8,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      wheelMultiplier: 1.0,
+      wheelMultiplier: 1.15,
+      touchMultiplier: 1.5,
     });
 
     setLenisRef(lenis);
@@ -55,25 +56,33 @@ export default function App() {
     };
   }, []);
 
-  // Active section observer on scroll
+  // Throttled Active section observer on scroll
   useEffect(() => {
     const sections = ['hero', 'about', 'work', 'contact'];
+    let ticking = false;
+
     const handleScroll = () => {
-      const scrollPosition = window.scrollY + window.innerHeight / 3;
-      for (const sectionId of sections) {
-        const el = document.getElementById(sectionId);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(sectionId);
-            break;
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollPosition = window.scrollY + window.innerHeight / 3;
+          for (const sectionId of sections) {
+            const el = document.getElementById(sectionId);
+            if (el) {
+              const top = el.offsetTop;
+              const height = el.offsetHeight;
+              if (scrollPosition >= top && scrollPosition < top + height) {
+                setActiveSection((prev) => (prev !== sectionId ? sectionId : prev));
+                break;
+              }
+            }
           }
-        }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 

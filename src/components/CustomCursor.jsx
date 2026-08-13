@@ -1,44 +1,89 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export default function CustomCursor() {
-  const [position, setPosition] = useState({ x: -100, y: -100 });
-  const [trailPosition, setTrailPosition] = useState({ x: -100, y: -100 });
-  const [isHovered, setIsHovered] = useState(false);
-  const [isClicking, setIsClicking] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+  const ringRef = useRef(null);
+  const dotRef = useRef(null);
 
   useEffect(() => {
-    // Only enable custom cursor on non-touch devices
+    // Disable custom cursor on touch devices
     if (window.matchMedia('(pointer: coarse)').matches) return;
 
+    let targetX = -100;
+    let targetY = -100;
+    let currentX = -100;
+    let currentY = -100;
+    let isHovered = false;
+    let isClicking = false;
+    let isVisible = false;
+    let animationFrameId;
+
     const onMouseMove = (e) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-      setIsVisible(true);
+      targetX = e.clientX;
+      targetY = e.clientY;
+      if (!isVisible) {
+        isVisible = true;
+        if (ringRef.current) ringRef.current.style.opacity = '1';
+        if (dotRef.current) dotRef.current.style.opacity = '1';
+      }
     };
 
-    const onMouseDown = () => setIsClicking(true);
-    const onMouseUp = () => setIsClicking(false);
+    const onMouseDown = () => {
+      isClicking = true;
+    };
 
-    const onMouseLeave = () => setIsVisible(false);
-    const onMouseEnter = () => setIsVisible(true);
+    const onMouseUp = () => {
+      isClicking = false;
+    };
 
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mouseup', onMouseUp);
-    document.addEventListener('mouseleave', onMouseLeave);
-    document.addEventListener('mouseenter', onMouseEnter);
+    const onMouseLeave = () => {
+      isVisible = false;
+      if (ringRef.current) ringRef.current.style.opacity = '0';
+      if (dotRef.current) dotRef.current.style.opacity = '0';
+    };
+
+    const onMouseEnter = () => {
+      isVisible = true;
+      if (ringRef.current) ringRef.current.style.opacity = '1';
+      if (dotRef.current) dotRef.current.style.opacity = '1';
+    };
+
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+    window.addEventListener('mousedown', onMouseDown, { passive: true });
+    window.addEventListener('mouseup', onMouseUp, { passive: true });
+    document.addEventListener('mouseleave', onMouseLeave, { passive: true });
+    document.addEventListener('mouseenter', onMouseEnter, { passive: true });
 
     const handleHoverElements = () => {
       const hoverables = document.querySelectorAll('a, button, [role="button"], input, textarea, .hover-target');
       hoverables.forEach((el) => {
-        el.addEventListener('mouseenter', () => setIsHovered(true));
-        el.addEventListener('mouseleave', () => setIsHovered(false));
+        el.addEventListener('mouseenter', () => { isHovered = true; }, { passive: true });
+        el.addEventListener('mouseleave', () => { isHovered = false; }, { passive: true });
       });
     };
 
     handleHoverElements();
     const observer = new MutationObserver(handleHoverElements);
     observer.observe(document.body, { childList: true, subtree: true });
+
+    const animate = () => {
+      currentX += (targetX - currentX) * 0.22;
+      currentY += (targetY - currentY) * 0.22;
+
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) translate(-50%, -50%)`;
+      }
+
+      if (ringRef.current) {
+        const scale = isClicking ? 0.8 : isHovered ? 1.5 : 1.0;
+        ringRef.current.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%) scale(${scale})`;
+        ringRef.current.style.borderColor = isHovered ? 'rgba(217, 70, 239, 0.8)' : 'rgba(217, 70, 239, 0.45)';
+        ringRef.current.style.backgroundColor = isHovered ? 'rgba(168, 85, 247, 0.12)' : 'transparent';
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
 
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
@@ -47,47 +92,23 @@ export default function CustomCursor() {
       document.removeEventListener('mouseleave', onMouseLeave);
       document.removeEventListener('mouseenter', onMouseEnter);
       observer.disconnect();
+      cancelAnimationFrame(animationFrameId);
     };
   }, []);
-
-  useEffect(() => {
-    let animationFrameId;
-    const followCursor = () => {
-      setTrailPosition((prev) => ({
-        x: prev.x + (position.x - prev.x) * 0.18,
-        y: prev.y + (position.y - prev.y) * 0.18,
-      }));
-      animationFrameId = requestAnimationFrame(followCursor);
-    };
-    followCursor();
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [position]);
-
-  if (!isVisible) return null;
 
   return (
     <>
       {/* Outer Glowing Ring */}
       <div
-        className="fixed pointer-events-none z-[9999] rounded-full transition-transform duration-200 -translate-x-1/2 -translate-y-1/2 hidden md:block"
-        style={{
-          left: `${trailPosition.x}px`,
-          top: `${trailPosition.y}px`,
-          width: isHovered ? '48px' : '28px',
-          height: isHovered ? '48px' : '28px',
-          border: '1px solid rgba(217, 70, 239, 0.5)',
-          backgroundColor: isHovered ? 'rgba(168, 85, 247, 0.08)' : 'transparent',
-          boxShadow: isHovered ? '0 0 20px rgba(217, 70, 239, 0.4)' : '0 0 10px rgba(168, 85, 247, 0.2)',
-          transform: `translate(-50%, -50%) scale(${isClicking ? 0.8 : 1})`,
-        }}
+        ref={ringRef}
+        className="fixed top-0 left-0 pointer-events-none z-[9999] w-8 h-8 rounded-full border border-[#D946EF]/50 shadow-[0_0_12px_rgba(217,70,239,0.3)] hidden md:block opacity-0 transform-gpu will-change-transform"
+        style={{ transition: 'width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s, opacity 0.2s' }}
       />
       {/* Inner Glowing Center Dot */}
       <div
-        className="fixed pointer-events-none z-[9999] w-2 h-2 bg-[#D946EF] rounded-full -translate-x-1/2 -translate-y-1/2 shadow-[0_0_8px_#D946EF] hidden md:block"
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-        }}
+        ref={dotRef}
+        className="fixed top-0 left-0 pointer-events-none z-[9999] w-2 h-2 bg-[#D946EF] rounded-full shadow-[0_0_8px_#D946EF] hidden md:block opacity-0 transform-gpu will-change-transform"
+        style={{ transition: 'opacity 0.2s' }}
       />
     </>
   );

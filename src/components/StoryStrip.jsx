@@ -296,8 +296,10 @@ export default function StoryStrip() {
         let lastX = 0;
         let lastY = 0;
         let lastTime = Date.now();
+        let ticking = false;
+        let pendingEvent = null;
 
-        const handleMouseMove = (e) => {
+        const processMouseMove = (e) => {
           const sectionEl = sectionRef.current;
           if (!sectionEl) return;
 
@@ -340,6 +342,17 @@ export default function StoryStrip() {
           }
         };
 
+        const handleMouseMove = (e) => {
+          pendingEvent = e;
+          if (!ticking) {
+            requestAnimationFrame(() => {
+              if (pendingEvent) processMouseMove(pendingEvent);
+              ticking = false;
+            });
+            ticking = true;
+          }
+        };
+
         const handleMouseLeave = () => {
           qStageX(0);
           qStageY(0);
@@ -349,8 +362,10 @@ export default function StoryStrip() {
           qSoulShadow('0px 0px rgba(0,0,0,0)');
         };
 
-        window.addEventListener('mousemove', handleMouseMove);
-        sectionRef.current.addEventListener('mouseleave', handleMouseLeave);
+        window.addEventListener('mousemove', handleMouseMove, { passive: true });
+        if (sectionRef.current) {
+          sectionRef.current.addEventListener('mouseleave', handleMouseLeave, { passive: true });
+        }
 
         return () => {
           window.removeEventListener('mousemove', handleMouseMove);
