@@ -548,16 +548,19 @@ export default function Work() {
           className="fixed inset-0 z-[99999] flex flex-col bg-[#03050B] animate-fadeIn overflow-hidden"
         >
           {/* TOP MODAL HEADER BAR */}
-          <div className="w-full bg-[#03050B]/98 border-b border-white/10 px-6 sm:px-12 py-5 flex items-center justify-between z-20 shrink-0 shadow-2xl">
-            <div className="flex items-center gap-4">
+          <div className="w-full bg-[#03050B]/98 border-b border-white/10 px-4 sm:px-12 py-3.5 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 z-20 shrink-0 shadow-2xl">
+            
+            {/* Top Action Controls Row: BACK TO WORK & CLOSE (Mobile) / Left Group (Desktop) */}
+            <div className="flex items-center justify-between sm:justify-start gap-4 w-full sm:w-auto">
               <button
                 onClick={() => setActiveCategoryModal(false)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#D946EF]/40 bg-[#D946EF]/15 text-xs font-bold text-white hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer group"
+                className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full border border-[#D946EF]/40 bg-[#D946EF]/15 text-[11px] sm:text-xs font-bold text-white hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer group shrink-0"
               >
-                <ChevronLeft className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform" />
+                <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 transform group-hover:-translate-x-0.5 transition-transform" />
                 <span>BACK TO WORK</span>
               </button>
 
+              {/* Title & Collection Name for Desktop */}
               <div className="hidden sm:block">
                 <span className="text-[10px] font-mono text-[#D946EF] tracking-widest uppercase block">
                   PORTFOLIO GALLERY
@@ -566,18 +569,27 @@ export default function Work() {
                   {modalFilter} COLLECTION
                 </h3>
               </div>
+
+              {/* Mobile Top Close Button */}
+              <button
+                onClick={() => setActiveCategoryModal(false)}
+                aria-label="Close gallery modal"
+                className="sm:hidden w-9 h-9 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:border-[#D946EF] hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            {/* Category Filter Pills (Visible on all devices) */}
-            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-1 max-w-full">
+            {/* Category Filter Pills Row (Smooth Horizontal Scroll with NO Visible Scrollbars) */}
+            <div className="flex items-center gap-2 overflow-x-auto py-1 w-full sm:w-auto no-scrollbar scrollbar-none shrink-0">
               {['ALL', 'PORTRAITS', 'NATURE', 'EVENTS', 'CELEBRITIES'].map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setModalFilter(cat)}
-                  className={`px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold tracking-wider transition-all whitespace-nowrap cursor-pointer ${
+                  className={`px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold tracking-wider transition-all whitespace-nowrap cursor-pointer shrink-0 ${
                     modalFilter === cat
-                      ? 'bg-[#D946EF] text-white shadow-[0_0_18px_#D946EF]'
-                      : 'text-[#85848D] hover:text-white bg-white/5 border border-white/10'
+                      ? 'bg-[#D946EF] text-white shadow-[0_0_18px_rgba(217,70,239,0.6)]'
+                      : 'text-[#85848D] hover:text-white bg-white/5 border border-white/10 hover:border-white/20'
                   }`}
                 >
                   {cat}
@@ -585,28 +597,28 @@ export default function Work() {
               ))}
             </div>
 
-            {/* High-Contrast Close Button */}
+            {/* High-Contrast Close Button for Desktop */}
             <button
               onClick={() => setActiveCategoryModal(false)}
               aria-label="Close gallery modal"
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:border-[#D946EF] hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer ml-3 shrink-0"
+              className="hidden sm:flex w-10 h-10 rounded-full border border-white/20 bg-white/10 items-center justify-center text-white hover:border-[#D946EF] hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer ml-3 shrink-0"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* MAIN MODAL SCROLLABLE PHOTO GRID (Ultra-Fast 60/120fps GPU Composition Container) */}
+          {/* MAIN MODAL SCROLLABLE PHOTO GRID */}
           <div
             data-lenis-prevent="true"
-            className="flex-1 w-full max-w-7xl mx-auto px-6 sm:px-12 py-8 overflow-y-auto custom-scrollbar touch-pan-y transform-gpu overscroll-contain"
+            className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-12 py-6 sm:py-8 overflow-y-auto custom-scrollbar touch-pan-y transform-gpu overscroll-contain"
             style={{ WebkitOverflowScrolling: 'touch', willChange: 'scroll-position' }}
           >
             {/* Mobile Category Title Banner */}
-            <div className="sm:hidden mb-6">
-              <span className="text-[10px] font-mono text-[#D946EF] tracking-widest uppercase block">
+            <div className="sm:hidden mb-5">
+              <span className="text-[10px] font-mono text-[#D946EF] tracking-widest uppercase block mb-0.5">
                 PORTFOLIO GALLERY
               </span>
-              <h3 className="font-oswald text-3xl font-bold text-white uppercase">
+              <h3 className="font-oswald text-2xl font-bold text-white uppercase tracking-wide">
                 {modalFilter} COLLECTION
               </h3>
             </div>
@@ -614,8 +626,8 @@ export default function Work() {
             {/* Dynamic Grid Layout: 2 Columns Landscape for EVENTS tab alone, 3 Columns Portrait for others */}
             <div className={
               modalFilter === 'EVENTS'
-                ? 'grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 pb-16 perspective-[1000px]'
-                : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 pb-16 perspective-[1000px]'
+                ? 'grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 pb-16 perspective-[1000px]'
+                : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 pb-16 perspective-[1000px]'
             }>
               {filteredGallery.map((item) => (
                 <ModalGalleryCard

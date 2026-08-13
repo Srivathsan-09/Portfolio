@@ -133,24 +133,26 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* RIGHT SIDE: Handwritten Script Signature & Watermark */}
-          <div className="lg:col-span-5 relative flex flex-col items-center lg:items-end justify-center py-6">
+          {/* RIGHT SIDE: Handwritten Script Signature & Watermark matching user sign design */}
+          <div className="lg:col-span-5 relative flex flex-col items-center justify-center py-8 sm:py-12">
             
-            {/* Giant Faint Letter S Watermark with Scroll Scrub */}
-            <span
+            {/* Giant Outlined Letter S Watermark centered behind signature */}
+            <div
               ref={watermarkRef}
-              className="text-[200px] sm:text-[260px] font-syne font-extrabold text-white/[0.025] leading-none absolute -top-16 right-4 sm:right-12 select-none pointer-events-none transform-gpu"
+              className="absolute inset-0 flex items-center justify-center select-none pointer-events-none z-0 overflow-hidden"
             >
-              S
-            </span>
+              <span className="font-syne font-extrabold text-[220px] sm:text-[280px] lg:text-[320px] leading-none text-transparent bg-clip-text bg-gradient-to-b from-white/[0.04] to-white/[0.01] select-none transform-gpu opacity-40">
+                S
+              </span>
+            </div>
 
             {/* Glowing Handwritten Signature */}
-            <div ref={signatureRef} className="relative z-10 text-center lg:text-right">
-              <div className="font-signature text-7xl sm:text-8xl lg:text-9xl text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-magenta-300 to-purple-400 drop-shadow-[0_0_25px_rgba(217,70,239,0.4)] select-none">
+            <div ref={signatureRef} className="relative z-10 text-center flex flex-col items-center">
+              <div className="font-signature text-7xl sm:text-8xl lg:text-9xl tracking-normal text-transparent bg-clip-text bg-gradient-to-r from-[#D946EF] via-[#EC4899] to-[#FF9A3C] drop-shadow-[0_0_20px_rgba(217,70,239,0.45)] drop-shadow-[0_0_35px_rgba(255,154,60,0.3)] select-none py-2 px-4 leading-tight">
                 Srivathsan
               </div>
 
-              <div className="text-[11px] font-semibold tracking-[0.45em] text-[#85848D] uppercase font-sans mt-2">
+              <div className="text-[11px] sm:text-xs font-semibold tracking-[0.5em] text-[#85848D] uppercase font-sans mt-1">
                 PHOTOGRAPHY
               </div>
             </div>

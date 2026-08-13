@@ -32,7 +32,18 @@
 }
 
 .font-signature {
-  font-family: 'Alex Brush', 'Caveat', cursive;
+  font-family: 'Great Vibes', 'Alex Brush', 'Birthstone', 'Caveat', cursive;
+}
+
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar,
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .font-sans {
