@@ -12,6 +12,8 @@ export default function CinematicBackground() {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
+
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
@@ -19,8 +21,9 @@ export default function CinematicBackground() {
 
     window.addEventListener('resize', handleResize, { passive: true });
 
-    // Particles configuration (lightweight floaters)
-    const particlesCount = Math.min(30, Math.floor((width * height) / 25000));
+    // Particles configuration (lightweight floaters, reduced on touch devices)
+    const maxParticles = isTouch ? 12 : 30;
+    const particlesCount = Math.min(maxParticles, Math.floor((width * height) / 30000));
     const particles = [];
     
     for (let i = 0; i < particlesCount; i++) {

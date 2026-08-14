@@ -53,17 +53,13 @@ export default function CustomCursor() {
     document.addEventListener('mouseleave', onMouseLeave, { passive: true });
     document.addEventListener('mouseenter', onMouseEnter, { passive: true });
 
-    const handleHoverElements = () => {
-      const hoverables = document.querySelectorAll('a, button, [role="button"], input, textarea, .hover-target');
-      hoverables.forEach((el) => {
-        el.addEventListener('mouseenter', () => { isHovered = true; }, { passive: true });
-        el.addEventListener('mouseleave', () => { isHovered = false; }, { passive: true });
-      });
+    // High-performance event delegation for hover targets
+    const handleMouseOver = (e) => {
+      const target = e.target.closest('a, button, [role="button"], input, textarea, .hover-target');
+      isHovered = !!target;
     };
 
-    handleHoverElements();
-    const observer = new MutationObserver(handleHoverElements);
-    observer.observe(document.body, { childList: true, subtree: true });
+    document.body.addEventListener('mouseover', handleMouseOver, { passive: true });
 
     const animate = () => {
       currentX += (targetX - currentX) * 0.22;
@@ -91,7 +87,7 @@ export default function CustomCursor() {
       window.removeEventListener('mouseup', onMouseUp);
       document.removeEventListener('mouseleave', onMouseLeave);
       document.removeEventListener('mouseenter', onMouseEnter);
-      observer.disconnect();
+      document.body.removeEventListener('mouseover', handleMouseOver);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);

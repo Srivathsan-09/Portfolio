@@ -22,24 +22,30 @@ export default function App() {
 
   // Initialize Lenis Smooth Scrolling & GSAP ScrollTrigger ticker integration
   useEffect(() => {
+    const isTouch = window.matchMedia('(pointer: coarse)').matches;
+
     const lenis = new Lenis({
-      duration: 0.8,
+      duration: isTouch ? 0.6 : 0.8,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      wheelMultiplier: 1.15,
-      touchMultiplier: 1.5,
+      wheelMultiplier: 1.1,
+      syncTouch: false, // Prevents scroll hijacking / stutter on touch screens
     });
 
     setLenisRef(lenis);
     window.lenis = lenis; // Expose globally for modals to stop/start smooth scroll
 
-    // Update ScrollTrigger on Lenis scroll
+    let rafProgressId;
     lenis.on('scroll', (e) => {
       ScrollTrigger.update();
-      // Update top scroll progress bar
       if (scrollProgressRef.current) {
-        const progress = e.scroll / (document.documentElement.scrollHeight - window.innerHeight);
-        scrollProgressRef.current.style.transform = `scaleX(${Math.max(0, Math.min(1, progress))})`;
+        if (rafProgressId) cancelAnimationFrame(rafProgressId);
+        rafProgressId = requestAnimationFrame(() => {
+          if (scrollProgressRef.current) {
+            const progress = e.scroll / (document.documentElement.scrollHeight - window.innerHeight);
+            scrollProgressRef.current.style.transform = `scaleX(${Math.max(0, Math.min(1, progress))})`;
+          }
+        });
       }
     });
 
@@ -47,9 +53,11 @@ export default function App() {
       lenis.raf(time * 1000);
     });
 
-    gsap.ticker.lagSmoothing(0);
+    // Smooth lag adaptation instead of 0 to eliminate frame jumps/stutters
+    gsap.ticker.lagSmoothing(500, 33);
 
     return () => {
+      if (rafProgressId) cancelAnimationFrame(rafProgressId);
       delete window.lenis;
       lenis.destroy();
       gsap.ticker.remove(lenis.raf);

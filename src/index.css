@@ -18,6 +18,18 @@
     color: #F2F0F4;
     font-family: 'Plus Jakarta Sans', sans-serif;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  img {
+    content-visibility: auto;
+  }
+
+  .gpu-accelerate {
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 }
 

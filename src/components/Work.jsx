@@ -15,6 +15,7 @@ function Interactive3DCard({ card, num, title, image, offsetY, onClick, innerRef
   const rafId = useRef(null);
 
   const handleMouseMove = (e) => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
     if (rafId.current) cancelAnimationFrame(rafId.current);
 
     rafId.current = requestAnimationFrame(() => {
@@ -149,6 +150,7 @@ function ModalGalleryCard({ item, onClick }) {
   const aspectClass = isLandscape ? 'aspect-[16/10]' : 'aspect-[3/4]';
 
   const handleMouseMove = (e) => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
     if (rafId.current) cancelAnimationFrame(rafId.current);
 
     rafId.current = requestAnimationFrame(() => {
