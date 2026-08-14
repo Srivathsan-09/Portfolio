@@ -112,7 +112,7 @@ export default function About() {
             >
               <img
                 ref={imgRef}
-                src="/images/about.jpg"
+                src="/images/about.webp"
                 alt="Srivathsan holding Canon camera portrait"
                 className="w-full h-full object-cover object-top transition-transform duration-300"
               />

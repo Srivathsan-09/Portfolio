@@ -126,7 +126,7 @@ export default function Hero({ scrollToSection }) {
               className="relative w-full max-w-[360px] sm:max-w-[400px] aspect-[3/4] rounded-3xl overflow-hidden card-border-glow group shadow-[0_25px_60px_rgba(0,0,0,0.85)] transform-gpu"
             >
               <img
-                src="/images/hero.jpg"
+                src="/images/hero.webp"
                 alt="Srivathsan photography golden hour silhouette"
                 className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
               />
