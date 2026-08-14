@@ -13,7 +13,6 @@ function Interactive3DCard({ card, num, title, image, offsetY, onClick, innerRef
   const glareRef = useRef(null);
   const contentRef = useRef(null);
   const rafId = useRef(null);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   const handleMouseMove = (e) => {
     if (rafId.current) cancelAnimationFrame(rafId.current);
@@ -95,24 +94,16 @@ function Interactive3DCard({ card, num, title, image, offsetY, onClick, innerRef
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`relative aspect-[3/4] rounded-3xl overflow-hidden card-border-glow cursor-pointer group shadow-[0_20px_50px_rgba(0,0,0,0.85)] ${offsetY} transform-gpu transition-all duration-300 preserve-3d bg-[#0d0f17]`}
+      className={`relative aspect-[3/4] rounded-3xl overflow-hidden card-border-glow cursor-pointer group shadow-[0_20px_50px_rgba(0,0,0,0.85)] ${offsetY} transform-gpu transition-all duration-300 preserve-3d`}
       style={{ transformStyle: 'preserve-3d' }}
     >
-      {/* Loading Skeleton */}
-      {!isLoaded && (
-        <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 animate-pulse z-0" />
-      )}
-
       <img
         ref={imgRef}
         src={image}
         alt={`Srivathsan ${title} photography`}
         loading="lazy"
         decoding="async"
-        onLoad={() => setIsLoaded(true)}
-        className={`w-full h-full object-cover object-center transform-gpu transition-all duration-500 ease-out ${
-          isLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
+        className="w-full h-full object-cover object-center transform-gpu transition-transform duration-500 ease-out"
       />
 
       <div
@@ -146,14 +137,13 @@ function Interactive3DCard({ card, num, title, image, offsetY, onClick, innerRef
   );
 }
 
-// Optimized 3D Interactive Animated Card for Modal Gallery Grid
+// Optimized 3D Interactive Animated Card for Modal Gallery Grid (Landscape for EVENTS, Portrait for others)
 function ModalGalleryCard({ item, onClick }) {
   const cardRef = useRef(null);
   const imgRef = useRef(null);
   const glareRef = useRef(null);
   const contentRef = useRef(null);
   const rafId = useRef(null);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   const isLandscape = item.category === 'EVENTS';
   const aspectClass = isLandscape ? 'aspect-[16/10]' : 'aspect-[3/4]';
@@ -235,24 +225,16 @@ function ModalGalleryCard({ item, onClick }) {
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`relative ${aspectClass} rounded-2xl overflow-hidden border border-white/10 cursor-pointer group card-border-glow bg-[#0d0f17] shadow-2xl transform-gpu transition-all duration-300 preserve-3d animate-fadeIn`}
+      className={`relative ${aspectClass} rounded-2xl overflow-hidden border border-white/10 cursor-pointer group card-border-glow bg-black/40 shadow-2xl transform-gpu transition-all duration-300 preserve-3d animate-fadeIn`}
       style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
     >
-      {/* Skeleton pulse loading placeholder */}
-      {!isLoaded && (
-        <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 animate-pulse z-0" />
-      )}
-
       <img
         ref={imgRef}
         src={item.src}
         alt={item.title}
         loading="lazy"
         decoding="async"
-        onLoad={() => setIsLoaded(true)}
-        className={`w-full h-full object-cover transform-gpu transition-all duration-500 ease-out ${
-          isLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
+        className="w-full h-full object-cover transform-gpu transition-transform duration-500 ease-out"
       />
 
       {/* Dynamic Specular Glare Layer */}
@@ -384,22 +366,6 @@ export default function Work() {
     { id: 46, title: 'Nature Feature 06', category: 'NATURE', src: '/images/Nature/IMG_20260812_232109.webp' },
   ];
 
-  // Warm-up Cache by background prefetching images into browser & SW cache
-  useEffect(() => {
-    const prefetchImages = () => {
-      galleryItems.forEach((item) => {
-        const img = new Image();
-        img.src = item.src;
-      });
-    };
-
-    if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(prefetchImages, { timeout: 3000 });
-    } else {
-      setTimeout(prefetchImages, 1500);
-    }
-  }, []);
-
   const filteredGallery = modalFilter === 'ALL'
     ? galleryItems
     : galleryItems.filter((item) => item.category === modalFilter);
@@ -414,198 +380,216 @@ export default function Work() {
     setSelectedPhoto(null);
   };
 
+  // Register global window helper so navbar links can cleanly close all open modals
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') closeAll();
+    window.closeAllModals = closeAll;
+    return () => {
+      delete window.closeAllModals;
     };
+  }, []);
 
+  // Lock body scroll and pause Lenis smooth scroll when modal is active
+  useEffect(() => {
     if (activeCategoryModal || selectedPhoto) {
       document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
+      if (window.lenis) {
+        window.lenis.stop();
+      }
     } else {
       document.body.style.overflow = 'unset';
+      if (window.lenis) {
+        window.lenis.start();
+      }
     }
-
     return () => {
       document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleKeyDown);
+      if (window.lenis) {
+        window.lenis.start();
+      }
     };
   }, [activeCategoryModal, selectedPhoto]);
 
+  // Handle ESC key to close modal
   useEffect(() => {
-    const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (isReducedMotion) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (selectedPhoto) {
+          setSelectedPhoto(null);
+        } else if (activeCategoryModal) {
+          setActiveCategoryModal(false);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeCategoryModal, selectedPhoto]);
 
+  useEffect(() => {
     const ctx = gsap.context(() => {
+      // 1. Header Reveal
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top 75%',
-          end: 'bottom 20%',
           toggleActions: 'play none none reverse',
         },
       });
 
-      tl.fromTo(
-        tagRef.current,
-        { opacity: 0, y: 30, scale: 0.9 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: 'back.out(1.7)' }
-      )
+      tl.fromTo(tagRef.current, { x: -30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.8 })
         .fromTo(
           titleRef.current,
-          { opacity: 0, y: 40 },
-          { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' },
+          { y: 50, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.0, ease: 'power3.out' },
           '-=0.4'
         )
         .fromTo(
           subtextRef.current,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-          '-=0.5'
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8 },
+          '-=0.6'
         );
 
-      cardsRef.current.forEach((cardEl, idx) => {
-        if (!cardEl) return;
-        gsap.fromTo(
-          cardEl,
-          { opacity: 0, y: 80, rotateX: -15, scale: 0.95 },
-          {
-            opacity: 1,
-            y: 0,
-            rotateX: 0,
-            scale: 1,
-            duration: 0.9,
-            delay: idx * 0.12,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: cardEl,
-              start: 'top 85%',
-              toggleActions: 'play none none reverse',
-            },
-          }
-        );
-      });
+      // 2. Staggered 3D Fan-Out Card Deal Entrance
+      gsap.fromTo(
+        cardsRef.current,
+        { y: 140, opacity: 0, rotateY: -25, scale: 0.85 },
+        {
+          y: 0,
+          opacity: 1,
+          rotateY: 0,
+          scale: 1,
+          duration: 1.4,
+          stagger: 0.18,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 65%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      );
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <section
-      id="work"
-      ref={sectionRef}
-      className="relative py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden"
-    >
-      {/* Background Ambient Glows */}
-      <div className="absolute top-1/3 left-0 w-96 h-96 bg-[#D946EF]/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-[#FF9A3C]/10 rounded-full blur-[120px] pointer-events-none" />
+    <section ref={sectionRef} id="work" className="relative py-24 lg:py-36 overflow-hidden">
+      <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-orange-950/20 rounded-full blur-[160px] pointer-events-none" />
 
-      {/* Header Section */}
-      <div className="text-center max-w-3xl mx-auto mb-20">
-        <div ref={tagRef} className="inline-block mb-4">
-          <span className="px-4 py-1.5 rounded-full border border-[#D946EF]/40 bg-[#D946EF]/10 text-xs font-mono text-[#D946EF] font-bold uppercase tracking-wider backdrop-blur-md shadow-[0_0_15px_rgba(217,70,239,0.2)]">
-            Selected Works
+      <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10">
+        
+        {/* Section Header Tag */}
+        <div ref={tagRef} className="flex items-center gap-4 mb-10">
+          <span className="text-xs sm:text-sm font-mono text-[#A855F7] font-semibold tracking-wider">
+            02
+          </span>
+          <span className="w-8 h-[1px] bg-[#A855F7]/40" />
+          <span className="text-xs font-semibold tracking-[0.3em] text-[#A855F7] uppercase">
+            MY WORK
           </span>
         </div>
 
-        <h2
-          ref={titleRef}
-          className="font-oswald text-4xl sm:text-6xl font-bold tracking-tight text-white uppercase mb-6"
+        {/* Title & Subtext */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16">
+          <div ref={titleRef}>
+            <h2 className="font-oswald text-5xl sm:text-7xl lg:text-8xl font-bold leading-[0.92] uppercase text-white">
+              EXPLORE <br />
+              <span className="text-gradient-orange inline-block">
+                MY WORK
+              </span>
+            </h2>
+          </div>
+          <div ref={subtextRef} className="max-w-xs">
+            <p className="text-sm text-[#85848D] leading-relaxed font-light">
+              Different stories. Different places. <br />
+              One perspective.
+            </p>
+          </div>
+        </div>
+
+        {/* 4 Super 3D Interactive Animated Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-6 mb-16 perspective-[1200px]">
+          {workCards.map((card, index) => (
+            <Interactive3DCard
+              key={card.id}
+              card={card}
+              num={card.num}
+              title={card.title}
+              image={card.image}
+              offsetY={card.offsetY}
+              innerRef={(el) => (cardsRef.current[index] = el)}
+              onClick={() => openGalleryModal(card.title)}
+            />
+          ))}
+        </div>
+
+        {/* VIEW ALL WORK Button */}
+        <div className="flex justify-center">
+          <button
+            onClick={() => openGalleryModal('ALL')}
+            className="inline-flex items-center gap-4 group cursor-pointer"
+          >
+            <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#FF9A3C] transition-colors uppercase">
+              VIEW ALL WORK
+            </span>
+            <div className="w-10 h-10 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white/80 group-hover:border-[#FF9A3C] group-hover:bg-[#FF9A3C]/20 group-hover:text-white group-hover:scale-110 transition-all">
+              <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </button>
+        </div>
+
+      </div>
+
+      {/* LIGHTBOX GALLERY MODAL (High-Performance GPU Optimized Native Scrolling Overlay) */}
+      {activeCategoryModal && createPortal(
+        <div
+          data-lenis-prevent="true"
+          className="fixed inset-0 z-[99999] flex flex-col bg-[#03050B] animate-fadeIn overflow-hidden"
         >
-          EXPLORE THE <span className="gradient-text font-serif italic font-normal lower-case">Gallery</span>
-        </h2>
-
-        <p ref={subtextRef} className="text-white/70 text-base sm:text-lg max-w-xl mx-auto font-light leading-relaxed">
-          Hover over each interactive 3D card to feel the motion. Click any category to enter full immersion modal view.
-        </p>
-      </div>
-
-      {/* Main 4 Work Category Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-6">
-        {workCards.map((card, idx) => (
-          <Interactive3DCard
-            key={card.id}
-            card={card}
-            num={card.num}
-            title={card.title}
-            image={card.image}
-            offsetY={card.offsetY}
-            innerRef={(el) => (cardsRef.current[idx] = el)}
-            onClick={() => openGalleryModal(card.id)}
-          />
-        ))}
-      </div>
-
-      {/* Bottom CTA to Open All */}
-      <div className="mt-16 text-center">
-        <button
-          onClick={() => openGalleryModal('ALL')}
-          className="inline-flex items-center gap-3 px-8 py-4 rounded-full border border-white/20 bg-white/5 backdrop-blur-xl text-sm font-bold text-white uppercase tracking-widest hover:border-[#D946EF] hover:bg-[#D946EF]/20 hover:shadow-[0_0_30px_rgba(217,70,239,0.4)] transition-all cursor-pointer group"
-        >
-          <Sparkles className="w-4 h-4 text-[#D946EF] group-hover:rotate-12 transition-transform" />
-          <span>VIEW FULL PORTFOLIO COLLECTION ({galleryItems.length} PHOTOS)</span>
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </button>
-      </div>
-
-      {/* IMMERSIVE CATEGORY MODAL DIALOG */}
-      {activeCategoryModal &&
-        createPortal(
-          <div className="fixed inset-0 z-[99999] bg-[#03050B]/95 backdrop-blur-2xl flex flex-col animate-fadeIn overflow-hidden">
-            {/* Modal Header Bar */}
-            <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-black/40 shrink-0 z-10">
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={closeAll}
-                  className="w-10 h-10 rounded-full border border-white/15 bg-white/5 flex items-center justify-center text-white/80 hover:text-white hover:border-[#D946EF] hover:bg-[#D946EF]/30 transition-all cursor-pointer"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <div>
-                  <span className="text-[10px] font-mono text-[#D946EF] tracking-widest uppercase block">
-                    Portfolio Gallery
-                  </span>
-                  <h3 className="font-oswald text-xl sm:text-2xl font-bold text-white uppercase tracking-wide">
-                    {modalFilter} COLLECTION
-                  </h3>
-                </div>
-              </div>
-
-              {/* Filter Tabs */}
-              <div className="hidden md:flex items-center gap-2 bg-black/60 border border-white/10 rounded-full p-1">
-                {['ALL', 'PORTRAITS', 'NATURE', 'EVENTS', 'CELEBRITIES'].map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setModalFilter(cat)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                      modalFilter === cat
-                        ? 'bg-gradient-to-r from-[#D946EF] to-[#FF9A3C] text-white shadow-[0_0_15px_rgba(217,70,239,0.5)]'
-                        : 'text-white/60 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-
+          {/* TOP MODAL HEADER BAR */}
+          <div className="w-full bg-[#03050B]/98 border-b border-white/10 px-4 sm:px-12 py-3.5 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 z-20 shrink-0 shadow-2xl">
+            
+            {/* Top Action Controls Row: BACK TO WORK & CLOSE (Mobile) / Left Group (Desktop) */}
+            <div className="flex items-center justify-between sm:justify-start gap-4 w-full sm:w-auto">
               <button
-                onClick={closeAll}
-                className="w-10 h-10 rounded-full border border-white/15 bg-white/5 flex items-center justify-center text-white/80 hover:text-white hover:border-[#D946EF] hover:bg-[#D946EF]/30 transition-all cursor-pointer"
+                onClick={() => setActiveCategoryModal(false)}
+                className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full border border-[#D946EF]/40 bg-[#D946EF]/15 text-[11px] sm:text-xs font-bold text-white hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer group shrink-0"
               >
-                <X className="w-5 h-5" />
+                <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 transform group-hover:-translate-x-0.5 transition-transform" />
+                <span>BACK TO WORK</span>
+              </button>
+
+              {/* Title & Collection Name for Desktop */}
+              <div className="hidden sm:block">
+                <span className="text-[10px] font-mono text-[#D946EF] tracking-widest uppercase block">
+                  PORTFOLIO GALLERY
+                </span>
+                <h3 className="font-oswald text-xl sm:text-2xl font-bold text-white uppercase leading-none">
+                  {modalFilter} COLLECTION
+                </h3>
+              </div>
+
+              {/* Mobile Top Close Button */}
+              <button
+                onClick={() => setActiveCategoryModal(false)}
+                aria-label="Close gallery modal"
+                className="sm:hidden w-9 h-9 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:border-[#D946EF] hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer shrink-0"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Mobile Filter Pills */}
-            <div className="flex md:hidden items-center gap-2 overflow-x-auto px-6 py-3 border-b border-white/10 shrink-0 no-scrollbar">
+            {/* Category Filter Pills Row (Smooth Horizontal Scroll with NO Visible Scrollbars) */}
+            <div className="flex items-center gap-2 overflow-x-auto py-1 w-full sm:w-auto no-scrollbar scrollbar-none shrink-0">
               {['ALL', 'PORTRAITS', 'NATURE', 'EVENTS', 'CELEBRITIES'].map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setModalFilter(cat)}
-                  className={`px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-all ${
+                  className={`px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold tracking-wider transition-all whitespace-nowrap cursor-pointer shrink-0 ${
                     modalFilter === cat
-                      ? 'bg-[#D946EF] text-white'
-                      : 'bg-white/5 text-white/60 border border-white/10'
+                      ? 'bg-[#D946EF] text-white shadow-[0_0_18px_rgba(217,70,239,0.6)]'
+                      : 'text-[#85848D] hover:text-white bg-white/5 border border-white/10 hover:border-white/20'
                   }`}
                 >
                   {cat}
@@ -613,69 +597,98 @@ export default function Work() {
               ))}
             </div>
 
-            {/* Modal Gallery Grid Content */}
-            <div className="flex-1 overflow-y-auto p-6 sm:p-8 custom-scrollbar">
-              <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 pb-12">
-                {filteredGallery.map((item) => (
-                  <ModalGalleryCard
-                    key={item.id}
-                    item={item}
-                    onClick={() => setSelectedPhoto(item)}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
-
-      {/* FULLSCREEN SINGLE PHOTO LIGHTBOX */}
-      {selectedPhoto &&
-        createPortal(
-          <div
-            onClick={() => setSelectedPhoto(null)}
-            className="fixed inset-0 z-[100000] bg-black/98 backdrop-blur-xl flex flex-col items-center justify-center p-6 animate-fadeIn cursor-pointer"
-          >
-            <div className="absolute top-6 right-6 flex items-center gap-3 z-20">
-              <button
-                onClick={() => setSelectedPhoto(null)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 bg-white/10 text-xs font-bold text-white hover:border-[#D946EF] hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>BACK TO GALLERY</span>
-              </button>
-              <button
-                onClick={() => setSelectedPhoto(null)}
-                aria-label="Close fullscreen photo"
-                className="w-10 h-10 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:border-[#D946EF] hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="relative max-h-[85vh] max-w-[90vw] flex flex-col items-center animate-scaleUp"
+            {/* High-Contrast Close Button for Desktop */}
+            <button
+              onClick={() => setActiveCategoryModal(false)}
+              aria-label="Close gallery modal"
+              className="hidden sm:flex w-10 h-10 rounded-full border border-white/20 bg-white/10 items-center justify-center text-white hover:border-[#D946EF] hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer ml-3 shrink-0"
             >
-              <img
-                src={selectedPhoto.src}
-                alt={selectedPhoto.title}
-                loading="eager"
-                decoding="async"
-                className="max-h-[75vh] max-w-[90vw] object-contain rounded-2xl border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.9)]"
-              />
-              <div className="mt-5 text-center">
-                <span className="text-xs font-mono text-[#D946EF] uppercase tracking-widest block mb-1">
-                  {selectedPhoto.category}
-                </span>
-                <h4 className="font-oswald text-2xl sm:text-3xl text-white uppercase tracking-wide font-bold">
-                  {selectedPhoto.title}
-                </h4>
-              </div>
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* MAIN MODAL SCROLLABLE PHOTO GRID */}
+          <div
+            data-lenis-prevent="true"
+            className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-12 py-6 sm:py-8 overflow-y-auto custom-scrollbar touch-pan-y transform-gpu overscroll-contain"
+            style={{ WebkitOverflowScrolling: 'touch', willChange: 'scroll-position' }}
+          >
+            {/* Mobile Category Title Banner */}
+            <div className="sm:hidden mb-5">
+              <span className="text-[10px] font-mono text-[#D946EF] tracking-widest uppercase block mb-0.5">
+                PORTFOLIO GALLERY
+              </span>
+              <h3 className="font-oswald text-2xl font-bold text-white uppercase tracking-wide">
+                {modalFilter} COLLECTION
+              </h3>
             </div>
-          </div>,
-          document.body
-        )}
+
+            {/* Dynamic Grid Layout: 2 Columns Landscape for EVENTS tab alone, 3 Columns Portrait for others */}
+            <div className={
+              modalFilter === 'EVENTS'
+                ? 'grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 pb-16 perspective-[1000px]'
+                : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 pb-16 perspective-[1000px]'
+            }>
+              {filteredGallery.map((item) => (
+                <ModalGalleryCard
+                  key={item.id}
+                  item={item}
+                  onClick={() => setSelectedPhoto(item)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* SINGLE PHOTO FULLSCREEN LIGHTBOX (Rendered via React Portal at document.body level z-[100000]) */}
+      {selectedPhoto && createPortal(
+        <div
+          data-lenis-prevent="true"
+          onClick={() => setSelectedPhoto(null)}
+          className="fixed inset-0 z-[100000] bg-black/98 backdrop-blur-xl flex flex-col items-center justify-center p-6 animate-fadeIn cursor-pointer"
+        >
+          <div className="absolute top-6 right-6 flex items-center gap-3 z-20">
+            <button
+              onClick={() => setSelectedPhoto(null)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 bg-white/10 text-xs font-bold text-white hover:border-[#D946EF] hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span>BACK TO GALLERY</span>
+            </button>
+            <button
+              onClick={() => setSelectedPhoto(null)}
+              aria-label="Close fullscreen photo"
+              className="w-10 h-10 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:border-[#D946EF] hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-h-[85vh] max-w-[90vw] flex flex-col items-center animate-scaleUp"
+          >
+            <img
+              src={selectedPhoto.src}
+              alt={selectedPhoto.title}
+              loading="eager"
+              decoding="async"
+              className="max-h-[75vh] max-w-[90vw] object-contain rounded-2xl border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.9)]"
+            />
+            <div className="mt-5 text-center">
+              <span className="text-xs font-mono text-[#D946EF] uppercase tracking-widest block mb-1">
+                {selectedPhoto.category}
+              </span>
+              <h4 className="font-oswald text-2xl sm:text-3xl text-white uppercase tracking-wide font-bold">
+                {selectedPhoto.title}
+              </h4>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </section>
   );
 }
