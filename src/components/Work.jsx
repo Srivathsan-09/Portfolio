@@ -333,6 +333,7 @@ export default function Work() {
     { id: 15, title: 'Celebrity Feature 15', category: 'CELEBRITIES', src: '/images/Celebrities/13.webp' },
     { id: 16, title: 'Celebrity Feature 16', category: 'CELEBRITIES', src: '/images/Celebrities/14.webp' },
     { id: 16.5, title: 'Celebrity Feature 17', category: 'CELEBRITIES', src: '/images/Celebrities/15.webp' },
+    { id: 16.7, title: 'Celebrity Feature 18', category: 'CELEBRITIES', src: '/images/Celebrities/16.webp' },
 
     // PORTRAITS IN EXACT FILE ORDER (11 PHOTOS)
     { id: 17, title: 'Portrait Feature 01', category: 'PORTRAITS', src: '/images/Potraits/1.webp' },
