@@ -344,8 +344,9 @@ export default function Work() {
     { id: 25, title: 'Portrait Feature 09', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260417_155522.webp' },
     { id: 27, title: 'Portrait Feature 10', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260530_150809.webp' },
     { id: 28, title: 'Portrait Feature 11', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260530_151137.webp' },
+    { id: 28.5, title: 'Portrait Feature 12', category: 'PORTRAITS', src: '/images/Potraits/ChatGPT Image Aug 14, 2026, 11_34_36 PM (2).webp' },
 
-    // EVENTS IN EXACT FILE ORDER (11 PHOTOS - LANDSCAPE FORMAT)
+    // EVENTS IN EXACT FILE ORDER (13 PHOTOS - LANDSCAPE FORMAT)
     { id: 29, title: 'Event Feature 01', category: 'EVENTS', src: '/images/Events/1.webp' },
     { id: 30, title: 'Event Feature 02', category: 'EVENTS', src: '/images/Events/2.webp' },
     { id: 31, title: 'Event Feature 03', category: 'EVENTS', src: '/images/Events/3.webp' },
@@ -357,6 +358,8 @@ export default function Work() {
     { id: 37, title: 'Event Feature 09', category: 'EVENTS', src: '/images/Events/IMG_20260812_224948.webp' },
     { id: 38, title: 'Event Feature 10', category: 'EVENTS', src: '/images/Events/ChatGPT Image Aug 12, 2026, 10_39_21 PM.webp' },
     { id: 39, title: 'Event Feature 11', category: 'EVENTS', src: '/images/Events/ChatGPT Image Aug 12, 2026, 11_05_02 PM.webp' },
+    { id: 40, title: 'Event Feature 12', category: 'EVENTS', src: '/images/Events/IMG_4828.webp' },
+    { id: 40.5, title: 'Event Feature 13', category: 'EVENTS', src: '/images/Events/IMG_4845.webp' },
 
     // NATURE IN EXACT FILE ORDER (6 PHOTOS)
     { id: 41, title: 'Nature Feature 01', category: 'NATURE', src: '/images/Nature/1.webp' },
