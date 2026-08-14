@@ -14,16 +14,10 @@ export default function Hero({ scrollToSection }) {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // 1. Entrance Animations on Page Mount
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1.0 } });
+      // 1. Entrance Animations on Page Mount (Text & Image reveal smoothly together)
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.8 } });
 
-      gsap.fromTo(
-        imageCardRef.current,
-        { scale: 0.97, opacity: 1 },
-        { scale: 1, opacity: 1, duration: 0.4 }
-      );
-
-      tl.fromTo(tagRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, delay: 0.05 })
+      tl.fromTo(tagRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1 })
         .fromTo(
           headingLinesRef.current,
           { y: 30, opacity: 0 },
@@ -31,9 +25,15 @@ export default function Hero({ scrollToSection }) {
           '-=0.5'
         )
         .fromTo(textRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1 }, '-=0.5')
-        .fromTo(buttonRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1 }, '-=0.5');
+        .fromTo(buttonRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1 }, '-=0.5')
+        .fromTo(
+          imageCardRef.current,
+          { scale: 0.97, opacity: 0.8 },
+          { scale: 1, opacity: 1, duration: 0.6 },
+          0
+        );
 
-      // 2. Smooth Scroll Fade-Out (Scroll Down) & Fade-In (Scroll Up) at Medium Speed
+      // 2. Smooth Scroll Fade-Out (Scroll Down) - Only triggers when scrolling down past top
       const scrollTargets = [
         tagRef.current,
         ...headingLinesRef.current,
@@ -45,7 +45,7 @@ export default function Hero({ scrollToSection }) {
       gsap.to(scrollTargets, {
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top top',
+          start: 'top -5%',
           end: 'bottom 25%',
           scrub: 0.6,
         },
