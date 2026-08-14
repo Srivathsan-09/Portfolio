@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { Plus } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -15,14 +14,13 @@ export default function Hero({ scrollToSection }) {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // 1. Entrance Animations on Page Mount (Instant image reveal without delay)
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.8 } });
+      // 1. Entrance Animations on Page Mount
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1.0 } });
 
-      // Animate Hero Image Card immediately without hiding it
       gsap.fromTo(
         imageCardRef.current,
-        { scale: 0.96, opacity: 0.8 },
-        { scale: 1, opacity: 1, duration: 0.6, ease: 'power2.out' }
+        { scale: 0.97, opacity: 1 },
+        { scale: 1, opacity: 1, duration: 0.4 }
       );
 
       tl.fromTo(tagRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, delay: 0.05 })
@@ -89,44 +87,30 @@ export default function Hero({ scrollToSection }) {
               <span ref={(el) => (headingLinesRef.current[0] = el)} className="block">
                 I CAPTURE
               </span>
-              <span
-                ref={(el) => (headingLinesRef.current[1] = el)}
-                className="block gradient-text font-serif italic font-normal lower-case text-6xl sm:text-8xl lg:text-9xl xl:text-[100px] my-1"
-              >
-                moments
+              <span ref={(el) => (headingLinesRef.current[1] = el)} className="text-gradient-purple block">
+                MOMENTS THAT
               </span>
               <span ref={(el) => (headingLinesRef.current[2] = el)} className="block">
-                THAT STAY.
+                STAY.
               </span>
             </h1>
 
-            {/* Short Intro Subtext */}
-            <p
-              ref={textRef}
-              className="text-base sm:text-lg text-white/70 max-w-xl font-light leading-relaxed mb-10"
-            >
-              Capturing candid emotion, raw human connection, and striking light.
-              Specialized in Editorial Portraits, Events, Nature, and Celebrities.
+            {/* Subtext */}
+            <p ref={textRef} className="text-sm sm:text-base leading-relaxed text-[#85848D] max-w-md font-light mb-12">
+              Photography for me is not just clicking, <br className="hidden sm:inline" />
+              it's feeling, observing and preserving memories.
             </p>
 
-            {/* Dual Action CTA Buttons */}
-            <div ref={buttonRef} className="flex flex-wrap items-center gap-4 sm:gap-6">
+            {/* SCROLL TO EXPLORE button */}
+            <div ref={buttonRef}>
               <button
-                onClick={() => scrollToSection('work')}
-                className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-[#D946EF] to-[#FF9A3C] text-white font-semibold text-sm tracking-wider uppercase transition-all duration-300 hover:shadow-[0_0_30px_rgba(217,70,239,0.6)] hover:scale-[1.03] active:scale-95 cursor-pointer overflow-hidden"
+                onClick={() => scrollToSection('about')}
+                className="inline-flex items-center gap-4 group text-left cursor-pointer w-fit"
               >
-                <span className="relative z-10">EXPLORE WORK</span>
-                <div className="w-2 h-2 rounded-full bg-white z-10 group-hover:scale-150 transition-transform" />
-              </button>
-
-              <button
-                onClick={() => scrollToSection('contact')}
-                className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-white font-semibold text-sm tracking-wider uppercase transition-all duration-300 hover:border-purple-500/60 hover:bg-white/10 hover:scale-[1.03] active:scale-95 cursor-pointer"
-              >
-                <span className="relative z-10 group-hover:text-purple-300 transition-colors">
-                  GET IN TOUCH
+                <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#D946EF] transition-colors uppercase font-sans">
+                  SCROLL TO EXPLORE
                 </span>
-                <div className="w-6 h-6 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center group-hover:border-purple-400 group-hover:bg-purple-500/40 transition-all">
+                <div className="relative w-8 h-8 rounded-full border border-white/15 flex items-center justify-center group-hover:border-purple-500/50 transition-colors">
                   <span className="w-2 h-2 rounded-full bg-[#D946EF] shadow-[0_0_8px_#D946EF] group-hover:scale-125 transition-transform" />
                 </div>
               </button>
@@ -142,10 +126,10 @@ export default function Hero({ scrollToSection }) {
             >
               <img
                 src="/images/hero.webp"
-                alt="Srivathsan photography golden hour silhouette"
                 loading="eager"
                 fetchpriority="high"
                 decoding="async"
+                alt="Srivathsan photography golden hour silhouette"
                 className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
               />
 
