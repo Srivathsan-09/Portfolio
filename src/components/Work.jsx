@@ -330,12 +330,12 @@ export default function Work() {
     { id: 12, title: 'Celebrity Feature 12', category: 'CELEBRITIES', src: '/images/Celebrities/10.webp' },
     { id: 13, title: 'Celebrity Feature 13', category: 'CELEBRITIES', src: '/images/Celebrities/11.webp' },
     { id: 14, title: 'Celebrity Feature 14', category: 'CELEBRITIES', src: '/images/Celebrities/12.webp' },
-    { id: 15, title: 'Celebrity Feature 15', category: 'CELEBRITIES', src: '/images/Celebrities/13.webp' },
     { id: 16, title: 'Celebrity Feature 16', category: 'CELEBRITIES', src: '/images/Celebrities/14.webp' },
     { id: 16.5, title: 'Celebrity Feature 17', category: 'CELEBRITIES', src: '/images/Celebrities/15.webp' },
     { id: 16.7, title: 'Celebrity Feature 18', category: 'CELEBRITIES', src: '/images/Celebrities/16.webp' },
     { id: 16.8, title: 'Celebrity Feature 19', category: 'CELEBRITIES', src: '/images/Celebrities/17.webp' },
     { id: 16.9, title: 'Celebrity Feature 20', category: 'CELEBRITIES', src: '/images/Celebrities/18.webp' },
+    { id: 16.95, title: 'Celebrity Feature 21', category: 'CELEBRITIES', src: '/images/Celebrities/19.webp' },
 
     // PORTRAITS IN EXACT FILE ORDER (11 PHOTOS)
     { id: 17, title: 'Portrait Feature 01', category: 'PORTRAITS', src: '/images/Potraits/1.webp' },
