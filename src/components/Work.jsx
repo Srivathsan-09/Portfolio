@@ -315,27 +315,26 @@ export default function Work() {
 
   // Complete List of All Photos Across All Categories
   const galleryItems = [
-    // CELEBRITIES IN EXACT NUMERICAL ORDER (16 PHOTOS)
+    // CELEBRITIES INTERLEAVED FOR ZERO ROW REPETITION (19 PHOTOS)
     { id: 1, title: 'Celebrity Feature 01', category: 'CELEBRITIES', src: '/images/Celebrities/1.webp' },
     { id: 2, title: 'Celebrity Feature 02', category: 'CELEBRITIES', src: '/images/Celebrities/2.webp' },
     { id: 3, title: 'Celebrity Feature 03', category: 'CELEBRITIES', src: '/images/Celebrities/3.webp' },
-    { id: 4, title: 'Celebrity Feature 04', category: 'CELEBRITIES', src: '/images/Celebrities/4.webp' },
-    { id: 5, title: 'Celebrity Feature 05', category: 'CELEBRITIES', src: '/images/Celebrities/4.5.webp' },
-    { id: 6, title: 'Celebrity Feature 06', category: 'CELEBRITIES', src: '/images/Celebrities/5.webp' },
-    { id: 7, title: 'Celebrity Feature 07', category: 'CELEBRITIES', src: '/images/Celebrities/6.webp' },
+    { id: 4, title: 'Celebrity Feature 04', category: 'CELEBRITIES', src: '/images/Celebrities/4.5.webp' },
+    { id: 5, title: 'Celebrity Feature 05', category: 'CELEBRITIES', src: '/images/Celebrities/15.webp' },
+    { id: 6, title: 'Celebrity Feature 06', category: 'CELEBRITIES', src: '/images/Celebrities/4.webp' },
+    { id: 7, title: 'Celebrity Feature 07', category: 'CELEBRITIES', src: '/images/Celebrities/5.webp' },
     { id: 8, title: 'Celebrity Feature 08', category: 'CELEBRITIES', src: '/images/Celebrities/7.webp' },
     { id: 9, title: 'Celebrity Feature 09', category: 'CELEBRITIES', src: '/images/Celebrities/7.5.webp' },
-    { id: 10, title: 'Celebrity Feature 10', category: 'CELEBRITIES', src: '/images/Celebrities/8.webp' },
-    { id: 11, title: 'Celebrity Feature 11', category: 'CELEBRITIES', src: '/images/Celebrities/9.webp' },
-    { id: 12, title: 'Celebrity Feature 12', category: 'CELEBRITIES', src: '/images/Celebrities/10.webp' },
-    { id: 13, title: 'Celebrity Feature 13', category: 'CELEBRITIES', src: '/images/Celebrities/11.webp' },
-    { id: 14, title: 'Celebrity Feature 14', category: 'CELEBRITIES', src: '/images/Celebrities/12.webp' },
-    { id: 16, title: 'Celebrity Feature 16', category: 'CELEBRITIES', src: '/images/Celebrities/14.webp' },
-    { id: 16.5, title: 'Celebrity Feature 17', category: 'CELEBRITIES', src: '/images/Celebrities/15.webp' },
-    { id: 16.7, title: 'Celebrity Feature 18', category: 'CELEBRITIES', src: '/images/Celebrities/16.webp' },
-    { id: 16.8, title: 'Celebrity Feature 19', category: 'CELEBRITIES', src: '/images/Celebrities/17.webp' },
-    { id: 16.9, title: 'Celebrity Feature 20', category: 'CELEBRITIES', src: '/images/Celebrities/18.webp' },
-    { id: 16.95, title: 'Celebrity Feature 21', category: 'CELEBRITIES', src: '/images/Celebrities/19.webp' },
+    { id: 10, title: 'Celebrity Feature 10', category: 'CELEBRITIES', src: '/images/Celebrities/16.webp' },
+    { id: 11, title: 'Celebrity Feature 11', category: 'CELEBRITIES', src: '/images/Celebrities/6.webp' },
+    { id: 12, title: 'Celebrity Feature 12', category: 'CELEBRITIES', src: '/images/Celebrities/9.webp' },
+    { id: 13, title: 'Celebrity Feature 13', category: 'CELEBRITIES', src: '/images/Celebrities/8.webp' },
+    { id: 14, title: 'Celebrity Feature 14', category: 'CELEBRITIES', src: '/images/Celebrities/10.webp' },
+    { id: 15, title: 'Celebrity Feature 15', category: 'CELEBRITIES', src: '/images/Celebrities/17.webp' },
+    { id: 16, title: 'Celebrity Feature 16', category: 'CELEBRITIES', src: '/images/Celebrities/11.webp' },
+    { id: 17, title: 'Celebrity Feature 17', category: 'CELEBRITIES', src: '/images/Celebrities/12.webp' },
+    { id: 18, title: 'Celebrity Feature 18', category: 'CELEBRITIES', src: '/images/Celebrities/18.webp' },
+    { id: 19, title: 'Celebrity Feature 19', category: 'CELEBRITIES', src: '/images/Celebrities/19.webp' },
 
     // PORTRAITS IN EXACT FILE ORDER (11 PHOTOS)
     { id: 17, title: 'Portrait Feature 01', category: 'PORTRAITS', src: '/images/Potraits/1.webp' },
