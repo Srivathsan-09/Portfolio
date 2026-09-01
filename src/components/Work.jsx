@@ -468,14 +468,14 @@ export default function Work() {
         }
       );
 
-      // 2. Scroll-Driven Horizontal Pinning (Strictly inside container margins)
+      // 2. Scroll-Driven Horizontal Pinning (Full Viewport Sliding)
       const track = trackRef.current;
       if (track) {
         const getScrollAmount = () => {
-          if (!track || !track.parentElement) return 0;
-          const containerWidth = track.parentElement.clientWidth;
+          if (!track) return 0;
           const trackWidth = track.scrollWidth;
-          const overflow = trackWidth - containerWidth;
+          const viewportWidth = window.innerWidth;
+          const overflow = trackWidth - viewportWidth;
           return overflow > 0 ? -overflow : 0;
         };
 
@@ -487,7 +487,7 @@ export default function Work() {
         ScrollTrigger.create({
           trigger: sectionRef.current,
           start: 'top top',
-          end: () => `+=${Math.max(400, Math.abs(getScrollAmount()))}`,
+          end: () => `+=${Math.max(600, Math.abs(getScrollAmount()))}`,
           pin: true,
           animation: tween,
           scrub: 1,
@@ -545,14 +545,14 @@ export default function Work() {
 
         </div>
 
-        {/* Pinned Horizontal Scroll Track Container (Strictly Aligned with max-w-7xl Container Margins) */}
-        <div className="max-w-7xl mx-auto px-6 lg:px-16 w-full overflow-hidden my-2 sm:my-4 relative z-10 shrink-0">
+        {/* Pinned Full-Width Horizontal Scroll Track Container */}
+        <div className="w-full overflow-hidden my-2 sm:my-4 relative z-10 shrink-0">
           <div
             ref={trackRef}
-            className="flex gap-4 sm:gap-6 w-max transform-gpu touch-pan-x"
+            className="flex gap-5 sm:gap-7 pl-6 sm:pl-16 lg:pl-[max(1.5rem,calc((100vw-80rem)/2+4rem))] pr-12 sm:pr-24 lg:pr-32 w-max transform-gpu touch-pan-x"
           >
             {workCards.map((card, index) => (
-              <div key={card.id} className="w-[190px] sm:w-[220px] lg:w-[245px] shrink-0">
+              <div key={card.id} className="w-[230px] sm:w-[270px] lg:w-[310px] shrink-0">
                 <Interactive3DCard
                   card={card}
                   num={card.num}
