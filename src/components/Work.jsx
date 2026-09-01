@@ -468,14 +468,18 @@ export default function Work() {
         }
       );
 
-      // 2. Scroll-Driven Horizontal Pinning (Hiding strictly within EXPLORE MY WORK margins)
+      // 2. Scroll-Driven Horizontal Pinning (Hiding strictly at EXPLORE MY WORK left margin line & 100% full reveal for Architecture card)
       const track = trackRef.current;
       if (track) {
         const getScrollAmount = () => {
           if (!track || !track.parentElement) return 0;
-          const containerWidth = track.parentElement.clientWidth;
+          const parent = track.parentElement;
+          const style = window.getComputedStyle(parent);
+          const paddingLeft = parseFloat(style.paddingLeft) || 0;
+          const paddingRight = parseFloat(style.paddingRight) || 0;
+          const innerContentWidth = parent.clientWidth - paddingLeft - paddingRight;
           const trackWidth = track.scrollWidth;
-          const overflow = trackWidth - containerWidth;
+          const overflow = trackWidth - innerContentWidth;
           return overflow > 0 ? -overflow : 0;
         };
 
@@ -545,14 +549,14 @@ export default function Work() {
 
         </div>
 
-        {/* Pinned Horizontal Scroll Track Container (Clipping & Hiding strictly within EXPLORE MY WORK margins) */}
+        {/* Pinned Horizontal Scroll Track Container (Hiding strictly at EXPLORE MY WORK left margin line) */}
         <div className="max-w-7xl mx-auto px-6 lg:px-16 w-full overflow-hidden my-2 sm:my-4 relative z-10 shrink-0">
           <div
             ref={trackRef}
-            className="flex gap-5 sm:gap-7 w-max transform-gpu touch-pan-x"
+            className="flex gap-4 sm:gap-6 w-max transform-gpu touch-pan-x"
           >
             {workCards.map((card, index) => (
-              <div key={card.id} className="w-[230px] sm:w-[270px] lg:w-[310px] shrink-0">
+              <div key={card.id} className="w-[220px] sm:w-[260px] lg:w-[295px] shrink-0">
                 <Interactive3DCard
                   card={card}
                   num={card.num}
