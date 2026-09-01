@@ -580,7 +580,7 @@ export default function Work() {
             className="inline-flex items-center gap-4 group cursor-pointer"
           >
             <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#FF9A3C] transition-colors uppercase">
-              VIEW ALL WORK ({galleryItems.length} PHOTOS)
+              VIEW ALL WORK
             </span>
             <div className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white/80 group-hover:border-[#FF9A3C] group-hover:bg-[#FF9A3C]/20 group-hover:text-white group-hover:scale-110 transition-all">
               <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
