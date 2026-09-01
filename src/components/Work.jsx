@@ -468,13 +468,15 @@ export default function Work() {
         }
       );
 
-      // 2. Scroll-Driven Horizontal Pinning
+      // 2. Scroll-Driven Horizontal Pinning (Strictly inside container margins)
       const track = trackRef.current;
       if (track) {
         const getScrollAmount = () => {
+          if (!track || !track.parentElement) return 0;
+          const containerWidth = track.parentElement.clientWidth;
           const trackWidth = track.scrollWidth;
-          const viewportWidth = window.innerWidth;
-          return -(trackWidth - viewportWidth + (window.innerWidth < 640 ? 40 : 120));
+          const overflow = trackWidth - containerWidth;
+          return overflow > 0 ? -overflow : 0;
         };
 
         const tween = gsap.to(track, {
@@ -485,7 +487,7 @@ export default function Work() {
         ScrollTrigger.create({
           trigger: sectionRef.current,
           start: 'top top',
-          end: () => `+=${Math.max(500, Math.abs(getScrollAmount()))}`,
+          end: () => `+=${Math.max(400, Math.abs(getScrollAmount()))}`,
           pin: true,
           animation: tween,
           scrub: 1,
@@ -506,10 +508,10 @@ export default function Work() {
       >
         <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-orange-950/20 rounded-full blur-[160px] pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full shrink-0 mb-4 sm:mb-6">
+        <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full shrink-0 mb-3 sm:mb-5">
           
           {/* Section Header Tag */}
-          <div ref={tagRef} className="flex items-center gap-4 mb-4 sm:mb-6">
+          <div ref={tagRef} className="flex items-center gap-4 mb-3 sm:mb-5">
             <span className="text-xs sm:text-sm font-mono text-[#A855F7] font-semibold tracking-wider">
               02
             </span>
@@ -543,14 +545,14 @@ export default function Work() {
 
         </div>
 
-        {/* Pinned Horizontal Scroll Track Container (Compact Proportioned Cards) */}
-        <div className="w-full overflow-hidden my-2 sm:my-4 relative z-10 shrink-0">
+        {/* Pinned Horizontal Scroll Track Container (Strictly Aligned with max-w-7xl Container Margins) */}
+        <div className="max-w-7xl mx-auto px-6 lg:px-16 w-full overflow-hidden my-2 sm:my-4 relative z-10 shrink-0">
           <div
             ref={trackRef}
-            className="flex gap-5 sm:gap-7 px-6 lg:px-16 w-max transform-gpu touch-pan-x"
+            className="flex gap-4 sm:gap-6 w-max transform-gpu touch-pan-x"
           >
             {workCards.map((card, index) => (
-              <div key={card.id} className="w-[210px] sm:w-[245px] lg:w-[275px] shrink-0">
+              <div key={card.id} className="w-[190px] sm:w-[220px] lg:w-[245px] shrink-0">
                 <Interactive3DCard
                   card={card}
                   num={card.num}
