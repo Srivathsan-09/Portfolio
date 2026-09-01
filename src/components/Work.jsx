@@ -499,83 +499,87 @@ export default function Work() {
 
   return (
     <>
-      <section ref={sectionRef} id="work" className="relative py-20 lg:py-28 overflow-hidden flex flex-col justify-center min-h-screen">
-      <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-orange-950/20 rounded-full blur-[160px] pointer-events-none" />
+      <section
+        ref={sectionRef}
+        id="work"
+        className="relative min-h-screen pt-28 pb-10 overflow-hidden flex flex-col justify-between"
+      >
+        <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-orange-950/20 rounded-full blur-[160px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full mb-8">
-        
-        {/* Section Header Tag */}
-        <div ref={tagRef} className="flex items-center gap-4 mb-6 sm:mb-8">
-          <span className="text-xs sm:text-sm font-mono text-[#A855F7] font-semibold tracking-wider">
-            02
-          </span>
-          <span className="w-8 h-[1px] bg-[#A855F7]/40" />
-          <span className="text-xs font-semibold tracking-[0.3em] text-[#A855F7] uppercase">
-            MY WORK
-          </span>
-        </div>
-
-        {/* Title & Subtext */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-          <div ref={titleRef}>
-            <h2 className="font-oswald text-5xl sm:text-7xl lg:text-8xl font-bold leading-[0.92] uppercase text-white">
-              EXPLORE <br />
-              <span className="text-gradient-orange inline-block">
-                MY WORK
-              </span>
-            </h2>
+        <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full shrink-0 mb-4 sm:mb-6">
+          
+          {/* Section Header Tag */}
+          <div ref={tagRef} className="flex items-center gap-4 mb-4 sm:mb-6">
+            <span className="text-xs sm:text-sm font-mono text-[#A855F7] font-semibold tracking-wider">
+              02
+            </span>
+            <span className="w-8 h-[1px] bg-[#A855F7]/40" />
+            <span className="text-xs font-semibold tracking-[0.3em] text-[#A855F7] uppercase">
+              MY WORK
+            </span>
           </div>
-          <div ref={subtextRef} className="max-w-xs flex flex-col gap-3">
-            <p className="text-sm text-[#85848D] leading-relaxed font-light">
-              Different stories. Different places. <br />
-              One perspective.
-            </p>
-            <div className="inline-flex items-center gap-2 text-xs font-mono text-[#FF9A3C] font-semibold tracking-widest uppercase">
-              <span>SCROLL TO SLIDE</span>
-              <ArrowRight className="w-3.5 h-3.5 animate-pulse" />
+
+          {/* Title & Subtext */}
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+            <div ref={titleRef}>
+              <h2 className="font-oswald text-4xl sm:text-6xl lg:text-7xl font-bold leading-[0.95] uppercase text-white">
+                EXPLORE <br />
+                <span className="text-gradient-orange inline-block">
+                  MY WORK
+                </span>
+              </h2>
+            </div>
+            <div ref={subtextRef} className="max-w-xs flex flex-col gap-2">
+              <p className="text-xs sm:text-sm text-[#85848D] leading-relaxed font-light">
+                Different stories. Different places. <br />
+                One perspective.
+              </p>
+              <div className="inline-flex items-center gap-2 text-[11px] font-mono text-[#FF9A3C] font-semibold tracking-widest uppercase">
+                <span>SCROLL TO SLIDE</span>
+                <ArrowRight className="w-3.5 h-3.5 animate-pulse" />
+              </div>
             </div>
           </div>
+
         </div>
 
-      </div>
-
-      {/* Pinned Horizontal Scroll Track Container */}
-      <div className="w-full overflow-hidden my-4 sm:my-6 relative z-10">
-        <div
-          ref={trackRef}
-          className="flex gap-6 sm:gap-8 px-6 lg:px-16 w-max transform-gpu touch-pan-x"
-        >
-          {workCards.map((card, index) => (
-            <div key={card.id} className="w-[280px] sm:w-[320px] lg:w-[360px] shrink-0">
-              <Interactive3DCard
-                card={card}
-                num={card.num}
-                title={card.title}
-                image={card.image}
-                offsetY=""
-                innerRef={(el) => (cardsRef.current[index] = el)}
-                onClick={() => openGalleryModal(card.title)}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* VIEW ALL WORK Button */}
-      <div className="mt-8 sm:mt-12 flex justify-center relative z-10">
-        <button
-          onClick={() => openGalleryModal('ALL')}
-          className="inline-flex items-center gap-4 group cursor-pointer"
-        >
-          <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#FF9A3C] transition-colors uppercase">
-            VIEW ALL WORK ({galleryItems.length} PHOTOS)
-          </span>
-          <div className="w-10 h-10 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white/80 group-hover:border-[#FF9A3C] group-hover:bg-[#FF9A3C]/20 group-hover:text-white group-hover:scale-110 transition-all">
-            <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
+        {/* Pinned Horizontal Scroll Track Container (Compact Proportioned Cards) */}
+        <div className="w-full overflow-hidden my-2 sm:my-4 relative z-10 shrink-0">
+          <div
+            ref={trackRef}
+            className="flex gap-5 sm:gap-7 px-6 lg:px-16 w-max transform-gpu touch-pan-x"
+          >
+            {workCards.map((card, index) => (
+              <div key={card.id} className="w-[210px] sm:w-[245px] lg:w-[275px] shrink-0">
+                <Interactive3DCard
+                  card={card}
+                  num={card.num}
+                  title={card.title}
+                  image={card.image}
+                  offsetY=""
+                  innerRef={(el) => (cardsRef.current[index] = el)}
+                  onClick={() => openGalleryModal(card.title)}
+                />
+              </div>
+            ))}
           </div>
-        </button>
-      </div>
-    </section>
+        </div>
+
+        {/* VIEW ALL WORK Button */}
+        <div className="flex justify-center relative z-10 shrink-0 mt-2 sm:mt-4">
+          <button
+            onClick={() => openGalleryModal('ALL')}
+            className="inline-flex items-center gap-4 group cursor-pointer"
+          >
+            <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#FF9A3C] transition-colors uppercase">
+              VIEW ALL WORK ({galleryItems.length} PHOTOS)
+            </span>
+            <div className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white/80 group-hover:border-[#FF9A3C] group-hover:bg-[#FF9A3C]/20 group-hover:text-white group-hover:scale-110 transition-all">
+              <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </button>
+        </div>
+      </section>
 
       {/* LIGHTBOX GALLERY MODAL (High-Performance GPU Optimized Native Scrolling Overlay) */}
       {activeCategoryModal && createPortal(
