@@ -372,6 +372,8 @@ export default function Work() {
     { id: 44, title: 'Nature Feature 04', category: 'NATURE', src: '/images/Nature/IMG_20240430_174208 (1).webp' },
     { id: 45, title: 'Nature Feature 05', category: 'NATURE', src: '/images/Nature/IMG_20240505_113645.webp' },
     { id: 46, title: 'Nature Feature 06', category: 'NATURE', src: '/images/Nature/IMG_20260812_232109.webp' },
+    { id: 46.5, title: 'Nature Feature 07', category: 'NATURE', src: '/images/Nature/IMG_20260825_222408 (1).webp' },
+    { id: 46.8, title: 'Nature Feature 08', category: 'NATURE', src: '/images/Nature/file_00000000d8e082118f7415f4ee04e1f0.webp' },
   ];
 
   const filteredGallery = modalFilter === 'ALL'
