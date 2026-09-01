@@ -280,6 +280,7 @@ export default function Work() {
   const tagRef = useRef(null);
   const titleRef = useRef(null);
   const subtextRef = useRef(null);
+  const trackRef = useRef(null);
   const cardsRef = useRef([]);
 
   const workCards = [
@@ -446,62 +447,65 @@ export default function Work() {
   }, [activeCategoryModal, selectedPhoto]);
 
   useEffect(() => {
+    const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (isReducedMotion) return;
+
     const ctx = gsap.context(() => {
       // 1. Header Reveal
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 75%',
-          toggleActions: 'play none none reverse',
-        },
-      });
-
-      tl.fromTo(tagRef.current, { x: -30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.8 })
-        .fromTo(
-          titleRef.current,
-          { y: 50, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.0, ease: 'power3.out' },
-          '-=0.4'
-        )
-        .fromTo(
-          subtextRef.current,
-          { y: 30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.8 },
-          '-=0.6'
-        );
-
-      // 2. Staggered 3D Fan-Out Card Deal Entrance
       gsap.fromTo(
-        cardsRef.current,
-        { y: 140, opacity: 0, rotateY: -25, scale: 0.85 },
+        [tagRef.current, titleRef.current, subtextRef.current],
+        { y: 30, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          rotateY: 0,
-          scale: 1,
-          duration: 1.4,
-          stagger: 0.18,
+          stagger: 0.1,
+          duration: 0.8,
           ease: 'power3.out',
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: 'top 65%',
-            toggleActions: 'play none none reverse',
+            start: 'top 80%',
           },
         }
       );
+
+      // 2. Scroll-Driven Horizontal Pinning
+      const track = trackRef.current;
+      if (track) {
+        const getScrollAmount = () => {
+          const trackWidth = track.scrollWidth;
+          const viewportWidth = window.innerWidth;
+          return -(trackWidth - viewportWidth + (window.innerWidth < 640 ? 40 : 120));
+        };
+
+        const tween = gsap.to(track, {
+          x: getScrollAmount,
+          ease: 'none',
+        });
+
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: () => `+=${Math.max(500, Math.abs(getScrollAmount()))}`,
+          pin: true,
+          animation: tween,
+          scrub: 1,
+          invalidateOnRefresh: true,
+        });
+      }
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} id="work" className="relative py-24 lg:py-36 overflow-hidden">
+    <>
+      <section ref={sectionRef} id="work" className="relative py-20 lg:py-28 overflow-hidden flex flex-col justify-center min-h-screen">
       <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-orange-950/20 rounded-full blur-[160px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full mb-8">
         
         {/* Section Header Tag */}
-        <div ref={tagRef} className="flex items-center gap-4 mb-10">
+        <div ref={tagRef} className="flex items-center gap-4 mb-6 sm:mb-8">
           <span className="text-xs sm:text-sm font-mono text-[#A855F7] font-semibold tracking-wider">
             02
           </span>
@@ -512,7 +516,7 @@ export default function Work() {
         </div>
 
         {/* Title & Subtext */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div ref={titleRef}>
             <h2 className="font-oswald text-5xl sm:text-7xl lg:text-8xl font-bold leading-[0.92] uppercase text-white">
               EXPLORE <br />
@@ -521,46 +525,57 @@ export default function Work() {
               </span>
             </h2>
           </div>
-          <div ref={subtextRef} className="max-w-xs">
+          <div ref={subtextRef} className="max-w-xs flex flex-col gap-3">
             <p className="text-sm text-[#85848D] leading-relaxed font-light">
               Different stories. Different places. <br />
               One perspective.
             </p>
+            <div className="inline-flex items-center gap-2 text-xs font-mono text-[#FF9A3C] font-semibold tracking-widest uppercase">
+              <span>SCROLL TO SLIDE</span>
+              <ArrowRight className="w-3.5 h-3.5 animate-pulse" />
+            </div>
           </div>
         </div>
 
-        {/* 5 Super 3D Interactive Animated Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16 perspective-[1200px]">
+      </div>
+
+      {/* Pinned Horizontal Scroll Track Container */}
+      <div className="w-full overflow-hidden my-4 sm:my-6 relative z-10">
+        <div
+          ref={trackRef}
+          className="flex gap-6 sm:gap-8 px-6 lg:px-16 w-max transform-gpu touch-pan-x"
+        >
           {workCards.map((card, index) => (
-            <Interactive3DCard
-              key={card.id}
-              card={card}
-              num={card.num}
-              title={card.title}
-              image={card.image}
-              offsetY={card.offsetY}
-              innerRef={(el) => (cardsRef.current[index] = el)}
-              onClick={() => openGalleryModal(card.title)}
-            />
+            <div key={card.id} className="w-[280px] sm:w-[320px] lg:w-[360px] shrink-0">
+              <Interactive3DCard
+                card={card}
+                num={card.num}
+                title={card.title}
+                image={card.image}
+                offsetY=""
+                innerRef={(el) => (cardsRef.current[index] = el)}
+                onClick={() => openGalleryModal(card.title)}
+              />
+            </div>
           ))}
         </div>
-
-        {/* VIEW ALL WORK Button */}
-        <div className="flex justify-center">
-          <button
-            onClick={() => openGalleryModal('ALL')}
-            className="inline-flex items-center gap-4 group cursor-pointer"
-          >
-            <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#FF9A3C] transition-colors uppercase">
-              VIEW ALL WORK
-            </span>
-            <div className="w-10 h-10 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white/80 group-hover:border-[#FF9A3C] group-hover:bg-[#FF9A3C]/20 group-hover:text-white group-hover:scale-110 transition-all">
-              <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
-            </div>
-          </button>
-        </div>
-
       </div>
+
+      {/* VIEW ALL WORK Button */}
+      <div className="mt-8 sm:mt-12 flex justify-center relative z-10">
+        <button
+          onClick={() => openGalleryModal('ALL')}
+          className="inline-flex items-center gap-4 group cursor-pointer"
+        >
+          <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#FF9A3C] transition-colors uppercase">
+            VIEW ALL WORK ({galleryItems.length} PHOTOS)
+          </span>
+          <div className="w-10 h-10 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white/80 group-hover:border-[#FF9A3C] group-hover:bg-[#FF9A3C]/20 group-hover:text-white group-hover:scale-110 transition-all">
+            <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
+          </div>
+        </button>
+      </div>
+    </section>
 
       {/* LIGHTBOX GALLERY MODAL (High-Performance GPU Optimized Native Scrolling Overlay) */}
       {activeCategoryModal && createPortal(
@@ -710,6 +725,6 @@ export default function Work() {
         </div>,
         document.body
       )}
-    </section>
+    </>
   );
 }
