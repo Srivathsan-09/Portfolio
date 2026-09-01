@@ -549,25 +549,27 @@ export default function Work() {
 
         </div>
 
-        {/* Pinned Horizontal Scroll Track Container (Hiding strictly at EXPLORE MY WORK left margin line) */}
-        <div className="max-w-7xl mx-auto px-6 lg:px-16 w-full overflow-hidden my-2 sm:my-4 relative z-10 shrink-0">
-          <div
-            ref={trackRef}
-            className="flex gap-4 sm:gap-6 w-max transform-gpu touch-pan-x"
-          >
-            {workCards.map((card, index) => (
-              <div key={card.id} className="w-[220px] sm:w-[260px] lg:w-[295px] shrink-0">
-                <Interactive3DCard
-                  card={card}
-                  num={card.num}
-                  title={card.title}
-                  image={card.image}
-                  offsetY=""
-                  innerRef={(el) => (cardsRef.current[index] = el)}
-                  onClick={() => openGalleryModal(card.title)}
-                />
-              </div>
-            ))}
+        {/* Pinned Horizontal Scroll Track Container (Clipping EXACTLY at letter E and M vertical line) */}
+        <div className="max-w-7xl mx-auto px-6 lg:px-16 w-full relative z-10 shrink-0 my-2 sm:my-4">
+          <div className="w-full overflow-hidden">
+            <div
+              ref={trackRef}
+              className="flex gap-4 sm:gap-6 w-max transform-gpu touch-pan-x"
+            >
+              {workCards.map((card, index) => (
+                <div key={card.id} className="w-[220px] sm:w-[260px] lg:w-[295px] shrink-0">
+                  <Interactive3DCard
+                    card={card}
+                    num={card.num}
+                    title={card.title}
+                    image={card.image}
+                    offsetY=""
+                    innerRef={(el) => (cardsRef.current[index] = el)}
+                    onClick={() => openGalleryModal(card.title)}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
