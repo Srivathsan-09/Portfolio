@@ -311,6 +311,13 @@ export default function Work() {
       image: '/images/Celebrities/1.webp',
       offsetY: 'lg:mt-8',
     },
+    {
+      id: 'architecture',
+      num: '05',
+      title: 'ARCHITECTURE',
+      image: '/images/Architecture/IMG_20260831_005035.webp',
+      offsetY: 'lg:mt-0',
+    },
   ];
 
   // Complete List of All Photos Across All Categories
@@ -374,6 +381,10 @@ export default function Work() {
     { id: 46, title: 'Nature Feature 06', category: 'NATURE', src: '/images/Nature/IMG_20260812_232109.webp' },
     { id: 46.5, title: 'Nature Feature 07', category: 'NATURE', src: '/images/Nature/IMG_20260825_222408 (1).webp' },
     { id: 46.8, title: 'Nature Feature 08', category: 'NATURE', src: '/images/Nature/file_00000000d8e082118f7415f4ee04e1f0.webp' },
+
+    // ARCHITECTURE IN EXACT FILE ORDER (2 PHOTOS)
+    { id: 47, title: 'Architecture Feature 01', category: 'ARCHITECTURE', src: '/images/Architecture/IMG_20260831_005035.webp' },
+    { id: 48, title: 'Architecture Feature 02', category: 'ARCHITECTURE', src: '/images/Architecture/IMG_20260831_005259.webp' },
   ];
 
   const filteredGallery = modalFilter === 'ALL'
@@ -518,8 +529,8 @@ export default function Work() {
           </div>
         </div>
 
-        {/* 4 Super 3D Interactive Animated Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-6 mb-16 perspective-[1200px]">
+        {/* 5 Super 3D Interactive Animated Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16 perspective-[1200px]">
           {workCards.map((card, index) => (
             <Interactive3DCard
               key={card.id}
@@ -592,7 +603,7 @@ export default function Work() {
 
             {/* Category Filter Pills Row (Smooth Horizontal Scroll with NO Visible Scrollbars) */}
             <div className="flex items-center gap-2 overflow-x-auto py-1 w-full sm:w-auto no-scrollbar scrollbar-none shrink-0">
-              {['ALL', 'PORTRAITS', 'NATURE', 'EVENTS', 'CELEBRITIES'].map((cat) => (
+              {['ALL', 'PORTRAITS', 'NATURE', 'EVENTS', 'CELEBRITIES', 'ARCHITECTURE'].map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setModalFilter(cat)}
