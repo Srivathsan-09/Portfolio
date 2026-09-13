@@ -283,7 +283,6 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
   useEffect(() => {
     const handleOrientation = (e) => {
       if (e.gamma !== null && e.gamma !== undefined) {
-        // gamma is left-to-right phone tilt in degrees [-90, 90]
         const tiltAngle = Math.min(Math.max(e.gamma, -45), 45) * 1.6;
         setRotationAngle((prev) => prev + (tiltAngle - prev) * 0.15);
       }
@@ -345,12 +344,38 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
 
   const activeCategory = categories[activeIndex] || categories[0];
 
-  return (
-    <div className="relative flex flex-col items-center justify-center select-none w-full max-w-[480px] mx-auto py-4">
-      {/* Outer Radial Ambient Light Glow */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-[#D946EF]/20 via-[#A855F7]/10 to-[#FF9A3C]/20 rounded-full blur-[110px] pointer-events-none transform scale-110" />
+  // Helper to draw SVG Sector Arc Path
+  const describeArc = (x, y, innerRadius, outerRadius, startAngle, endAngle) => {
+    const rad = (angle) => (angle - 90) * (Math.PI / 180);
+    const x1Outer = x + outerRadius * Math.cos(rad(startAngle));
+    const y1Outer = y + outerRadius * Math.sin(rad(startAngle));
+    const x2Outer = x + outerRadius * Math.cos(rad(endAngle));
+    const y2Outer = y + outerRadius * Math.sin(rad(endAngle));
 
-      {/* Rotating Wheel Graphic Container */}
+    const x1Inner = x + innerRadius * Math.cos(rad(endAngle));
+    const y1Inner = y + innerRadius * Math.sin(rad(endAngle));
+    const x2Inner = x + innerRadius * Math.cos(rad(startAngle));
+    const y2Inner = y + innerRadius * Math.sin(rad(startAngle));
+
+    const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
+
+    return [
+      `M ${x1Outer} ${y1Outer}`,
+      `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2Outer} ${y2Outer}`,
+      `L ${x1Inner} ${y1Inner}`,
+      `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x2Inner} ${y2Inner}`,
+      'Z',
+    ].join(' ');
+  };
+
+  const lensStops = ['f/1.4', '35mm', 'f/2.8', '50mm', 'f/5.6', '85mm', 'f/11', '135mm', 'f/16', 'f/22'];
+
+  return (
+    <div className="relative flex flex-col items-center justify-center select-none w-full max-w-[540px] mx-auto py-2">
+      {/* Outer Radial Ambient Light Glow */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-[#D946EF]/25 via-[#A855F7]/15 to-[#FF9A3C]/25 rounded-full blur-[120px] pointer-events-none transform scale-110" />
+
+      {/* Rotating Wheel Graphic Container (Larger Mobile & Desktop Size) */}
       <div
         ref={wheelRef}
         onMouseDown={handlePointerDown}
@@ -360,20 +385,63 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
         onTouchStart={handlePointerDown}
         onTouchMove={handlePointerMove}
         onTouchEnd={handlePointerUp}
-        className="relative w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] lg:w-[460px] lg:h-[460px] xl:w-[500px] xl:h-[500px] rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing touch-none transition-transform duration-300 ease-out"
+        className="relative w-[340px] h-[340px] sm:w-[410px] sm:h-[410px] lg:w-[470px] lg:h-[470px] xl:w-[510px] xl:h-[510px] rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing touch-none transition-transform duration-300 ease-out"
         style={{ transform: `rotate(${rotationAngle}deg)` }}
       >
-        {/* SVG Camera Lens Aperture Ring & Partition Lines */}
+        {/* SVG Camera Lens Aperture Ring, Sector Arcs & Lens Markings */}
         <svg viewBox="0 0 400 400" className="absolute inset-0 w-full h-full pointer-events-none transform-gpu">
-          {/* Outer Boundary Circle */}
-          <circle cx="200" cy="200" r="192" fill="none" stroke="rgba(255, 255, 255, 0.25)" strokeWidth="3" />
-          <circle cx="200" cy="200" r="185" fill="none" stroke="rgba(217, 70, 239, 0.35)" strokeWidth="1" strokeDasharray="6 6" />
+          <defs>
+            <radialGradient id="activeSectorGradient" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#D946EF" stopOpacity="0.4" />
+              <stop offset="70%" stopColor="#A855F7" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#FF9A3C" stopOpacity="0.05" />
+            </radialGradient>
+            <radialGradient id="inactiveSectorGradient" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.04" />
+              <stop offset="100%" stopColor="#000000" stopOpacity="0.2" />
+            </radialGradient>
+          </defs>
 
-          {/* Inner Lens Hub Circle */}
-          <circle cx="200" cy="200" r="96" fill="none" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="3" />
-          <circle cx="200" cy="200" r="90" fill="none" stroke="rgba(255, 154, 60, 0.4)" strokeWidth="1.5" />
+          {/* 5 Sector Arcs */}
+          {[0, 72, 144, 216, 288].map((startAngle, idx) => {
+            const isSelected = activeIndex === idx;
+            const pathData = describeArc(200, 200, 96, 190, startAngle, startAngle + 72);
+            return (
+              <path
+                key={idx}
+                d={pathData}
+                fill={isSelected ? 'url(#activeSectorGradient)' : 'url(#inactiveSectorGradient)'}
+                stroke={isSelected ? 'rgba(217, 70, 239, 0.8)' : 'rgba(255, 255, 255, 0.15)'}
+                strokeWidth={isSelected ? '2.5' : '1'}
+                className="transition-all duration-300"
+              />
+            );
+          })}
 
-          {/* 5 Radial Partition Lines (Directly mirroring reference drawing) */}
+          {/* Outer Boundary Camera Lens Rim */}
+          <circle cx="200" cy="200" r="192" fill="none" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="3" />
+          <circle cx="200" cy="200" r="185" fill="none" stroke="rgba(217, 70, 239, 0.4)" strokeWidth="1" strokeDasharray="4 4" />
+
+          {/* Lens Aperture Stop Ticks & Markings Around Rim */}
+          {lensStops.map((stop, i) => {
+            const angle = i * 36;
+            const rad = (angle - 90) * (Math.PI / 180);
+            const x1 = 200 + 185 * Math.cos(rad);
+            const y1 = 200 + 185 * Math.sin(rad);
+            const x2 = 200 + 192 * Math.cos(rad);
+            const y2 = 200 + 192 * Math.sin(rad);
+            return (
+              <g key={i}>
+                <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(255, 255, 255, 0.5)" strokeWidth="1.5" />
+              </g>
+            );
+          })}
+
+          {/* Inner Lens Hub Ring */}
+          <circle cx="200" cy="200" r="96" fill="none" stroke="rgba(255, 255, 255, 0.35)" strokeWidth="3" />
+          <circle cx="200" cy="200" r="90" fill="none" stroke="rgba(255, 154, 60, 0.5)" strokeWidth="1.5" />
+
+          {/* 5 Spoke Partition Lines */}
           {[0, 72, 144, 216, 288].map((angle, idx) => {
             const rad = (angle - 90) * (Math.PI / 180);
             const x1 = 200 + 96 * Math.cos(rad);
@@ -387,17 +455,17 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
                 y1={y1}
                 x2={x2}
                 y2={y2}
-                stroke="rgba(255, 255, 255, 0.4)"
-                strokeWidth="2.5"
+                stroke="rgba(255, 255, 255, 0.35)"
+                strokeWidth="2"
                 strokeLinecap="round"
               />
             );
           })}
         </svg>
 
-        {/* 5 Category Radial Sector Buttons */}
+        {/* 5 Category Radial Title Pills (NO 01, 02, 03... badges!) */}
         {categories.map((cat, idx) => {
-          const angleDeg = idx * 72 - 90;
+          const angleDeg = idx * 72 - 90 + 36; // Center of sector arc
           const rad = angleDeg * (Math.PI / 180);
           const radius = 144;
           const x = 50 + (radius / 200) * 50 * Math.cos(rad);
@@ -418,25 +486,14 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
                 top: `${y}%`,
                 transform: `translate(-50%, -50%) rotate(${-rotationAngle}deg)`,
               }}
-              className={`absolute flex flex-col items-center justify-center p-2 transition-all duration-300 cursor-pointer ${
-                isSelected
-                  ? 'scale-110 z-20 font-bold'
-                  : 'scale-90 text-white/60 hover:text-white hover:scale-100'
+              className={`absolute flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                isSelected ? 'scale-110 z-20' : 'scale-90 opacity-75 hover:opacity-100 hover:scale-100'
               }`}
             >
-              <div
-                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-mono font-bold transition-all ${
-                  isSelected
-                    ? 'bg-[#D946EF] text-white shadow-[0_0_16px_#D946EF]'
-                    : 'bg-white/10 text-white/70 border border-white/20'
-                }`}
-              >
-                {cat.num}
-              </div>
-              <span className={`text-[10px] sm:text-xs font-semibold uppercase tracking-wider mt-1 whitespace-nowrap px-2.5 py-0.5 rounded-full transition-all ${
+              <span className={`text-[11px] sm:text-xs font-bold uppercase tracking-widest whitespace-nowrap px-3.5 py-1.5 rounded-full transition-all ${
                 isSelected
-                  ? 'bg-black/80 text-[#FF9A3C] border border-[#FF9A3C]/50 backdrop-blur-md shadow-lg'
-                  : 'bg-black/40 text-white/80 border border-white/10'
+                  ? 'bg-gradient-to-r from-[#D946EF] to-[#A855F7] text-white border border-white/40 shadow-[0_0_20px_rgba(217,70,239,0.7)]'
+                  : 'bg-black/70 text-white/90 border border-white/20 hover:border-white/40 backdrop-blur-md'
               }`}>
                 {cat.title}
               </span>
@@ -444,14 +501,14 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
           );
         })}
 
-        {/* Center Iris Lens Hub (High Contrast Readability for COLLECTION) */}
+        {/* Center Camera Viewfinder Iris (High Contrast Readability for COLLECTION) */}
         <div
           onClick={(e) => {
             e.stopPropagation();
             openGalleryModal(activeCategory.title);
           }}
           style={{ transform: `rotate(${-rotationAngle}deg)` }}
-          className="absolute w-[160px] h-[160px] sm:w-[190px] sm:h-[190px] lg:w-[230px] lg:h-[230px] xl:w-[250px] xl:h-[250px] rounded-full overflow-hidden border-2 border-white/30 shadow-[0_0_35px_rgba(217,70,239,0.5)] cursor-pointer group transition-transform duration-500 hover:scale-105 z-30"
+          className="absolute w-[170px] h-[170px] sm:w-[200px] sm:h-[200px] lg:w-[235px] lg:h-[235px] xl:w-[255px] xl:h-[255px] rounded-full overflow-hidden border-2 border-white/30 shadow-[0_0_35px_rgba(217,70,239,0.5)] cursor-pointer group transition-transform duration-500 hover:scale-105 z-30"
         >
           {/* Active Image */}
           <img
@@ -463,10 +520,16 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
           {/* Aperture Shutter Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent group-hover:from-black/60 transition-colors" />
 
+          {/* Viewfinder Target Focus Reticle Corners */}
+          <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-[#FF9A3C]/80 pointer-events-none" />
+          <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-[#FF9A3C]/80 pointer-events-none" />
+          <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-[#FF9A3C]/80 pointer-events-none" />
+          <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-[#FF9A3C]/80 pointer-events-none" />
+
           {/* Center Lens CTA Details */}
           <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center z-10">
-            <span className="text-[10px] sm:text-[11px] font-mono text-[#E879F9] font-bold tracking-widest uppercase bg-black/80 px-2.5 py-0.5 rounded-full border border-[#D946EF]/40 shadow-md backdrop-blur-md mb-0.5">
-              {activeCategory.num} COLLECTION
+            <span className="text-[10px] sm:text-[11px] font-mono text-[#E879F9] font-bold tracking-widest uppercase bg-black/85 px-3 py-0.5 rounded-full border border-[#D946EF]/50 shadow-md backdrop-blur-md mb-1">
+              COLLECTION {activeCategory.num}
             </span>
             <h4 className="font-oswald text-lg sm:text-xl font-bold text-white uppercase leading-tight my-0.5 drop-shadow-md">
               {activeCategory.title}
