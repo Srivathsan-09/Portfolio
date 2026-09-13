@@ -84,7 +84,7 @@ export default function About() {
           
           {/* LEFT SIDE: Heading & Text */}
           <div className="lg:col-span-6">
-            <h2 ref={headingRef} className="font-oswald text-4xl sm:text-6xl lg:text-7xl font-bold leading-[0.95] uppercase mb-8 text-white">
+            <h2 ref={headingRef} className="font-oswald text-5xl sm:text-6xl lg:text-7xl font-bold leading-[0.95] uppercase mb-8 text-white">
               THE MIND <br />
               <span className="text-gradient-purple inline-block">
                 BEHIND THE LENS.

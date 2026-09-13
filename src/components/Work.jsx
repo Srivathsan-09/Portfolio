@@ -526,7 +526,7 @@ export default function Work() {
           {/* Title, Subtext & Navigation Buttons */}
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <div ref={titleRef}>
-              <h2 className="font-oswald text-4xl sm:text-6xl lg:text-7xl font-bold leading-[0.95] uppercase text-white">
+              <h2 className="font-oswald text-5xl sm:text-6xl lg:text-7xl font-bold leading-[0.95] uppercase text-white">
                 EXPLORE <br />
                 <span className="text-gradient-orange inline-block">
                   MY WORK
