@@ -360,7 +360,7 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
         onTouchStart={handlePointerDown}
         onTouchMove={handlePointerMove}
         onTouchEnd={handlePointerUp}
-        className="relative w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] md:w-[420px] md:h-[420px] rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing touch-none transition-transform duration-300 ease-out"
+        className="relative w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] lg:w-[460px] lg:h-[460px] xl:w-[500px] xl:h-[500px] rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing touch-none transition-transform duration-300 ease-out"
         style={{ transform: `rotate(${rotationAngle}deg)` }}
       >
         {/* SVG Camera Lens Aperture Ring & Partition Lines */}
@@ -444,14 +444,14 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
           );
         })}
 
-        {/* Center Iris Lens Hub (Shows Active Category Cover Photo & Click to Open) */}
+        {/* Center Iris Lens Hub (High Contrast Readability for COLLECTION) */}
         <div
           onClick={(e) => {
             e.stopPropagation();
             openGalleryModal(activeCategory.title);
           }}
           style={{ transform: `rotate(${-rotationAngle}deg)` }}
-          className="absolute w-[165px] h-[165px] sm:w-[195px] sm:h-[195px] rounded-full overflow-hidden border-2 border-white/30 shadow-[0_0_35px_rgba(217,70,239,0.5)] cursor-pointer group transition-transform duration-500 hover:scale-105 z-30"
+          className="absolute w-[160px] h-[160px] sm:w-[190px] sm:h-[190px] lg:w-[230px] lg:h-[230px] xl:w-[250px] xl:h-[250px] rounded-full overflow-hidden border-2 border-white/30 shadow-[0_0_35px_rgba(217,70,239,0.5)] cursor-pointer group transition-transform duration-500 hover:scale-105 z-30"
         >
           {/* Active Image */}
           <img
@@ -465,10 +465,10 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
 
           {/* Center Lens CTA Details */}
           <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center z-10">
-            <span className="text-[10px] font-mono text-[#D946EF] font-bold tracking-widest uppercase">
+            <span className="text-[10px] sm:text-[11px] font-mono text-[#E879F9] font-bold tracking-widest uppercase bg-black/80 px-2.5 py-0.5 rounded-full border border-[#D946EF]/40 shadow-md backdrop-blur-md mb-0.5">
               {activeCategory.num} COLLECTION
             </span>
-            <h4 className="font-oswald text-lg sm:text-xl font-bold text-white uppercase leading-tight my-0.5">
+            <h4 className="font-oswald text-lg sm:text-xl font-bold text-white uppercase leading-tight my-0.5 drop-shadow-md">
               {activeCategory.title}
             </h4>
             <div className="mt-1 px-3 py-1 rounded-full border border-[#FF9A3C]/60 bg-[#FF9A3C]/20 text-[#FF9A3C] text-[9px] font-bold tracking-widest uppercase inline-flex items-center gap-1.5 shadow-md group-hover:bg-[#FF9A3C] group-hover:text-black transition-all">
@@ -712,13 +712,13 @@ export default function Work() {
 
         <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full">
           
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             
             {/* LEFT COLUMN: Title & Active Category Info (Desktop Left / Mobile Top) */}
             <div className="lg:col-span-5 flex flex-col justify-center">
               
               {/* Section Header Tag */}
-              <div ref={tagRef} className="flex items-center gap-4 mb-4 sm:mb-6">
+              <div ref={tagRef} className="flex items-center gap-4 mb-3 sm:mb-4">
                 <span className="text-xs sm:text-sm font-mono text-[#A855F7] font-semibold tracking-wider">
                   02
                 </span>
@@ -729,7 +729,7 @@ export default function Work() {
               </div>
 
               {/* Main Heading */}
-              <div ref={titleRef} className="mb-6 sm:mb-8">
+              <div ref={titleRef} className="mb-5 sm:mb-6">
                 <h2 className="font-oswald text-5xl sm:text-6xl lg:text-7xl font-bold leading-[0.95] uppercase text-white">
                   EXPLORE <br />
                   <span className="text-gradient-orange inline-block">
@@ -738,49 +738,45 @@ export default function Work() {
                 </h2>
               </div>
 
-              {/* Active Category Information Card */}
-              <div ref={subtextRef} className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-7 backdrop-blur-md relative overflow-hidden shadow-2xl">
-                <div className="flex items-center justify-between gap-4 mb-3">
-                  <span className="text-xs font-mono text-[#D946EF] font-bold tracking-widest uppercase">
-                    FEATURED COLLECTION {activeCategory.num} / 05
-                  </span>
-                  <span className="px-2.5 py-0.5 rounded-full border border-[#FF9A3C]/40 bg-[#FF9A3C]/10 text-[#FF9A3C] text-[10px] font-mono font-bold uppercase">
-                    {photoCount} PHOTOS
-                  </span>
+              {/* Active Category Information Card (Compact & Sleek) */}
+              <div ref={subtextRef} className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-5 backdrop-blur-md relative overflow-hidden shadow-xl">
+                <div className="flex items-center justify-between text-xs font-mono text-[#D946EF] font-bold tracking-wider uppercase mb-2">
+                  <span>COLLECTION {activeCategory.num} / 05</span>
+                  <span className="text-[#FF9A3C] font-semibold">{photoCount} PHOTOS</span>
                 </div>
 
-                <h3 className="font-oswald text-3xl sm:text-4xl font-bold text-white uppercase mb-2">
+                <h3 className="font-oswald text-2xl sm:text-3xl font-bold text-white uppercase mb-1.5">
                   {activeCategory.title}
                 </h3>
 
-                <p className="text-xs sm:text-sm text-[#85848D] leading-relaxed font-light mb-6">
+                <p className="text-xs text-[#85848D] leading-relaxed font-light mb-4">
                   Explore selected captures from {activeCategory.title.toLowerCase()} moments. Click the wheel center or button below to view the complete collection.
                 </p>
 
                 {/* Primary CTA Button & Wheel Spin Controls */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div className="flex items-center gap-3">
                   <button
                     onClick={() => openGalleryModal(activeCategory.title)}
-                    className="flex-1 inline-flex items-center justify-center gap-3 px-6 py-3.5 rounded-full bg-gradient-to-r from-[#D946EF] to-[#A855F7] text-white font-semibold text-xs tracking-widest uppercase shadow-[0_0_20px_rgba(217,70,239,0.4)] hover:shadow-[0_0_30px_rgba(217,70,239,0.7)] hover:scale-[1.02] transition-all cursor-pointer group"
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-[#D946EF] to-[#A855F7] text-white font-semibold text-xs tracking-wider uppercase shadow-[0_0_15px_rgba(217,70,239,0.35)] hover:shadow-[0_0_25px_rgba(217,70,239,0.6)] hover:scale-[1.02] transition-all cursor-pointer group"
                   >
                     <span>EXPLORE {activeCategory.title}</span>
-                    <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
                   </button>
 
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       onClick={handlePrevWheel}
                       aria-label="Previous Category"
-                      className="w-11 h-11 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
+                      className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
                     >
-                      <ChevronLeft className="w-5 h-5" />
+                      <ChevronLeft className="w-4 h-4" />
                     </button>
                     <button
                       onClick={handleNextWheel}
                       aria-label="Next Category"
-                      className="w-11 h-11 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
+                      className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
                     >
-                      <ChevronRight className="w-5 h-5" />
+                      <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -789,8 +785,8 @@ export default function Work() {
 
             </div>
 
-            {/* RIGHT COLUMN: Interactive Camera Aperture Wheel (Desktop Right / Mobile Bottom) */}
-            <div className="lg:col-span-7 flex items-center justify-center">
+            {/* RIGHT COLUMN: Larger Top-Aligned Aperture Wheel (Desktop Right / Mobile Bottom) */}
+            <div className="lg:col-span-7 flex items-center justify-center lg:pt-[44px]">
               <ApertureWheel
                 categories={workCards}
                 activeIndex={activeIndex}
@@ -802,7 +798,7 @@ export default function Work() {
           </div>
 
           {/* VIEW ALL WORK Footer Link */}
-          <div className="flex justify-center relative z-10 shrink-0 mt-12 sm:mt-16">
+          <div className="flex justify-center relative z-10 shrink-0 mt-10 sm:mt-14">
             <button
               onClick={() => openGalleryModal('ALL')}
               className="inline-flex items-center gap-4 group cursor-pointer"
@@ -815,6 +811,7 @@ export default function Work() {
               </div>
             </button>
           </div>
+
         </div>
       </section>
 
