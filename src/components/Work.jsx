@@ -271,29 +271,235 @@ function ModalGalleryCard({ item, onClick }) {
   );
 }
 
+// Interactive Rotating Camera Aperture Wheel Component
+function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryModal }) {
+  const wheelRef = useRef(null);
+  const [rotationAngle, setRotationAngle] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const startAngleRef = useRef(0);
+  const currentRotationRef = useRef(0);
+
+  // Smooth Device Orientation / Gyroscope Tilt rotation on mobile phones
+  useEffect(() => {
+    const handleOrientation = (e) => {
+      if (e.gamma !== null && e.gamma !== undefined) {
+        // gamma is left-to-right phone tilt in degrees [-90, 90]
+        const tiltAngle = Math.min(Math.max(e.gamma, -45), 45) * 1.6;
+        setRotationAngle((prev) => prev + (tiltAngle - prev) * 0.15);
+      }
+    };
+
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', handleOrientation);
+    }
+    return () => {
+      if (window.DeviceOrientationEvent) {
+        window.removeEventListener('deviceorientation', handleOrientation);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    currentRotationRef.current = rotationAngle;
+  }, [rotationAngle]);
+
+  // Pointer & Drag Physics
+  const getAngleFromEvent = (e) => {
+    if (!wheelRef.current) return 0;
+    const rect = wheelRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
+  };
+
+  const handlePointerDown = (e) => {
+    setIsDragging(true);
+    startAngleRef.current = getAngleFromEvent(e) - currentRotationRef.current;
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDragging) return;
+    const angle = getAngleFromEvent(e);
+    const newAngle = angle - startAngleRef.current;
+    setRotationAngle(newAngle);
+
+    const segmentAngle = 360 / categories.length; // 72deg
+    const normalized = ((-newAngle % 360) + 360) % 360;
+    const newIndex = Math.floor(((normalized + segmentAngle / 2) % 360) / segmentAngle) % categories.length;
+    onSelectCategory(newIndex);
+  };
+
+  const handlePointerUp = () => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    const segmentAngle = 360 / categories.length;
+    const snappedAngle = Math.round(rotationAngle / segmentAngle) * segmentAngle;
+    setRotationAngle(snappedAngle);
+
+    const normalized = ((-snappedAngle % 360) + 360) % 360;
+    const newIndex = Math.floor(((normalized + segmentAngle / 2) % 360) / segmentAngle) % categories.length;
+    onSelectCategory(newIndex);
+  };
+
+  const activeCategory = categories[activeIndex] || categories[0];
+
+  return (
+    <div className="relative flex flex-col items-center justify-center select-none w-full max-w-[480px] mx-auto py-4">
+      {/* Outer Radial Ambient Light Glow */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-[#D946EF]/20 via-[#A855F7]/10 to-[#FF9A3C]/20 rounded-full blur-[110px] pointer-events-none transform scale-110" />
+
+      {/* Rotating Wheel Graphic Container */}
+      <div
+        ref={wheelRef}
+        onMouseDown={handlePointerDown}
+        onMouseMove={handlePointerMove}
+        onMouseUp={handlePointerUp}
+        onMouseLeave={handlePointerUp}
+        onTouchStart={handlePointerDown}
+        onTouchMove={handlePointerMove}
+        onTouchEnd={handlePointerUp}
+        className="relative w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] md:w-[420px] md:h-[420px] rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing touch-none transition-transform duration-300 ease-out"
+        style={{ transform: `rotate(${rotationAngle}deg)` }}
+      >
+        {/* SVG Camera Lens Aperture Ring & Partition Lines */}
+        <svg viewBox="0 0 400 400" className="absolute inset-0 w-full h-full pointer-events-none transform-gpu">
+          {/* Outer Boundary Circle */}
+          <circle cx="200" cy="200" r="192" fill="none" stroke="rgba(255, 255, 255, 0.25)" strokeWidth="3" />
+          <circle cx="200" cy="200" r="185" fill="none" stroke="rgba(217, 70, 239, 0.35)" strokeWidth="1" strokeDasharray="6 6" />
+
+          {/* Inner Lens Hub Circle */}
+          <circle cx="200" cy="200" r="96" fill="none" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="3" />
+          <circle cx="200" cy="200" r="90" fill="none" stroke="rgba(255, 154, 60, 0.4)" strokeWidth="1.5" />
+
+          {/* 5 Radial Partition Lines (Directly mirroring reference drawing) */}
+          {[0, 72, 144, 216, 288].map((angle, idx) => {
+            const rad = (angle - 90) * (Math.PI / 180);
+            const x1 = 200 + 96 * Math.cos(rad);
+            const y1 = 200 + 96 * Math.sin(rad);
+            const x2 = 200 + 192 * Math.cos(rad);
+            const y2 = 200 + 192 * Math.sin(rad);
+            return (
+              <line
+                key={idx}
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke="rgba(255, 255, 255, 0.4)"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              />
+            );
+          })}
+        </svg>
+
+        {/* 5 Category Radial Sector Buttons */}
+        {categories.map((cat, idx) => {
+          const angleDeg = idx * 72 - 90;
+          const rad = angleDeg * (Math.PI / 180);
+          const radius = 144;
+          const x = 50 + (radius / 200) * 50 * Math.cos(rad);
+          const y = 50 + (radius / 200) * 50 * Math.sin(rad);
+          const isSelected = activeIndex === idx;
+
+          return (
+            <button
+              key={cat.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectCategory(idx);
+                const targetAngle = -idx * 72;
+                setRotationAngle(targetAngle);
+              }}
+              style={{
+                left: `${x}%`,
+                top: `${y}%`,
+                transform: `translate(-50%, -50%) rotate(${-rotationAngle}deg)`,
+              }}
+              className={`absolute flex flex-col items-center justify-center p-2 transition-all duration-300 cursor-pointer ${
+                isSelected
+                  ? 'scale-110 z-20 font-bold'
+                  : 'scale-90 text-white/60 hover:text-white hover:scale-100'
+              }`}
+            >
+              <div
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-mono font-bold transition-all ${
+                  isSelected
+                    ? 'bg-[#D946EF] text-white shadow-[0_0_16px_#D946EF]'
+                    : 'bg-white/10 text-white/70 border border-white/20'
+                }`}
+              >
+                {cat.num}
+              </div>
+              <span className={`text-[10px] sm:text-xs font-semibold uppercase tracking-wider mt-1 whitespace-nowrap px-2.5 py-0.5 rounded-full transition-all ${
+                isSelected
+                  ? 'bg-black/80 text-[#FF9A3C] border border-[#FF9A3C]/50 backdrop-blur-md shadow-lg'
+                  : 'bg-black/40 text-white/80 border border-white/10'
+              }`}>
+                {cat.title}
+              </span>
+            </button>
+          );
+        })}
+
+        {/* Center Iris Lens Hub (Shows Active Category Cover Photo & Click to Open) */}
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            openGalleryModal(activeCategory.title);
+          }}
+          style={{ transform: `rotate(${-rotationAngle}deg)` }}
+          className="absolute w-[165px] h-[165px] sm:w-[195px] sm:h-[195px] rounded-full overflow-hidden border-2 border-white/30 shadow-[0_0_35px_rgba(217,70,239,0.5)] cursor-pointer group transition-transform duration-500 hover:scale-105 z-30"
+        >
+          {/* Active Image */}
+          <img
+            src={activeCategory.image}
+            alt={activeCategory.title}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          />
+
+          {/* Aperture Shutter Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent group-hover:from-black/60 transition-colors" />
+
+          {/* Center Lens CTA Details */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center z-10">
+            <span className="text-[10px] font-mono text-[#D946EF] font-bold tracking-widest uppercase">
+              {activeCategory.num} COLLECTION
+            </span>
+            <h4 className="font-oswald text-lg sm:text-xl font-bold text-white uppercase leading-tight my-0.5">
+              {activeCategory.title}
+            </h4>
+            <div className="mt-1 px-3 py-1 rounded-full border border-[#FF9A3C]/60 bg-[#FF9A3C]/20 text-[#FF9A3C] text-[9px] font-bold tracking-widest uppercase inline-flex items-center gap-1.5 shadow-md group-hover:bg-[#FF9A3C] group-hover:text-black transition-all">
+              <span>EXPLORE</span>
+              <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Motion Guidance Subtext */}
+      <div className="mt-4 flex items-center gap-2 text-[11px] font-mono text-white/50 tracking-wider uppercase">
+        <Sparkles className="w-3.5 h-3.5 text-[#D946EF] animate-pulse" />
+        <span>SPIN WHEEL OR TILT PHONE TO ROTATE</span>
+      </div>
+
+    </div>
+  );
+}
+
 export default function Work() {
   const [activeCategoryModal, setActiveCategoryModal] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [modalFilter, setModalFilter] = useState('ALL');
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const sectionRef = useRef(null);
   const tagRef = useRef(null);
   const titleRef = useRef(null);
   const subtextRef = useRef(null);
-  const sliderRef = useRef(null);
-  const cardsRef = useRef([]);
-
-  const slideLeft = () => {
-    if (sliderRef.current) {
-      sliderRef.current.scrollBy({ left: -320, behavior: 'smooth' });
-    }
-  };
-
-  const slideRight = () => {
-    if (sliderRef.current) {
-      sliderRef.current.scrollBy({ left: 320, behavior: 'smooth' });
-    }
-  };
 
   const workCards = [
     {
@@ -414,6 +620,17 @@ export default function Work() {
     setSelectedPhoto(null);
   };
 
+  const activeCategory = workCards[activeIndex] || workCards[0];
+  const photoCount = galleryItems.filter((i) => i.category === activeCategory.title).length;
+
+  const handleNextWheel = () => {
+    setActiveIndex((prev) => (prev + 1) % workCards.length);
+  };
+
+  const handlePrevWheel = () => {
+    setActiveIndex((prev) => (prev - 1 + workCards.length) % workCards.length);
+  };
+
   // Register global window helper so navbar links can cleanly close all open modals
   useEffect(() => {
     window.closeAllModals = closeAll;
@@ -463,7 +680,7 @@ export default function Work() {
     if (isReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      // 1. Header Reveal
+      // Header Reveal
       gsap.fromTo(
         [tagRef.current, titleRef.current, subtextRef.current],
         { y: 30, opacity: 0 },
@@ -476,23 +693,6 @@ export default function Work() {
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top 80%',
-          },
-        }
-      );
-
-      // 2. Cards Staggered Reveal Animation on Scroll
-      gsap.fromTo(
-        cardsRef.current,
-        { y: 40, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          stagger: 0.12,
-          duration: 0.8,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 75%',
           },
         }
       );
@@ -510,98 +710,111 @@ export default function Work() {
       >
         <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-orange-950/20 rounded-full blur-[160px] pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full mb-8 sm:mb-10">
+        <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full">
           
-          {/* Section Header Tag */}
-          <div ref={tagRef} className="flex items-center gap-4 mb-4 sm:mb-6">
-            <span className="text-xs sm:text-sm font-mono text-[#A855F7] font-semibold tracking-wider">
-              02
-            </span>
-            <span className="w-8 h-[1px] bg-[#A855F7]/40" />
-            <span className="text-xs font-semibold tracking-[0.3em] text-[#A855F7] uppercase">
-              MY WORK
-            </span>
-          </div>
-
-          {/* Title, Subtext & Navigation Buttons */}
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <div ref={titleRef}>
-              <h2 className="font-oswald text-5xl sm:text-6xl lg:text-7xl font-bold leading-[0.95] uppercase text-white">
-                EXPLORE <br />
-                <span className="text-gradient-orange inline-block">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            
+            {/* LEFT COLUMN: Title & Active Category Info (Desktop Left / Mobile Top) */}
+            <div className="lg:col-span-5 flex flex-col justify-center">
+              
+              {/* Section Header Tag */}
+              <div ref={tagRef} className="flex items-center gap-4 mb-4 sm:mb-6">
+                <span className="text-xs sm:text-sm font-mono text-[#A855F7] font-semibold tracking-wider">
+                  02
+                </span>
+                <span className="w-8 h-[1px] bg-[#A855F7]/40" />
+                <span className="text-xs font-semibold tracking-[0.3em] text-[#A855F7] uppercase">
                   MY WORK
                 </span>
-              </h2>
-            </div>
+              </div>
 
-            <div ref={subtextRef} className="max-w-xs flex flex-col gap-4">
-              <p className="text-xs sm:text-sm text-[#85848D] leading-relaxed font-light">
-                Different stories. Different places. <br />
-                One perspective.
-              </p>
+              {/* Main Heading */}
+              <div ref={titleRef} className="mb-6 sm:mb-8">
+                <h2 className="font-oswald text-5xl sm:text-6xl lg:text-7xl font-bold leading-[0.95] uppercase text-white">
+                  EXPLORE <br />
+                  <span className="text-gradient-orange inline-block">
+                    MY WORK
+                  </span>
+                </h2>
+              </div>
 
-              {/* Slider Navigation Buttons */}
-              <div className="flex items-center gap-3">
-                <span className="text-[11px] font-mono text-[#FF9A3C] font-semibold tracking-widest uppercase">
-                  SLIDE GALLERIES
-                </span>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={slideLeft}
-                    aria-label="Slide Left"
-                    className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={slideRight}
-                    aria-label="Slide Right"
-                    className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
+              {/* Active Category Information Card */}
+              <div ref={subtextRef} className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-7 backdrop-blur-md relative overflow-hidden shadow-2xl">
+                <div className="flex items-center justify-between gap-4 mb-3">
+                  <span className="text-xs font-mono text-[#D946EF] font-bold tracking-widest uppercase">
+                    FEATURED COLLECTION {activeCategory.num} / 05
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full border border-[#FF9A3C]/40 bg-[#FF9A3C]/10 text-[#FF9A3C] text-[10px] font-mono font-bold uppercase">
+                    {photoCount} PHOTOS
+                  </span>
                 </div>
+
+                <h3 className="font-oswald text-3xl sm:text-4xl font-bold text-white uppercase mb-2">
+                  {activeCategory.title}
+                </h3>
+
+                <p className="text-xs sm:text-sm text-[#85848D] leading-relaxed font-light mb-6">
+                  Explore selected captures from {activeCategory.title.toLowerCase()} moments. Click the wheel center or button below to view the complete collection.
+                </p>
+
+                {/* Primary CTA Button & Wheel Spin Controls */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <button
+                    onClick={() => openGalleryModal(activeCategory.title)}
+                    className="flex-1 inline-flex items-center justify-center gap-3 px-6 py-3.5 rounded-full bg-gradient-to-r from-[#D946EF] to-[#A855F7] text-white font-semibold text-xs tracking-widest uppercase shadow-[0_0_20px_rgba(217,70,239,0.4)] hover:shadow-[0_0_30px_rgba(217,70,239,0.7)] hover:scale-[1.02] transition-all cursor-pointer group"
+                  >
+                    <span>EXPLORE {activeCategory.title}</span>
+                    <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                  </button>
+
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      onClick={handlePrevWheel}
+                      aria-label="Previous Category"
+                      className="w-11 h-11 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={handleNextWheel}
+                      aria-label="Next Category"
+                      className="w-11 h-11 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
               </div>
+
             </div>
+
+            {/* RIGHT COLUMN: Interactive Camera Aperture Wheel (Desktop Right / Mobile Bottom) */}
+            <div className="lg:col-span-7 flex items-center justify-center">
+              <ApertureWheel
+                categories={workCards}
+                activeIndex={activeIndex}
+                onSelectCategory={(idx) => setActiveIndex(idx)}
+                openGalleryModal={openGalleryModal}
+              />
+            </div>
+
           </div>
 
-        </div>
-
-        {/* Smooth Horizontal Cards Scroller Container */}
-        <div className="max-w-7xl mx-auto px-6 lg:px-16 w-full relative z-10 my-4 sm:my-6">
-          <div
-            ref={sliderRef}
-            className="flex gap-5 sm:gap-7 overflow-x-auto scroll-smooth py-3 no-scrollbar scrollbar-none snap-x snap-mandatory touch-pan-x"
-          >
-            {workCards.map((card, index) => (
-              <div key={card.id} className="w-[240px] sm:w-[280px] lg:w-[310px] shrink-0 snap-start">
-                <Interactive3DCard
-                  card={card}
-                  num={card.num}
-                  title={card.title}
-                  image={card.image}
-                  offsetY=""
-                  innerRef={(el) => (cardsRef.current[index] = el)}
-                  onClick={() => openGalleryModal(card.title)}
-                />
+          {/* VIEW ALL WORK Footer Link */}
+          <div className="flex justify-center relative z-10 shrink-0 mt-12 sm:mt-16">
+            <button
+              onClick={() => openGalleryModal('ALL')}
+              className="inline-flex items-center gap-4 group cursor-pointer"
+            >
+              <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#FF9A3C] transition-colors uppercase">
+                VIEW ALL WORK
+              </span>
+              <div className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white/80 group-hover:border-[#FF9A3C] group-hover:bg-[#FF9A3C]/20 group-hover:text-white group-hover:scale-110 transition-all">
+                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
               </div>
-            ))}
+            </button>
           </div>
-        </div>
-
-        {/* VIEW ALL WORK Button */}
-        <div className="flex justify-center relative z-10 shrink-0 mt-2 sm:mt-4">
-          <button
-            onClick={() => openGalleryModal('ALL')}
-            className="inline-flex items-center gap-4 group cursor-pointer"
-          >
-            <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#FF9A3C] transition-colors uppercase">
-              VIEW ALL WORK
-            </span>
-            <div className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white/80 group-hover:border-[#FF9A3C] group-hover:bg-[#FF9A3C]/20 group-hover:text-white group-hover:scale-110 transition-all">
-              <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
-            </div>
-          </button>
         </div>
       </section>
 
