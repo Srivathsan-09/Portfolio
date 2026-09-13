@@ -368,6 +368,19 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
     ].join(' ');
   };
 
+  // Helper to draw SVG Arc Line for Curved Text Path
+  const describeTextArc = (x, y, radius, startAngle, endAngle) => {
+    const rad = (angle) => (angle - 90) * (Math.PI / 180);
+    const x1 = x + radius * Math.cos(rad(startAngle));
+    const y1 = y + radius * Math.sin(rad(startAngle));
+    const x2 = x + radius * Math.cos(rad(endAngle));
+    const y2 = y + radius * Math.sin(rad(endAngle));
+
+    const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
+
+    return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
+  };
+
   const lensStops = ['f/1.4', '35mm', 'f/2.8', '50mm', 'f/5.6', '85mm', 'f/11', '135mm', 'f/16', 'f/22'];
 
   return (
@@ -375,7 +388,7 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
       {/* Outer Radial Ambient Light Glow */}
       <div className="absolute inset-0 bg-gradient-to-tr from-[#D946EF]/25 via-[#A855F7]/15 to-[#FF9A3C]/25 rounded-full blur-[120px] pointer-events-none transform scale-110" />
 
-      {/* Rotating Wheel Graphic Container (Larger Mobile & Desktop Size) */}
+      {/* Rotating Wheel Graphic Container */}
       <div
         ref={wheelRef}
         onMouseDown={handlePointerDown}
@@ -388,8 +401,8 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
         className="relative w-[340px] h-[340px] sm:w-[410px] sm:h-[410px] lg:w-[470px] lg:h-[470px] xl:w-[510px] xl:h-[510px] rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing touch-none transition-transform duration-300 ease-out"
         style={{ transform: `rotate(${rotationAngle}deg)` }}
       >
-        {/* SVG Camera Lens Aperture Ring, Sector Arcs & Lens Markings */}
-        <svg viewBox="0 0 400 400" className="absolute inset-0 w-full h-full pointer-events-none transform-gpu">
+        {/* SVG Camera Lens Aperture Ring, Sector Arcs, Curved Text & Lens Markings */}
+        <svg viewBox="0 0 400 400" className="absolute inset-0 w-full h-full transform-gpu">
           <defs>
             <radialGradient id="activeSectorGradient" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#D946EF" stopOpacity="0.4" />
@@ -400,9 +413,18 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
               <stop offset="0%" stopColor="#ffffff" stopOpacity="0.04" />
               <stop offset="100%" stopColor="#000000" stopOpacity="0.2" />
             </radialGradient>
+
+            {/* 5 Sector Arc Paths for SVG Curved Text */}
+            {[0, 72, 144, 216, 288].map((startAngle, idx) => (
+              <path
+                key={`text-path-${idx}`}
+                id={`sectorTextArc-${idx}`}
+                d={describeTextArc(200, 200, 143, startAngle + 5, startAngle + 67)}
+              />
+            ))}
           </defs>
 
-          {/* 5 Sector Arcs */}
+          {/* 5 Sector Background Arcs (Clickable) */}
           {[0, 72, 144, 216, 288].map((startAngle, idx) => {
             const isSelected = activeIndex === idx;
             const pathData = describeArc(200, 200, 96, 190, startAngle, startAngle + 72);
@@ -411,10 +433,55 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
                 key={idx}
                 d={pathData}
                 fill={isSelected ? 'url(#activeSectorGradient)' : 'url(#inactiveSectorGradient)'}
-                stroke={isSelected ? 'rgba(217, 70, 239, 0.8)' : 'rgba(255, 255, 255, 0.15)'}
+                stroke={isSelected ? 'rgba(217, 70, 239, 0.9)' : 'rgba(255, 255, 255, 0.15)'}
                 strokeWidth={isSelected ? '2.5' : '1'}
-                className="transition-all duration-300"
+                className="transition-all duration-300 cursor-pointer pointer-events-auto"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectCategory(idx);
+                  setRotationAngle(-idx * 72);
+                }}
               />
+            );
+          })}
+
+          {/* Curved Category Labels along Sector Arcs (NO OVERFLOW EVER!) */}
+          {categories.map((cat, idx) => {
+            const isSelected = activeIndex === idx;
+            return (
+              <text
+                key={cat.id}
+                className="cursor-pointer pointer-events-auto select-none"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectCategory(idx);
+                  setRotationAngle(-idx * 72);
+                }}
+              >
+                <textPath
+                  href={`#sectorTextArc-${idx}`}
+                  xlinkHref={`#sectorTextArc-${idx}`}
+                  startOffset="50%"
+                  textAnchor="middle"
+                  className="font-oswald uppercase tracking-[0.16em] transition-all duration-300"
+                >
+                  <tspan
+                    fill={isSelected ? '#FF9A3C' : '#D946EF'}
+                    fontSize={isSelected ? '12.5' : '11'}
+                    fontWeight="700"
+                    fontFamily="monospace"
+                  >
+                    {cat.num}{' '}
+                  </tspan>
+                  <tspan
+                    fill={isSelected ? '#FFFFFF' : 'rgba(255, 255, 255, 0.85)'}
+                    fontSize={isSelected ? '12.5' : '11'}
+                    fontWeight={isSelected ? '700' : '600'}
+                  >
+                    {cat.title}
+                  </tspan>
+                </textPath>
+              </text>
             );
           })}
 
@@ -462,49 +529,6 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
             );
           })}
         </svg>
-
-        {/* 5 Category Radial Title Pills with Compact Number Badges */}
-        {categories.map((cat, idx) => {
-          const angleDeg = idx * 72 - 90 + 36; // Center of sector arc
-          const rad = angleDeg * (Math.PI / 180);
-          const radius = 142; // Center of sector ring space
-          const x = 50 + (radius / 200) * 50 * Math.cos(rad);
-          const y = 50 + (radius / 200) * 50 * Math.sin(rad);
-          const isSelected = activeIndex === idx;
-
-          return (
-            <button
-              key={cat.id}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelectCategory(idx);
-                const targetAngle = -idx * 72;
-                setRotationAngle(targetAngle);
-              }}
-              style={{
-                left: `${x}%`,
-                top: `${y}%`,
-                transform: `translate(-50%, -50%) rotate(${-rotationAngle}deg)`,
-              }}
-              className={`absolute flex items-center justify-center transition-all duration-300 cursor-pointer ${
-                isSelected ? 'scale-105 z-20' : 'scale-95 opacity-80 hover:opacity-100 hover:scale-100'
-              }`}
-            >
-              <span className={`inline-flex items-center gap-1.5 text-[9px] sm:text-[10px] lg:text-[11px] font-bold uppercase tracking-wider whitespace-nowrap px-2.5 py-1 sm:px-3 sm:py-1 rounded-full transition-all ${
-                isSelected
-                  ? 'bg-gradient-to-r from-[#D946EF] to-[#A855F7] text-white border border-white/40 shadow-[0_0_15px_rgba(217,70,239,0.7)]'
-                  : 'bg-black/85 text-white/90 border border-white/20 hover:border-white/40 backdrop-blur-md'
-              }`}>
-                <span className={`text-[8px] sm:text-[9px] font-mono font-bold px-1 py-0.2 rounded-sm ${
-                  isSelected ? 'bg-white/25 text-white' : 'bg-white/10 text-[#D946EF]'
-                }`}>
-                  {cat.num}
-                </span>
-                <span>{cat.title}</span>
-              </span>
-            </button>
-          );
-        })}
 
         {/* Center Camera Viewfinder Iris (Clean Title & CTA, No Collection Text) */}
         <div
