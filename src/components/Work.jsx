@@ -463,11 +463,11 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
           })}
         </svg>
 
-        {/* 5 Category Radial Title Pills (NO 01, 02, 03... badges!) */}
+        {/* 5 Category Radial Title Pills with Compact Number Badges */}
         {categories.map((cat, idx) => {
           const angleDeg = idx * 72 - 90 + 36; // Center of sector arc
           const rad = angleDeg * (Math.PI / 180);
-          const radius = 144;
+          const radius = 142; // Center of sector ring space
           const x = 50 + (radius / 200) * 50 * Math.cos(rad);
           const y = 50 + (radius / 200) * 50 * Math.sin(rad);
           const isSelected = activeIndex === idx;
@@ -487,28 +487,33 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
                 transform: `translate(-50%, -50%) rotate(${-rotationAngle}deg)`,
               }}
               className={`absolute flex items-center justify-center transition-all duration-300 cursor-pointer ${
-                isSelected ? 'scale-110 z-20' : 'scale-90 opacity-75 hover:opacity-100 hover:scale-100'
+                isSelected ? 'scale-105 z-20' : 'scale-95 opacity-80 hover:opacity-100 hover:scale-100'
               }`}
             >
-              <span className={`text-[11px] sm:text-xs font-bold uppercase tracking-widest whitespace-nowrap px-3.5 py-1.5 rounded-full transition-all ${
+              <span className={`inline-flex items-center gap-1.5 text-[9px] sm:text-[10px] lg:text-[11px] font-bold uppercase tracking-wider whitespace-nowrap px-2.5 py-1 sm:px-3 sm:py-1 rounded-full transition-all ${
                 isSelected
-                  ? 'bg-gradient-to-r from-[#D946EF] to-[#A855F7] text-white border border-white/40 shadow-[0_0_20px_rgba(217,70,239,0.7)]'
-                  : 'bg-black/70 text-white/90 border border-white/20 hover:border-white/40 backdrop-blur-md'
+                  ? 'bg-gradient-to-r from-[#D946EF] to-[#A855F7] text-white border border-white/40 shadow-[0_0_15px_rgba(217,70,239,0.7)]'
+                  : 'bg-black/85 text-white/90 border border-white/20 hover:border-white/40 backdrop-blur-md'
               }`}>
-                {cat.title}
+                <span className={`text-[8px] sm:text-[9px] font-mono font-bold px-1 py-0.2 rounded-sm ${
+                  isSelected ? 'bg-white/25 text-white' : 'bg-white/10 text-[#D946EF]'
+                }`}>
+                  {cat.num}
+                </span>
+                <span>{cat.title}</span>
               </span>
             </button>
           );
         })}
 
-        {/* Center Camera Viewfinder Iris (High Contrast Readability for COLLECTION) */}
+        {/* Center Camera Viewfinder Iris (Clean Title & CTA, No Collection Text) */}
         <div
           onClick={(e) => {
             e.stopPropagation();
             openGalleryModal(activeCategory.title);
           }}
           style={{ transform: `rotate(${-rotationAngle}deg)` }}
-          className="absolute w-[170px] h-[170px] sm:w-[200px] sm:h-[200px] lg:w-[235px] lg:h-[235px] xl:w-[255px] xl:h-[255px] rounded-full overflow-hidden border-2 border-white/30 shadow-[0_0_35px_rgba(217,70,239,0.5)] cursor-pointer group transition-transform duration-500 hover:scale-105 z-30"
+          className="absolute w-[155px] h-[155px] sm:w-[190px] sm:h-[190px] lg:w-[225px] lg:h-[225px] xl:w-[245px] xl:h-[245px] rounded-full overflow-hidden border-2 border-white/30 shadow-[0_0_35px_rgba(217,70,239,0.5)] cursor-pointer group transition-transform duration-500 hover:scale-105 z-30"
         >
           {/* Active Image */}
           <img
@@ -521,17 +526,14 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent group-hover:from-black/60 transition-colors" />
 
           {/* Viewfinder Target Focus Reticle Corners */}
-          <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-[#FF9A3C]/80 pointer-events-none" />
-          <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-[#FF9A3C]/80 pointer-events-none" />
-          <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-[#FF9A3C]/80 pointer-events-none" />
-          <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-[#FF9A3C]/80 pointer-events-none" />
+          <div className="absolute top-2.5 left-2.5 w-3 h-3 border-t-2 border-l-2 border-[#FF9A3C]/80 pointer-events-none" />
+          <div className="absolute top-2.5 right-2.5 w-3 h-3 border-t-2 border-r-2 border-[#FF9A3C]/80 pointer-events-none" />
+          <div className="absolute bottom-2.5 left-2.5 w-3 h-3 border-b-2 border-l-2 border-[#FF9A3C]/80 pointer-events-none" />
+          <div className="absolute bottom-2.5 right-2.5 w-3 h-3 border-b-2 border-r-2 border-[#FF9A3C]/80 pointer-events-none" />
 
-          {/* Center Lens CTA Details */}
+          {/* Center Lens CTA Details (Title & Explore Pill Only) */}
           <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center z-10">
-            <span className="text-[10px] sm:text-[11px] font-mono text-[#E879F9] font-bold tracking-widest uppercase bg-black/85 px-3 py-0.5 rounded-full border border-[#D946EF]/50 shadow-md backdrop-blur-md mb-1">
-              COLLECTION {activeCategory.num}
-            </span>
-            <h4 className="font-oswald text-lg sm:text-xl font-bold text-white uppercase leading-tight my-0.5 drop-shadow-md">
+            <h4 className="font-oswald text-base sm:text-lg lg:text-xl font-bold text-white uppercase leading-tight my-0.5 drop-shadow-md">
               {activeCategory.title}
             </h4>
             <div className="mt-1 px-3 py-1 rounded-full border border-[#FF9A3C]/60 bg-[#FF9A3C]/20 text-[#FF9A3C] text-[9px] font-bold tracking-widest uppercase inline-flex items-center gap-1.5 shadow-md group-hover:bg-[#FF9A3C] group-hover:text-black transition-all">
