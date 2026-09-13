@@ -801,45 +801,44 @@ export default function Work() {
                 </h2>
               </div>
 
-              {/* Active Category Information Card (Compact & Sleek) */}
-              <div ref={subtextRef} className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-5 backdrop-blur-md relative overflow-hidden shadow-xl">
-                <div className="flex items-center justify-between text-xs font-mono text-[#D946EF] font-bold tracking-wider uppercase mb-2">
+              {/* Active Category Information Card (Compact on Mobile, Full Spacing on Desktop) */}
+              <div ref={subtextRef} className="bg-white/5 border border-white/10 rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-8 backdrop-blur-md relative overflow-hidden shadow-xl">
+                <div className="flex items-center justify-between text-xs font-mono text-[#D946EF] font-bold tracking-wider uppercase mb-1.5 lg:mb-3">
                   <span>COLLECTION {activeCategory.num} / 05</span>
-                  <span className="text-[#FF9A3C] font-semibold">{photoCount} PHOTOS</span>
                 </div>
 
-                <h3 className="font-oswald text-2xl sm:text-3xl font-bold text-white uppercase mb-1.5">
+                <h3 className="font-oswald text-2xl sm:text-3xl lg:text-4xl font-bold text-white uppercase mb-1.5 lg:mb-3">
                   {activeCategory.title}
                 </h3>
 
-                <p className="text-xs text-[#85848D] leading-relaxed font-light mb-4">
+                <p className="text-xs lg:text-sm text-[#85848D] leading-relaxed font-light mb-3.5 lg:mb-6">
                   Explore selected captures from {activeCategory.title.toLowerCase()} moments. Click the wheel center or button below to view the complete collection.
                 </p>
 
                 {/* Primary CTA Button & Wheel Spin Controls */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 lg:gap-4">
                   <button
                     onClick={() => openGalleryModal(activeCategory.title)}
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-[#D946EF] to-[#A855F7] text-white font-semibold text-xs tracking-wider uppercase shadow-[0_0_15px_rgba(217,70,239,0.35)] hover:shadow-[0_0_25px_rgba(217,70,239,0.6)] hover:scale-[1.02] transition-all cursor-pointer group"
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 lg:px-6 py-2.5 lg:py-3.5 rounded-full bg-gradient-to-r from-[#D946EF] to-[#A855F7] text-white font-semibold text-xs lg:text-sm tracking-wider uppercase shadow-[0_0_15px_rgba(217,70,239,0.35)] hover:shadow-[0_0_25px_rgba(217,70,239,0.6)] hover:scale-[1.02] transition-all cursor-pointer group"
                   >
                     <span>EXPLORE {activeCategory.title}</span>
-                    <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-3.5 h-3.5 lg:w-4 lg:h-4 transform group-hover:translate-x-1 transition-transform" />
                   </button>
 
-                  <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     <button
                       onClick={handlePrevWheel}
                       aria-label="Previous Category"
-                      className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
+                      className="w-9 h-9 lg:w-11 lg:h-11 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="w-4 h-4 lg:w-5 lg:h-5" />
                     </button>
                     <button
                       onClick={handleNextWheel}
                       aria-label="Next Category"
-                      className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
+                      className="w-9 h-9 lg:w-11 lg:h-11 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5" />
                     </button>
                   </div>
                 </div>
