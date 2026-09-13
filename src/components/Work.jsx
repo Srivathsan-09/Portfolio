@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowRight, X, ZoomIn, Sparkles, ChevronLeft } from 'lucide-react';
+import { ArrowRight, X, ZoomIn, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -280,8 +280,20 @@ export default function Work() {
   const tagRef = useRef(null);
   const titleRef = useRef(null);
   const subtextRef = useRef(null);
-  const trackRef = useRef(null);
+  const sliderRef = useRef(null);
   const cardsRef = useRef([]);
+
+  const slideLeft = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: -320, behavior: 'smooth' });
+    }
+  };
+
+  const slideRight = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: 320, behavior: 'smooth' });
+    }
+  };
 
   const workCards = [
     {
@@ -468,36 +480,22 @@ export default function Work() {
         }
       );
 
-      // 2. Scroll-Driven Horizontal Pinning (Hiding strictly at EXPLORE MY WORK left margin line & 100% full reveal for Architecture card)
-      const track = trackRef.current;
-      if (track) {
-        const getScrollAmount = () => {
-          if (!track || !track.parentElement) return 0;
-          const parent = track.parentElement;
-          const style = window.getComputedStyle(parent);
-          const paddingLeft = parseFloat(style.paddingLeft) || 0;
-          const paddingRight = parseFloat(style.paddingRight) || 0;
-          const innerContentWidth = parent.clientWidth - paddingLeft - paddingRight;
-          const trackWidth = track.scrollWidth;
-          const overflow = trackWidth - innerContentWidth;
-          return overflow > 0 ? -overflow : 0;
-        };
-
-        const tween = gsap.to(track, {
-          x: getScrollAmount,
-          ease: 'none',
-        });
-
-        ScrollTrigger.create({
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: () => `+=${Math.max(500, Math.abs(getScrollAmount()))}`,
-          pin: true,
-          animation: tween,
-          scrub: 1,
-          invalidateOnRefresh: true,
-        });
-      }
+      // 2. Cards Staggered Reveal Animation on Scroll
+      gsap.fromTo(
+        cardsRef.current,
+        { y: 40, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          stagger: 0.12,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 75%',
+          },
+        }
+      );
     }, sectionRef);
 
     return () => ctx.revert();
@@ -508,14 +506,14 @@ export default function Work() {
       <section
         ref={sectionRef}
         id="work"
-        className="relative min-h-screen pt-28 pb-10 overflow-hidden flex flex-col justify-between"
+        className="relative py-20 lg:py-28 overflow-hidden"
       >
         <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-orange-950/20 rounded-full blur-[160px] pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full shrink-0 mb-3 sm:mb-5">
+        <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full mb-8 sm:mb-10">
           
           {/* Section Header Tag */}
-          <div ref={tagRef} className="flex items-center gap-4 mb-3 sm:mb-5">
+          <div ref={tagRef} className="flex items-center gap-4 mb-4 sm:mb-6">
             <span className="text-xs sm:text-sm font-mono text-[#A855F7] font-semibold tracking-wider">
               02
             </span>
@@ -525,8 +523,8 @@ export default function Work() {
             </span>
           </div>
 
-          {/* Title & Subtext */}
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+          {/* Title, Subtext & Navigation Buttons */}
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <div ref={titleRef}>
               <h2 className="font-oswald text-4xl sm:text-6xl lg:text-7xl font-bold leading-[0.95] uppercase text-white">
                 EXPLORE <br />
@@ -535,41 +533,59 @@ export default function Work() {
                 </span>
               </h2>
             </div>
-            <div ref={subtextRef} className="max-w-xs flex flex-col gap-2">
+
+            <div ref={subtextRef} className="max-w-xs flex flex-col gap-4">
               <p className="text-xs sm:text-sm text-[#85848D] leading-relaxed font-light">
                 Different stories. Different places. <br />
                 One perspective.
               </p>
-              <div className="inline-flex items-center gap-2 text-[11px] font-mono text-[#FF9A3C] font-semibold tracking-widest uppercase">
-                <span>SCROLL TO SLIDE</span>
-                <ArrowRight className="w-3.5 h-3.5 animate-pulse" />
+
+              {/* Slider Navigation Buttons */}
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] font-mono text-[#FF9A3C] font-semibold tracking-widest uppercase">
+                  SLIDE GALLERIES
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={slideLeft}
+                    aria-label="Slide Left"
+                    className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={slideRight}
+                    aria-label="Slide Right"
+                    className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
         </div>
 
-        {/* Pinned Horizontal Scroll Track Container (Clipping EXACTLY at letter E and M vertical line) */}
-        <div className="max-w-7xl mx-auto px-6 lg:px-16 w-full relative z-10 shrink-0 my-2 sm:my-4">
-          <div className="w-full overflow-hidden">
-            <div
-              ref={trackRef}
-              className="flex gap-4 sm:gap-6 w-max transform-gpu touch-pan-x"
-            >
-              {workCards.map((card, index) => (
-                <div key={card.id} className="w-[220px] sm:w-[260px] lg:w-[295px] shrink-0">
-                  <Interactive3DCard
-                    card={card}
-                    num={card.num}
-                    title={card.title}
-                    image={card.image}
-                    offsetY=""
-                    innerRef={(el) => (cardsRef.current[index] = el)}
-                    onClick={() => openGalleryModal(card.title)}
-                  />
-                </div>
-              ))}
-            </div>
+        {/* Smooth Horizontal Cards Scroller Container */}
+        <div className="max-w-7xl mx-auto px-6 lg:px-16 w-full relative z-10 my-4 sm:my-6">
+          <div
+            ref={sliderRef}
+            className="flex gap-5 sm:gap-7 overflow-x-auto scroll-smooth py-3 no-scrollbar scrollbar-none snap-x snap-mandatory touch-pan-x"
+          >
+            {workCards.map((card, index) => (
+              <div key={card.id} className="w-[240px] sm:w-[280px] lg:w-[310px] shrink-0 snap-start">
+                <Interactive3DCard
+                  card={card}
+                  num={card.num}
+                  title={card.title}
+                  image={card.image}
+                  offsetY=""
+                  innerRef={(el) => (cardsRef.current[index] = el)}
+                  onClick={() => openGalleryModal(card.title)}
+                />
+              </div>
+            ))}
           </div>
         </div>
 
