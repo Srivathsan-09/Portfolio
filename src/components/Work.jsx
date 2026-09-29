@@ -245,28 +245,8 @@ function ModalGalleryCard({ item, onClick }) {
         className="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-20 mix-blend-screen"
       />
 
-      {/* Gradient Dark Vignette Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-85 group-hover:opacity-70 transition-opacity pointer-events-none" />
-
       {/* Glowing Neon Border Ring */}
       <div className="absolute inset-0 rounded-2xl border border-white/10 group-hover:border-[#D946EF] group-hover:shadow-[0_0_25px_rgba(217,70,239,0.5)] transition-all pointer-events-none" />
-
-      {/* 3D Depth Content Overlay */}
-      <div
-        ref={contentRef}
-        className="absolute bottom-5 left-5 right-5 z-30 pointer-events-none transform-gpu"
-        style={{ transformStyle: 'preserve-3d' }}
-      >
-        <span className="text-[10px] font-mono text-[#D946EF] font-bold uppercase tracking-wider block mb-1 drop-shadow-[0_0_8px_#D946EF]">
-          {item.category}
-        </span>
-        <h4 className="font-oswald font-bold text-white text-xl flex items-center justify-between uppercase tracking-wide">
-          <span>{item.title}</span>
-          <div className="w-8 h-8 rounded-full bg-[#D946EF]/20 border border-[#D946EF] flex items-center justify-center text-white group-hover:scale-110 group-hover:bg-[#D946EF] group-hover:shadow-[0_0_15px_#D946EF] transition-all shrink-0 ml-2">
-            <ZoomIn className="w-4 h-4" />
-          </div>
-        </h4>
-      </div>
     </div>
   );
 }
