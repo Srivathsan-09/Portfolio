@@ -567,6 +567,43 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
   );
 }
 
+// Dynamically scan public/images/ on disk so added/deleted local files automatically update the gallery
+const imageModules = import.meta.glob('/public/images/**/*.{webp,jpg,jpeg,png,PNG,JPG,JPEG}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
+
+const categoryFolderMap = {
+  potraits: 'PORTRAITS',
+  portraits: 'PORTRAITS',
+  celebrities: 'PORTRAITS',
+  nature: 'NATURE',
+  events: 'EVENTS',
+  architecture: 'ARCHITECTURE',
+  moments: 'MOMENTS',
+};
+
+const galleryItems = Object.keys(imageModules).map((filePath, index) => {
+  const cleanSrc = filePath.replace('/public', '');
+  const parts = cleanSrc.split('/');
+  const folderName = (parts[2] || '').toLowerCase();
+  const category = categoryFolderMap[folderName] || folderName.toUpperCase();
+  const filename = parts[parts.length - 1];
+
+  return {
+    id: `img-${index}-${filename}`,
+    title: `${category} Feature ${String(index + 1).padStart(2, '0')}`,
+    category,
+    src: cleanSrc,
+  };
+});
+
+const getCoverImage = (catTitle, defaultFallback) => {
+  const item = galleryItems.find((img) => img.category === catTitle);
+  return item ? item.src : defaultFallback;
+};
+
 export default function Work() {
   const [activeCategoryModal, setActiveCategoryModal] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
@@ -583,108 +620,37 @@ export default function Work() {
       id: 'portraits',
       num: '01',
       title: 'PORTRAITS',
-      image: '/images/Potraits/1.webp',
+      image: getCoverImage('PORTRAITS', '/images/Potraits/1.webp'),
       offsetY: 'lg:mt-0',
     },
     {
       id: 'nature',
       num: '02',
       title: 'NATURE',
-      image: '/images/Nature/1.webp',
+      image: getCoverImage('NATURE', '/images/Nature/1.webp'),
       offsetY: 'lg:mt-8',
     },
     {
       id: 'events',
       num: '03',
       title: 'EVENTS',
-      image: '/images/Events/1.webp',
+      image: getCoverImage('EVENTS', '/images/Events/1.webp'),
       offsetY: 'lg:mt-0',
     },
     {
       id: 'architecture',
       num: '04',
       title: 'ARCHITECTURE',
-      image: '/images/Architecture/IMG_20260831_005035.webp',
+      image: getCoverImage('ARCHITECTURE', '/images/Architecture/IMG_20260831_005035.webp'),
       offsetY: 'lg:mt-8',
     },
     {
       id: 'moments',
       num: '05',
       title: 'MOMENTS',
-      image: '/images/Moments/IMG_20260929_200304.png',
+      image: getCoverImage('MOMENTS', '/images/Moments/IMG_20260929_200304.png'),
       offsetY: 'lg:mt-0',
     },
-  ];
-
-  // Complete List of All Photos Across All Categories
-  const galleryItems = [
-    // MOMENTS IN EXACT FILE ORDER (5 PHOTOS)
-    { id: 'moment-1', title: 'Moments Feature 01', category: 'MOMENTS', src: '/images/Moments/IMG_20260929_200304.png' },
-    { id: 'moment-2', title: 'Moments Feature 02', category: 'MOMENTS', src: '/images/Moments/IMG_20260929_161906.png' },
-    { id: 'moment-3', title: 'Moments Feature 03', category: 'MOMENTS', src: '/images/Moments/IMG_20260928_233639.png' },
-    { id: 'moment-4', title: 'Moments Feature 04', category: 'MOMENTS', src: '/images/Moments/IMG_20260919_123448.png' },
-    { id: 'moment-5', title: 'Moments Feature 05', category: 'MOMENTS', src: '/images/Moments/IMG_20260825_222408 (1).webp' },
-    // PORTRAITS INCLUDING CELEBRITY PORTRAITS (31 PHOTOS)
-    { id: 'celeb-1', title: 'Portrait Feature 13', category: 'PORTRAITS', src: '/images/Celebrities/1.webp' },
-    { id: 'celeb-2', title: 'Portrait Feature 14', category: 'PORTRAITS', src: '/images/Celebrities/2.webp' },
-    { id: 'celeb-3', title: 'Portrait Feature 15', category: 'PORTRAITS', src: '/images/Celebrities/3.webp' },
-    { id: 'celeb-4', title: 'Portrait Feature 16', category: 'PORTRAITS', src: '/images/Celebrities/4.5.webp' },
-    { id: 'celeb-5', title: 'Portrait Feature 17', category: 'PORTRAITS', src: '/images/Celebrities/15.webp' },
-    { id: 'celeb-6', title: 'Portrait Feature 18', category: 'PORTRAITS', src: '/images/Celebrities/4.webp' },
-    { id: 'celeb-7', title: 'Portrait Feature 19', category: 'PORTRAITS', src: '/images/Celebrities/5.webp' },
-    { id: 'celeb-8', title: 'Portrait Feature 20', category: 'PORTRAITS', src: '/images/Celebrities/7.webp' },
-    { id: 'celeb-9', title: 'Portrait Feature 21', category: 'PORTRAITS', src: '/images/Celebrities/7.5.webp' },
-    { id: 'celeb-10', title: 'Portrait Feature 22', category: 'PORTRAITS', src: '/images/Celebrities/16.webp' },
-    { id: 'celeb-11', title: 'Portrait Feature 23', category: 'PORTRAITS', src: '/images/Celebrities/6.webp' },
-    { id: 'celeb-12', title: 'Portrait Feature 24', category: 'PORTRAITS', src: '/images/Celebrities/9.webp' },
-    { id: 'celeb-13', title: 'Portrait Feature 25', category: 'PORTRAITS', src: '/images/Celebrities/8.webp' },
-    { id: 'celeb-14', title: 'Portrait Feature 26', category: 'PORTRAITS', src: '/images/Celebrities/10.webp' },
-    { id: 'celeb-15', title: 'Portrait Feature 27', category: 'PORTRAITS', src: '/images/Celebrities/17.webp' },
-    { id: 'celeb-16', title: 'Portrait Feature 28', category: 'PORTRAITS', src: '/images/Celebrities/11.webp' },
-    { id: 'celeb-17', title: 'Portrait Feature 29', category: 'PORTRAITS', src: '/images/Celebrities/12.webp' },
-    { id: 'celeb-18', title: 'Portrait Feature 30', category: 'PORTRAITS', src: '/images/Celebrities/18.webp' },
-    { id: 'celeb-19', title: 'Portrait Feature 31', category: 'PORTRAITS', src: '/images/Celebrities/19.webp' },
-    { id: 'portrait-1', title: 'Portrait Feature 01', category: 'PORTRAITS', src: '/images/Potraits/1.webp' },
-    { id: 'portrait-2', title: 'Portrait Feature 02', category: 'PORTRAITS', src: '/images/Potraits/1000189348.webp' },
-    { id: 'portrait-3', title: 'Portrait Feature 03', category: 'PORTRAITS', src: '/images/Potraits/DV_04889.webp' },
-    { id: 'portrait-4', title: 'Portrait Feature 04', category: 'PORTRAITS', src: '/images/Potraits/DV_04915.webp' },
-    { id: 'portrait-5', title: 'Portrait Feature 05', category: 'PORTRAITS', src: '/images/Potraits/DV_04941.webp' },
-    { id: 'portrait-6', title: 'Portrait Feature 06', category: 'PORTRAITS', src: '/images/Potraits/DV_06176.webp' },
-    { id: 'portrait-7', title: 'Portrait Feature 07', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260329_002734.webp' },
-    { id: 'portrait-8', title: 'Portrait Feature 08', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260417_154531.webp' },
-    { id: 'portrait-9', title: 'Portrait Feature 09', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260417_155522.webp' },
-    { id: 'portrait-10', title: 'Portrait Feature 10', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260530_150809.webp' },
-    { id: 'portrait-11', title: 'Portrait Feature 11', category: 'PORTRAITS', src: '/images/Potraits/IMG_20260530_151137.webp' },
-    { id: 'portrait-12', title: 'Portrait Feature 12', category: 'PORTRAITS', src: '/images/Potraits/ChatGPT Image Aug 14, 2026, 11_34_36 PM (2).webp' },
-
-    // EVENTS IN EXACT FILE ORDER (13 PHOTOS - LANDSCAPE FORMAT)
-    { id: 'event-1', title: 'Event Feature 01', category: 'EVENTS', src: '/images/Events/1.webp' },
-    { id: 'event-2', title: 'Event Feature 02', category: 'EVENTS', src: '/images/Events/2.webp' },
-    { id: 'event-3', title: 'Event Feature 03', category: 'EVENTS', src: '/images/Events/3.webp' },
-    { id: 'event-4', title: 'Event Feature 04', category: 'EVENTS', src: '/images/Events/DV_06538.webp' },
-    { id: 'event-5', title: 'Event Feature 05', category: 'EVENTS', src: '/images/Events/IMG_0329.webp' },
-    { id: 'event-6', title: 'Event Feature 06', category: 'EVENTS', src: '/images/Events/IMG_0442.webp' },
-    { id: 'event-7', title: 'Event Feature 07', category: 'EVENTS', src: '/images/Events/IMG_0546.webp' },
-    { id: 'event-8', title: 'Event Feature 08', category: 'EVENTS', src: '/images/Events/IMG_20260812_224848.webp' },
-    { id: 'event-9', title: 'Event Feature 09', category: 'EVENTS', src: '/images/Events/IMG_20260812_224948.webp' },
-    { id: 'event-10', title: 'Event Feature 10', category: 'EVENTS', src: '/images/Events/ChatGPT Image Aug 12, 2026, 10_39_21 PM.webp' },
-    { id: 'event-11', title: 'Event Feature 11', category: 'EVENTS', src: '/images/Events/ChatGPT Image Aug 12, 2026, 11_05_02 PM.webp' },
-    { id: 'event-12', title: 'Event Feature 12', category: 'EVENTS', src: '/images/Events/IMG_4828.webp' },
-    { id: 'event-13', title: 'Event Feature 13', category: 'EVENTS', src: '/images/Events/IMG_4845.webp' },
-
-    // NATURE IN EXACT FILE ORDER (8 PHOTOS)
-    { id: 'nature-1', title: 'Nature Feature 01', category: 'NATURE', src: '/images/Nature/1.webp' },
-    { id: 'nature-2', title: 'Nature Feature 02', category: 'NATURE', src: '/images/Nature/2.webp' },
-    { id: 'nature-3', title: 'Nature Feature 03', category: 'NATURE', src: '/images/Nature/1000006787-01.webp' },
-    { id: 'nature-4', title: 'Nature Feature 04', category: 'NATURE', src: '/images/Nature/IMG_20240430_174208 (1).webp' },
-    { id: 'nature-5', title: 'Nature Feature 05', category: 'NATURE', src: '/images/Nature/IMG_20240505_113645.webp' },
-    { id: 'nature-6', title: 'Nature Feature 06', category: 'NATURE', src: '/images/Nature/IMG_20260812_232109.webp' },
-    { id: 'nature-7', title: 'Nature Feature 07', category: 'NATURE', src: '/images/Nature/IMG_20260825_222408 (1).webp' },
-    { id: 'nature-8', title: 'Nature Feature 08', category: 'NATURE', src: '/images/Nature/file_00000000d8e082118f7415f4ee04e1f0.webp' },
-
-    // ARCHITECTURE IN EXACT FILE ORDER (2 PHOTOS)
-    { id: 'arch-1', title: 'Architecture Feature 01', category: 'ARCHITECTURE', src: '/images/Architecture/IMG_20260831_005035.webp' },
-    { id: 'arch-2', title: 'Architecture Feature 02', category: 'ARCHITECTURE', src: '/images/Architecture/IMG_20260831_005259.webp' },
   ];
 
   const filteredGallery = modalFilter === 'ALL'
