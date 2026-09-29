@@ -607,10 +607,23 @@ export default function Work() {
       image: '/images/Architecture/IMG_20260831_005035.webp',
       offsetY: 'lg:mt-8',
     },
+    {
+      id: 'moments',
+      num: '05',
+      title: 'MOMENTS',
+      image: '/images/Moments/IMG_20260929_200304.png',
+      offsetY: 'lg:mt-0',
+    },
   ];
 
   // Complete List of All Photos Across All Categories
   const galleryItems = [
+    // MOMENTS IN EXACT FILE ORDER (5 PHOTOS)
+    { id: 'moment-1', title: 'Moments Feature 01', category: 'MOMENTS', src: '/images/Moments/IMG_20260929_200304.png' },
+    { id: 'moment-2', title: 'Moments Feature 02', category: 'MOMENTS', src: '/images/Moments/IMG_20260929_161906.png' },
+    { id: 'moment-3', title: 'Moments Feature 03', category: 'MOMENTS', src: '/images/Moments/IMG_20260928_233639.png' },
+    { id: 'moment-4', title: 'Moments Feature 04', category: 'MOMENTS', src: '/images/Moments/IMG_20260919_123448.png' },
+    { id: 'moment-5', title: 'Moments Feature 05', category: 'MOMENTS', src: '/images/Moments/IMG_20260825_222408 (1).webp' },
     // PORTRAITS INCLUDING CELEBRITY PORTRAITS (31 PHOTOS)
     { id: 'celeb-1', title: 'Portrait Feature 13', category: 'PORTRAITS', src: '/images/Celebrities/1.webp' },
     { id: 'celeb-2', title: 'Portrait Feature 14', category: 'PORTRAITS', src: '/images/Celebrities/2.webp' },
@@ -809,7 +822,7 @@ export default function Work() {
               {/* Active Category Information Card (Compact on Mobile, Full Spacing on Desktop) */}
               <div ref={subtextRef} className="bg-white/5 border border-white/10 rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-8 backdrop-blur-md relative overflow-hidden shadow-xl">
                 <div className="flex items-center justify-between text-xs font-mono text-[#D946EF] font-bold tracking-wider uppercase mb-1.5 lg:mb-3">
-                  <span>COLLECTION {activeCategory.num} / 04</span>
+                  <span>COLLECTION {activeCategory.num} / 05</span>
                 </div>
 
                 <h3 className="font-oswald text-2xl sm:text-3xl lg:text-4xl font-bold text-white uppercase mb-1.5 lg:mb-3">
@@ -923,7 +936,7 @@ export default function Work() {
 
             {/* Category Filter Pills Row (Smooth Horizontal Scroll with NO Visible Scrollbars) */}
             <div className="flex items-center gap-2 overflow-x-auto py-1 w-full sm:w-auto no-scrollbar scrollbar-none shrink-0">
-              {['ALL', 'PORTRAITS', 'NATURE', 'EVENTS', 'ARCHITECTURE'].map((cat) => (
+              {['ALL', 'PORTRAITS', 'NATURE', 'EVENTS', 'ARCHITECTURE', 'MOMENTS'].map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setModalFilter(cat)}
