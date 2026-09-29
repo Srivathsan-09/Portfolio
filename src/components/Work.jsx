@@ -643,7 +643,16 @@ const rawGalleryItems = Object.keys(imageModules).map((filePath, index) => {
   };
 });
 
-const galleryItems = shuffleInterleave(rawGalleryItems);
+const initialGallery = shuffleInterleave(rawGalleryItems);
+
+// Ensure the red/gold tassel dancer photo (Celebrities/4.webp) is positioned as the 1st photo
+const targetIdx = initialGallery.findIndex((i) => i.src.includes('Celebrities/4.webp') || i.src.endsWith('/4.webp'));
+if (targetIdx > 0) {
+  const [targetItem] = initialGallery.splice(targetIdx, 1);
+  initialGallery.unshift(targetItem);
+}
+
+const galleryItems = initialGallery;
 
 const getCoverImage = (catTitle, defaultFallback) => {
   const item = galleryItems.find((img) => img.category === catTitle);
@@ -666,7 +675,7 @@ export default function Work() {
       id: 'portraits',
       num: '01',
       title: 'PORTRAITS',
-      image: getCoverImage('PORTRAITS', '/images/Potraits/1.webp'),
+      image: getCoverImage('PORTRAITS', '/images/Celebrities/4.webp'),
       offsetY: 'lg:mt-0',
     },
     {
