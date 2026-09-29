@@ -584,7 +584,51 @@ const categoryFolderMap = {
   moments: 'MOMENTS',
 };
 
-const galleryItems = Object.keys(imageModules).map((filePath, index) => {
+// Deterministic pseudo-random interleave shuffle helper for a varied gallery grid layout
+const shuffleInterleave = (arr) => {
+  const items = [...arr];
+  let seed = 1337;
+  const random = () => {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
+  };
+
+  // Seeded Fisher-Yates Shuffle
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+
+  // Ensure no 2 adjacent photos share the same subject group or filename prefix
+  const getSubjectKey = (src) => {
+    const filename = src.split('/').pop().toLowerCase().replace(/\.\w+$/, '');
+    if (filename.startsWith('15') || filename.startsWith('16') || filename.startsWith('17') || filename.startsWith('18')) return 'singer-floral';
+    if (filename.startsWith('1') || filename.startsWith('6')) return 'dancer-red';
+    if (filename.startsWith('2') || filename.startsWith('19')) return 'dancer-white';
+    if (filename.startsWith('4.5') || filename.startsWith('10') || filename.startsWith('14')) return 'dancer-black';
+    if (filename.startsWith('7') || filename.startsWith('8')) return 'dancer-hat';
+    if (filename.startsWith('dv_049') || filename.startsWith('dv_061')) return 'concert-blue';
+    return filename;
+  };
+
+  for (let i = 1; i < items.length - 1; i++) {
+    const prevKey = getSubjectKey(items[i - 1].src);
+    const currKey = getSubjectKey(items[i].src);
+
+    if (prevKey === currKey) {
+      for (let k = i + 1; k < items.length; k++) {
+        if (getSubjectKey(items[k].src) !== prevKey) {
+          [items[i], items[k]] = [items[k], items[i]];
+          break;
+        }
+      }
+    }
+  }
+
+  return items;
+};
+
+const rawGalleryItems = Object.keys(imageModules).map((filePath, index) => {
   const cleanSrc = filePath.replace('/public', '');
   const parts = cleanSrc.split('/');
   const folderName = (parts[2] || '').toLowerCase();
@@ -598,6 +642,8 @@ const galleryItems = Object.keys(imageModules).map((filePath, index) => {
     src: cleanSrc,
   };
 });
+
+const galleryItems = shuffleInterleave(rawGalleryItems);
 
 const getCoverImage = (catTitle, defaultFallback) => {
   const item = galleryItems.find((img) => img.category === catTitle);
