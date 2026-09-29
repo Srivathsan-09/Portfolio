@@ -645,11 +645,23 @@ const rawGalleryItems = Object.keys(imageModules).map((filePath, index) => {
 
 const initialGallery = shuffleInterleave(rawGalleryItems);
 
-// Ensure the red/gold tassel dancer photo (Celebrities/4.webp) is positioned as the 1st photo
+// Ensure the red/gold tassel dancer photo (Celebrities/4.webp) is positioned as the 1st photo in ALL / PORTRAITS
 const targetIdx = initialGallery.findIndex((i) => i.src.includes('Celebrities/4.webp') || i.src.endsWith('/4.webp'));
 if (targetIdx > 0) {
   const [targetItem] = initialGallery.splice(targetIdx, 1);
   initialGallery.unshift(targetItem);
+}
+
+// Ensure the Deadpool hoodie performer (Events/IMG_0546.webp) is 1st in EVENTS gallery
+const eventTargetIdx = initialGallery.findIndex((i) => i.src.includes('IMG_0546.webp'));
+if (eventTargetIdx > -1) {
+  const [eventItem] = initialGallery.splice(eventTargetIdx, 1);
+  const firstEventIdx = initialGallery.findIndex((i) => i.category === 'EVENTS');
+  if (firstEventIdx > -1) {
+    initialGallery.splice(firstEventIdx, 0, eventItem);
+  } else {
+    initialGallery.push(eventItem);
+  }
 }
 
 const galleryItems = initialGallery;
@@ -675,7 +687,7 @@ export default function Work() {
       id: 'portraits',
       num: '01',
       title: 'PORTRAITS',
-      image: getCoverImage('PORTRAITS', '/images/Celebrities/4.webp'),
+      image: '/images/Celebrities/1.webp',
       offsetY: 'lg:mt-0',
     },
     {
@@ -689,7 +701,7 @@ export default function Work() {
       id: 'events',
       num: '03',
       title: 'EVENTS',
-      image: getCoverImage('EVENTS', '/images/Events/1.webp'),
+      image: '/images/Events/IMG_0546.webp',
       offsetY: 'lg:mt-0',
     },
     {
