@@ -383,6 +383,9 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
 
   const lensStops = ['f/1.4', '35mm', 'f/2.8', '50mm', 'f/5.6', '85mm', 'f/11', '135mm', 'f/16', 'f/22'];
 
+  const numSectors = categories.length;
+  const segmentAngle = 360 / numSectors;
+
   return (
     <div className="relative flex flex-col items-center justify-center select-none w-full max-w-[540px] mx-auto py-2">
       {/* Outer Radial Ambient Light Glow */}
@@ -414,20 +417,24 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
               <stop offset="100%" stopColor="#000000" stopOpacity="0.2" />
             </radialGradient>
 
-            {/* 5 Sector Arc Paths for SVG Curved Text */}
-            {[0, 72, 144, 216, 288].map((startAngle, idx) => (
-              <path
-                key={`text-path-${idx}`}
-                id={`sectorTextArc-${idx}`}
-                d={describeTextArc(200, 200, 143, startAngle + 5, startAngle + 67)}
-              />
-            ))}
+            {/* Dynamic Sector Arc Paths for SVG Curved Text */}
+            {categories.map((_, idx) => {
+              const startAngle = idx * segmentAngle;
+              return (
+                <path
+                  key={`text-path-${idx}`}
+                  id={`sectorTextArc-${idx}`}
+                  d={describeTextArc(200, 200, 143, startAngle + 5, startAngle + segmentAngle - 5)}
+                />
+              );
+            })}
           </defs>
 
-          {/* 5 Sector Background Arcs (Clickable) */}
-          {[0, 72, 144, 216, 288].map((startAngle, idx) => {
+          {/* Dynamic Sector Background Arcs (Clickable) */}
+          {categories.map((_, idx) => {
+            const startAngle = idx * segmentAngle;
             const isSelected = activeIndex === idx;
-            const pathData = describeArc(200, 200, 96, 190, startAngle, startAngle + 72);
+            const pathData = describeArc(200, 200, 96, 190, startAngle, startAngle + segmentAngle);
             return (
               <path
                 key={idx}
@@ -439,13 +446,13 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
                 onClick={(e) => {
                   e.stopPropagation();
                   onSelectCategory(idx);
-                  setRotationAngle(-idx * 72);
+                  setRotationAngle(-idx * segmentAngle);
                 }}
               />
             );
           })}
 
-          {/* Curved Category Labels along Sector Arcs (NO OVERFLOW EVER!) */}
+          {/* Curved Category Labels along Sector Arcs */}
           {categories.map((cat, idx) => {
             const isSelected = activeIndex === idx;
             return (
@@ -455,7 +462,7 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
                 onClick={(e) => {
                   e.stopPropagation();
                   onSelectCategory(idx);
-                  setRotationAngle(-idx * 72);
+                  setRotationAngle(-idx * segmentAngle);
                 }}
               >
                 <textPath
@@ -508,8 +515,9 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
           <circle cx="200" cy="200" r="96" fill="none" stroke="rgba(255, 255, 255, 0.35)" strokeWidth="3" />
           <circle cx="200" cy="200" r="90" fill="none" stroke="rgba(255, 154, 60, 0.5)" strokeWidth="1.5" />
 
-          {/* 5 Spoke Partition Lines */}
-          {[0, 72, 144, 216, 288].map((angle, idx) => {
+          {/* Spoke Partition Lines */}
+          {categories.map((_, idx) => {
+            const angle = idx * segmentAngle;
             const rad = (angle - 90) * (Math.PI / 180);
             const x1 = 200 + 96 * Math.cos(rad);
             const y1 = 200 + 96 * Math.sin(rad);
@@ -530,7 +538,7 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
           })}
         </svg>
 
-        {/* Center Camera Viewfinder Iris (Clean Title & CTA, No Collection Text) */}
+        {/* Center Camera Viewfinder Iris */}
         <div
           onClick={(e) => {
             e.stopPropagation();
@@ -555,7 +563,7 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
           <div className="absolute bottom-2.5 left-2.5 w-3 h-3 border-b-2 border-l-2 border-[#FF9A3C]/80 pointer-events-none" />
           <div className="absolute bottom-2.5 right-2.5 w-3 h-3 border-b-2 border-r-2 border-[#FF9A3C]/80 pointer-events-none" />
 
-          {/* Center Lens CTA Details (Title & Explore Pill Only) */}
+          {/* Center Lens CTA Details */}
           <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center z-10">
             <h4 className="font-oswald text-base sm:text-lg lg:text-xl font-bold text-white uppercase leading-tight my-0.5 drop-shadow-md">
               {activeCategory.title}
@@ -613,45 +621,36 @@ export default function Work() {
       offsetY: 'lg:mt-0',
     },
     {
-      id: 'celebrities',
-      num: '04',
-      title: 'CELEBRITIES',
-      image: '/images/Celebrities/1.webp',
-      offsetY: 'lg:mt-8',
-    },
-    {
       id: 'architecture',
-      num: '05',
+      num: '04',
       title: 'ARCHITECTURE',
       image: '/images/Architecture/IMG_20260831_005035.webp',
-      offsetY: 'lg:mt-0',
+      offsetY: 'lg:mt-8',
     },
   ];
 
   // Complete List of All Photos Across All Categories
   const galleryItems = [
-    // CELEBRITIES INTERLEAVED FOR ZERO ROW REPETITION (19 PHOTOS)
-    { id: 'celeb-1', title: 'Celebrity Feature 01', category: 'CELEBRITIES', src: '/images/Celebrities/1.webp' },
-    { id: 'celeb-2', title: 'Celebrity Feature 02', category: 'CELEBRITIES', src: '/images/Celebrities/2.webp' },
-    { id: 'celeb-3', title: 'Celebrity Feature 03', category: 'CELEBRITIES', src: '/images/Celebrities/3.webp' },
-    { id: 'celeb-4', title: 'Celebrity Feature 04', category: 'CELEBRITIES', src: '/images/Celebrities/4.5.webp' },
-    { id: 'celeb-5', title: 'Celebrity Feature 05', category: 'CELEBRITIES', src: '/images/Celebrities/15.webp' },
-    { id: 'celeb-6', title: 'Celebrity Feature 06', category: 'CELEBRITIES', src: '/images/Celebrities/4.webp' },
-    { id: 'celeb-7', title: 'Celebrity Feature 07', category: 'CELEBRITIES', src: '/images/Celebrities/5.webp' },
-    { id: 'celeb-8', title: 'Celebrity Feature 08', category: 'CELEBRITIES', src: '/images/Celebrities/7.webp' },
-    { id: 'celeb-9', title: 'Celebrity Feature 09', category: 'CELEBRITIES', src: '/images/Celebrities/7.5.webp' },
-    { id: 'celeb-10', title: 'Celebrity Feature 10', category: 'CELEBRITIES', src: '/images/Celebrities/16.webp' },
-    { id: 'celeb-11', title: 'Celebrity Feature 11', category: 'CELEBRITIES', src: '/images/Celebrities/6.webp' },
-    { id: 'celeb-12', title: 'Celebrity Feature 12', category: 'CELEBRITIES', src: '/images/Celebrities/9.webp' },
-    { id: 'celeb-13', title: 'Celebrity Feature 13', category: 'CELEBRITIES', src: '/images/Celebrities/8.webp' },
-    { id: 'celeb-14', title: 'Celebrity Feature 14', category: 'CELEBRITIES', src: '/images/Celebrities/10.webp' },
-    { id: 'celeb-15', title: 'Celebrity Feature 15', category: 'CELEBRITIES', src: '/images/Celebrities/17.webp' },
-    { id: 'celeb-16', title: 'Celebrity Feature 16', category: 'CELEBRITIES', src: '/images/Celebrities/11.webp' },
-    { id: 'celeb-17', title: 'Celebrity Feature 17', category: 'CELEBRITIES', src: '/images/Celebrities/12.webp' },
-    { id: 'celeb-18', title: 'Celebrity Feature 18', category: 'CELEBRITIES', src: '/images/Celebrities/18.webp' },
-    { id: 'celeb-19', title: 'Celebrity Feature 19', category: 'CELEBRITIES', src: '/images/Celebrities/19.webp' },
-
-    // PORTRAITS IN EXACT FILE ORDER (12 PHOTOS)
+    // PORTRAITS INCLUDING CELEBRITY PORTRAITS (31 PHOTOS)
+    { id: 'celeb-1', title: 'Portrait Feature 13', category: 'PORTRAITS', src: '/images/Celebrities/1.webp' },
+    { id: 'celeb-2', title: 'Portrait Feature 14', category: 'PORTRAITS', src: '/images/Celebrities/2.webp' },
+    { id: 'celeb-3', title: 'Portrait Feature 15', category: 'PORTRAITS', src: '/images/Celebrities/3.webp' },
+    { id: 'celeb-4', title: 'Portrait Feature 16', category: 'PORTRAITS', src: '/images/Celebrities/4.5.webp' },
+    { id: 'celeb-5', title: 'Portrait Feature 17', category: 'PORTRAITS', src: '/images/Celebrities/15.webp' },
+    { id: 'celeb-6', title: 'Portrait Feature 18', category: 'PORTRAITS', src: '/images/Celebrities/4.webp' },
+    { id: 'celeb-7', title: 'Portrait Feature 19', category: 'PORTRAITS', src: '/images/Celebrities/5.webp' },
+    { id: 'celeb-8', title: 'Portrait Feature 20', category: 'PORTRAITS', src: '/images/Celebrities/7.webp' },
+    { id: 'celeb-9', title: 'Portrait Feature 21', category: 'PORTRAITS', src: '/images/Celebrities/7.5.webp' },
+    { id: 'celeb-10', title: 'Portrait Feature 22', category: 'PORTRAITS', src: '/images/Celebrities/16.webp' },
+    { id: 'celeb-11', title: 'Portrait Feature 23', category: 'PORTRAITS', src: '/images/Celebrities/6.webp' },
+    { id: 'celeb-12', title: 'Portrait Feature 24', category: 'PORTRAITS', src: '/images/Celebrities/9.webp' },
+    { id: 'celeb-13', title: 'Portrait Feature 25', category: 'PORTRAITS', src: '/images/Celebrities/8.webp' },
+    { id: 'celeb-14', title: 'Portrait Feature 26', category: 'PORTRAITS', src: '/images/Celebrities/10.webp' },
+    { id: 'celeb-15', title: 'Portrait Feature 27', category: 'PORTRAITS', src: '/images/Celebrities/17.webp' },
+    { id: 'celeb-16', title: 'Portrait Feature 28', category: 'PORTRAITS', src: '/images/Celebrities/11.webp' },
+    { id: 'celeb-17', title: 'Portrait Feature 29', category: 'PORTRAITS', src: '/images/Celebrities/12.webp' },
+    { id: 'celeb-18', title: 'Portrait Feature 30', category: 'PORTRAITS', src: '/images/Celebrities/18.webp' },
+    { id: 'celeb-19', title: 'Portrait Feature 31', category: 'PORTRAITS', src: '/images/Celebrities/19.webp' },
     { id: 'portrait-1', title: 'Portrait Feature 01', category: 'PORTRAITS', src: '/images/Potraits/1.webp' },
     { id: 'portrait-2', title: 'Portrait Feature 02', category: 'PORTRAITS', src: '/images/Potraits/1000189348.webp' },
     { id: 'portrait-3', title: 'Portrait Feature 03', category: 'PORTRAITS', src: '/images/Potraits/DV_04889.webp' },
@@ -830,7 +829,7 @@ export default function Work() {
               {/* Active Category Information Card (Compact on Mobile, Full Spacing on Desktop) */}
               <div ref={subtextRef} className="bg-white/5 border border-white/10 rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-8 backdrop-blur-md relative overflow-hidden shadow-xl">
                 <div className="flex items-center justify-between text-xs font-mono text-[#D946EF] font-bold tracking-wider uppercase mb-1.5 lg:mb-3">
-                  <span>COLLECTION {activeCategory.num} / 05</span>
+                  <span>COLLECTION {activeCategory.num} / 04</span>
                 </div>
 
                 <h3 className="font-oswald text-2xl sm:text-3xl lg:text-4xl font-bold text-white uppercase mb-1.5 lg:mb-3">
@@ -944,7 +943,7 @@ export default function Work() {
 
             {/* Category Filter Pills Row (Smooth Horizontal Scroll with NO Visible Scrollbars) */}
             <div className="flex items-center gap-2 overflow-x-auto py-1 w-full sm:w-auto no-scrollbar scrollbar-none shrink-0">
-              {['ALL', 'PORTRAITS', 'NATURE', 'EVENTS', 'CELEBRITIES', 'ARCHITECTURE'].map((cat) => (
+              {['ALL', 'PORTRAITS', 'NATURE', 'EVENTS', 'ARCHITECTURE'].map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setModalFilter(cat)}
