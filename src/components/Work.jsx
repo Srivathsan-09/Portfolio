@@ -138,7 +138,7 @@ function Interactive3DCard({ card, num, title, image, offsetY, onClick, innerRef
   );
 }
 
-// Optimized 3D Interactive Animated Card for Modal Gallery Grid (Landscape for EVENTS, Portrait for others)
+// Optimized 3D Interactive Animated Card for Modal Gallery Grid
 function ModalGalleryCard({ item, onClick }) {
   const cardRef = useRef(null);
   const imgRef = useRef(null);
@@ -146,8 +146,7 @@ function ModalGalleryCard({ item, onClick }) {
   const contentRef = useRef(null);
   const rafId = useRef(null);
 
-  const isLandscape = item.category === 'EVENTS';
-  const aspectClass = isLandscape ? 'aspect-[16/10]' : 'aspect-[3/4]';
+  const aspectClass = 'aspect-[3/4]';
 
   const handleMouseMove = (e) => {
     if (window.matchMedia('(pointer: coarse)').matches) return;
@@ -579,7 +578,6 @@ const categoryFolderMap = {
   portraits: 'PORTRAITS',
   celebrities: 'PORTRAITS',
   nature: 'NATURE',
-  events: 'EVENTS',
   architecture: 'ARCHITECTURE',
   moments: 'MOMENTS',
 };
@@ -601,9 +599,10 @@ const shuffleInterleave = (arr) => {
 
   // Ensure no 2 adjacent photos share the same subject group or filename prefix
   const getSubjectKey = (src) => {
-    const filename = src.split('/').pop().toLowerCase().replace(/\.\w+$/, '');
-    if (filename.startsWith('15') || filename.startsWith('16') || filename.startsWith('17') || filename.startsWith('18')) return 'singer-floral';
-    if (filename.startsWith('1') || filename.startsWith('6')) return 'dancer-red';
+    const filename = decodeURIComponent(src.split('/').pop().toLowerCase().replace(/\.\w+$/, ''));
+    if (filename.includes('floral') || filename.startsWith('15') || filename.startsWith('16') || filename.startsWith('17') || filename.startsWith('18')) return 'singer-floral';
+    if (filename.includes('red and gold') || filename.startsWith('1') || filename.startsWith('6')) return 'dancer-red';
+    if (filename.includes('denim') || filename.includes('spotlight singer')) return 'singer-denim';
     if (filename.startsWith('2') || filename.startsWith('19')) return 'dancer-white';
     if (filename.startsWith('4.5') || filename.startsWith('10') || filename.startsWith('14')) return 'dancer-black';
     if (filename.startsWith('7') || filename.startsWith('8')) return 'dancer-hat';
@@ -628,20 +627,39 @@ const shuffleInterleave = (arr) => {
   return items;
 };
 
-const rawGalleryItems = Object.keys(imageModules).map((filePath, index) => {
-  const cleanSrc = filePath.replace('/public', '');
-  const parts = cleanSrc.split('/');
-  const folderName = (parts[2] || '').toLowerCase();
-  const category = categoryFolderMap[folderName] || folderName.toUpperCase();
-  const filename = parts[parts.length - 1];
+const rawGalleryItems = Object.keys(imageModules)
+  .filter((filePath) => {
+    const cleanSrc = filePath.replace('/public', '');
+    const parts = cleanSrc.split('/');
+    // Must be inside a subfolder under images: /images/<category>/<filename>
+    return parts.length > 3 && Boolean(categoryFolderMap[parts[2]?.toLowerCase()]);
+  })
+  .map((filePath, index) => {
+    const cleanSrc = filePath.replace('/public', '');
+    const parts = cleanSrc.split('/');
+    const folderName = (parts[2] || '').toLowerCase();
+    const category = categoryFolderMap[folderName] || folderName.toUpperCase();
+    const filename = parts[parts.length - 1];
 
-  return {
-    id: `img-${index}-${filename}`,
-    title: `${category} Feature ${String(index + 1).padStart(2, '0')}`,
-    category,
-    src: cleanSrc,
-  };
-});
+    const nameWithoutExt = decodeURIComponent(filename).replace(/\.[^/.]+$/, '');
+    const isDescriptiveName =
+      /^[A-Za-z][A-Za-z0-9 _-]{4,}$/.test(nameWithoutExt) &&
+      !nameWithoutExt.toUpperCase().startsWith('IMG_') &&
+      !nameWithoutExt.toUpperCase().startsWith('DV_') &&
+      !nameWithoutExt.toUpperCase().startsWith('CHATGPT') &&
+      !nameWithoutExt.startsWith('_MG_');
+
+    const title = isDescriptiveName
+      ? nameWithoutExt
+      : `${category} Feature ${String(index + 1).padStart(2, '0')}`;
+
+    return {
+      id: `img-${index}-${filename}`,
+      title,
+      category,
+      src: cleanSrc,
+    };
+  });
 
 const initialGallery = shuffleInterleave(rawGalleryItems);
 
@@ -650,18 +668,6 @@ const targetIdx = initialGallery.findIndex((i) => i.src.includes('Celebrities/4.
 if (targetIdx > 0) {
   const [targetItem] = initialGallery.splice(targetIdx, 1);
   initialGallery.unshift(targetItem);
-}
-
-// Ensure the Deadpool hoodie performer (Events/IMG_0546.webp) is 1st in EVENTS gallery
-const eventTargetIdx = initialGallery.findIndex((i) => i.src.includes('IMG_0546.webp'));
-if (eventTargetIdx > -1) {
-  const [eventItem] = initialGallery.splice(eventTargetIdx, 1);
-  const firstEventIdx = initialGallery.findIndex((i) => i.category === 'EVENTS');
-  if (firstEventIdx > -1) {
-    initialGallery.splice(firstEventIdx, 0, eventItem);
-  } else {
-    initialGallery.push(eventItem);
-  }
 }
 
 const galleryItems = initialGallery;
@@ -698,25 +704,18 @@ export default function Work() {
       offsetY: 'lg:mt-8',
     },
     {
-      id: 'events',
-      num: '03',
-      title: 'EVENTS',
-      image: '/images/Events/IMG_0546.webp',
-      offsetY: 'lg:mt-0',
-    },
-    {
       id: 'architecture',
-      num: '04',
+      num: '03',
       title: 'ARCHITECTURE',
       image: getCoverImage('ARCHITECTURE', '/images/Architecture/IMG_20260831_005035.webp'),
-      offsetY: 'lg:mt-8',
+      offsetY: 'lg:mt-0',
     },
     {
       id: 'moments',
-      num: '05',
+      num: '04',
       title: 'MOMENTS',
       image: getCoverImage('MOMENTS', '/images/Moments/IMG_20260929_200304.png'),
-      offsetY: 'lg:mt-0',
+      offsetY: 'lg:mt-8',
     },
   ];
 
@@ -855,7 +854,7 @@ export default function Work() {
               {/* Active Category Information Card (Compact on Mobile, Full Spacing on Desktop) */}
               <div ref={subtextRef} className="bg-white/5 border border-white/10 rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-8 backdrop-blur-md relative overflow-hidden shadow-xl">
                 <div className="flex items-center justify-between text-xs font-mono text-[#D946EF] font-bold tracking-wider uppercase mb-1.5 lg:mb-3">
-                  <span>COLLECTION {activeCategory.num} / 05</span>
+                  <span>COLLECTION {activeCategory.num} / {String(workCards.length).padStart(2, '0')}</span>
                 </div>
 
                 <h3 className="font-oswald text-2xl sm:text-3xl lg:text-4xl font-bold text-white uppercase mb-1.5 lg:mb-3">
@@ -969,7 +968,7 @@ export default function Work() {
 
             {/* Category Filter Pills Row (Smooth Horizontal Scroll with NO Visible Scrollbars) */}
             <div className="flex items-center gap-2 overflow-x-auto py-1 w-full sm:w-auto no-scrollbar scrollbar-none shrink-0">
-              {['ALL', 'PORTRAITS', 'NATURE', 'EVENTS', 'ARCHITECTURE', 'MOMENTS'].map((cat) => (
+              {['ALL', 'PORTRAITS', 'NATURE', 'ARCHITECTURE', 'MOMENTS'].map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setModalFilter(cat)}
@@ -1010,12 +1009,8 @@ export default function Work() {
               </h3>
             </div>
 
-            {/* Dynamic Grid Layout: 2 Columns Landscape for EVENTS tab alone, 3 Columns Portrait for others */}
-            <div className={
-              modalFilter === 'EVENTS'
-                ? 'grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 pb-16 perspective-[1000px]'
-                : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 pb-16 perspective-[1000px]'
-            }>
+            {/* Dynamic Grid Layout: 3 Columns Portrait */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 pb-16 perspective-[1000px]">
               {filteredGallery.map((item) => (
                 <ModalGalleryCard
                   key={item.id}
