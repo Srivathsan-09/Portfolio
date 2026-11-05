@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowRight, X, ZoomIn, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, X, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -166,24 +166,24 @@ function ModalGalleryCard({ item, index = 0, onClick }) {
       const rotateX = ((y - centerY) / centerY) * -10;
       const rotateY = ((x - centerX) / centerX) * 10;
 
-      cardEl.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.03, 1.03, 1.03)`;
+      cardEl.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.025, 1.025, 1.025)`;
 
       if (imgRef.current) {
-        const moveX = ((x - centerX) / centerX) * -12;
-        const moveY = ((y - centerY) / centerY) * -12;
-        imgRef.current.style.transform = `scale(1.1) translate3d(${moveX}px, ${moveY}px, 12px)`;
+        const moveX = ((x - centerX) / centerX) * -8;
+        const moveY = ((y - centerY) / centerY) * -8;
+        imgRef.current.style.transform = `scale(1.06) translate3d(${moveX}px, ${moveY}px, 12px)`;
       }
 
       if (contentRef.current) {
-        const textX = ((x - centerX) / centerX) * 5;
-        const textY = ((y - centerY) / centerY) * 5;
-        contentRef.current.style.transform = `translate3d(${textX}px, ${textY}px, 28px)`;
+        const textX = ((x - centerX) / centerX) * 4;
+        const textY = ((y - centerY) / centerY) * 4;
+        contentRef.current.style.transform = `translate3d(${textX}px, ${textY}px, 20px)`;
       }
 
       if (glareRef.current) {
         const percentX = (x / rect.width) * 100;
         const percentY = (y / rect.height) * 100;
-        glareRef.current.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(217, 70, 239, 0.35), rgba(255, 154, 60, 0.15) 45%, transparent 70%)`;
+        glareRef.current.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(255, 176, 46, 0.35), rgba(255, 152, 0, 0.15) 45%, transparent 70%)`;
         glareRef.current.style.opacity = '1';
       }
     });
@@ -226,17 +226,19 @@ function ModalGalleryCard({ item, index = 0, onClick }) {
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`relative w-full max-w-[340px] sm:max-w-none mx-auto ${aspectClass} rounded-2xl overflow-hidden border border-white/10 cursor-pointer group card-border-glow bg-black/40 shadow-2xl transform-gpu transition-all duration-300 preserve-3d animate-fadeIn`}
+      data-cursor="view"
+      className={`gallery-photo-card relative w-full max-w-[340px] sm:max-w-none mx-auto ${aspectClass} rounded-2xl overflow-hidden border border-white/10 cursor-pointer group card-border-glow bg-[#0d0d0d] shadow-2xl transform-gpu transition-all duration-300 preserve-3d will-change-transform`}
       style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
     >
+      {/* High-Resolution Photography Image */}
       <img
         ref={imgRef}
         src={item.src}
         alt={item.title}
-        loading={index < 6 ? 'eager' : 'lazy'}
-        fetchPriority={index < 3 ? 'high' : 'auto'}
+        loading={index < 8 ? 'eager' : 'lazy'}
+        fetchPriority={index < 4 ? 'high' : 'auto'}
         decoding="async"
-        className="w-full h-full object-cover transform-gpu transition-transform duration-500 ease-out"
+        className="w-full h-full object-cover transform-gpu transition-transform duration-500 ease-out will-change-transform"
       />
 
       {/* Dynamic Specular Glare Layer */}
@@ -245,8 +247,40 @@ function ModalGalleryCard({ item, index = 0, onClick }) {
         className="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-20 mix-blend-screen"
       />
 
-      {/* Glowing Neon Border Ring */}
-      <div className="absolute inset-0 rounded-2xl border border-white/10 group-hover:border-[#FF9800] group-hover:shadow-[0_0_25px_rgba(255,152,0,0.45)] transition-all pointer-events-none" />
+      {/* Subtle Cinematic Dark Gradient Overlay (Reveals on Hover) */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10" />
+
+      {/* Thin Orange Top Accent Line (Reveals on Hover) */}
+      <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#FF9800] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-30" />
+
+      {/* Animated Image Index Badge (Top Left) */}
+      <div className="absolute top-3 left-3 z-20 px-2 py-0.5 rounded-md bg-black/75 border border-white/10 backdrop-blur-md opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 pointer-events-none">
+        <span className="text-[10px] font-mono text-[#FF9800] font-bold tracking-widest">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+      </div>
+
+      {/* Animated VIEW PHOTO Label & Photo Info (Bottom) */}
+      <div
+        ref={contentRef}
+        className="absolute bottom-3 inset-x-3 z-20 flex items-center justify-between pointer-events-none transform translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300"
+      >
+        <div className="flex flex-col min-w-0 pr-2">
+          <span className="text-[9px] font-mono text-[#FF9800] uppercase tracking-widest leading-tight">
+            {item.category}
+          </span>
+          <span className="text-xs font-oswald text-white uppercase font-bold tracking-wide truncate">
+            {item.title}
+          </span>
+        </div>
+        <div className="px-2.5 py-1 rounded-full bg-[#FF9800] text-black font-bold text-[10px] tracking-wider uppercase flex items-center gap-1 shadow-[0_0_15px_rgba(255,152,0,0.5)] shrink-0">
+          <span>VIEW PHOTO</span>
+          <ArrowRight className="w-3 h-3" />
+        </div>
+      </div>
+
+      {/* Glowing Neon Border Ring & Elegant Orange Hover Glow */}
+      <div className="absolute inset-0 rounded-2xl border border-white/10 group-hover:border-[#FF9800]/70 group-hover:shadow-[0_0_25px_rgba(255,152,0,0.45)] transition-all pointer-events-none z-20" />
     </div>
   );
 }
@@ -690,6 +724,9 @@ export default function Work() {
   const tagRef = useRef(null);
   const titleRef = useRef(null);
   const subtextRef = useRef(null);
+  const gridRef = useRef(null);
+  const modalScrollRef = useRef(null);
+  const lightboxImgRef = useRef(null);
 
   const workCards = [
     {
@@ -747,6 +784,23 @@ export default function Work() {
     setActiveIndex((prev) => (prev - 1 + workCards.length) % workCards.length);
   };
 
+  // Lightbox Previous & Next Navigation
+  const handlePrevPhoto = useCallback((e) => {
+    if (e) e.stopPropagation();
+    if (!filteredGallery.length) return;
+    const currentIndex = filteredGallery.findIndex((p) => p.id === selectedPhoto?.id);
+    const prevIdx = (currentIndex - 1 + filteredGallery.length) % filteredGallery.length;
+    setSelectedPhoto(filteredGallery[prevIdx]);
+  }, [filteredGallery, selectedPhoto?.id]);
+
+  const handleNextPhoto = useCallback((e) => {
+    if (e) e.stopPropagation();
+    if (!filteredGallery.length) return;
+    const currentIndex = filteredGallery.findIndex((p) => p.id === selectedPhoto?.id);
+    const nextIdx = (currentIndex + 1) % filteredGallery.length;
+    setSelectedPhoto(filteredGallery[nextIdx]);
+  }, [filteredGallery, selectedPhoto?.id]);
+
   // Register global window helper so navbar links can cleanly close all open modals
   useEffect(() => {
     window.closeAllModals = closeAll;
@@ -755,7 +809,7 @@ export default function Work() {
     };
   }, []);
 
-  // Lock body scroll and pause Lenis smooth scroll when modal is active
+  // Lock body scroll and pause Lenis smooth scroll when modal or lightbox is active
   useEffect(() => {
     if (activeCategoryModal || selectedPhoto) {
       document.body.style.overflow = 'hidden';
@@ -776,20 +830,136 @@ export default function Work() {
     };
   }, [activeCategoryModal, selectedPhoto]);
 
-  // Handle ESC key to close modal
+  // Full Keyboard Navigation: ArrowRight (Next), ArrowLeft (Prev), Escape (Close)
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        if (selectedPhoto) {
+      if (selectedPhoto) {
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          handleNextPhoto();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          handlePrevPhoto();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
           setSelectedPhoto(null);
-        } else if (activeCategoryModal) {
+        }
+      } else if (activeCategoryModal) {
+        if (e.key === 'Escape') {
           setActiveCategoryModal(false);
         }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeCategoryModal, selectedPhoto]);
+  }, [activeCategoryModal, selectedPhoto, handleNextPhoto, handlePrevPhoto]);
+
+  // Subtle Lightbox image transition when navigating between photographs
+  useEffect(() => {
+    if (!selectedPhoto || !lightboxImgRef.current) return;
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    gsap.fromTo(
+      lightboxImgRef.current,
+      {
+        opacity: 0,
+        scale: 0.95,
+      },
+      {
+        opacity: 1,
+        scale: 1,
+        duration: 0.35,
+        ease: 'power2.out',
+      }
+    );
+  }, [selectedPhoto]);
+
+  // 1. STAGGERED IMAGE REVEAL & 4. CATEGORY FILTER TRANSITIONS
+  useEffect(() => {
+    if (!activeCategoryModal || !gridRef.current) return;
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cards = gridRef.current.children;
+    if (!cards || cards.length === 0) return;
+
+    if (prefersReduced) {
+      gsap.set(cards, { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' });
+      return;
+    }
+
+    if (modalScrollRef.current) {
+      modalScrollRef.current.scrollTop = 0;
+    }
+
+    // Natural cascading staggered entrance with opacity, upward movement and blur-to-sharp
+    gsap.fromTo(
+      cards,
+      {
+        opacity: 0,
+        y: 28,
+        scale: 0.94,
+        filter: 'blur(8px)',
+      },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        filter: 'blur(0px)',
+        duration: 0.55,
+        ease: 'power3.out',
+        stagger: {
+          each: 0.035,
+          from: 'start',
+          grid: 'auto',
+        },
+        overwrite: 'auto',
+      }
+    );
+  }, [activeCategoryModal, modalFilter]);
+
+  // 6. SCROLL ANIMATIONS: Reveal gallery rows as they enter the viewport
+  useEffect(() => {
+    if (!activeCategoryModal || !modalScrollRef.current) return;
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    const cards = modalScrollRef.current.querySelectorAll('.gallery-photo-card');
+    if (!cards.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            gsap.fromTo(
+              entry.target,
+              { opacity: 0, y: 24, filter: 'blur(4px)' },
+              {
+                opacity: 1,
+                y: 0,
+                filter: 'blur(0px)',
+                duration: 0.45,
+                ease: 'power2.out',
+              }
+            );
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        root: modalScrollRef.current,
+        threshold: 0.08,
+      }
+    );
+
+    cards.forEach((card, idx) => {
+      if (idx >= 8) {
+        gsap.set(card, { opacity: 0, y: 24, filter: 'blur(4px)' });
+        observer.observe(card);
+      }
+    });
+
+    return () => observer.disconnect();
+  }, [activeCategoryModal, modalFilter]);
 
   useEffect(() => {
     const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1000,6 +1170,7 @@ export default function Work() {
 
           {/* MAIN MODAL SCROLLABLE PHOTO GRID */}
           <div
+            ref={modalScrollRef}
             data-lenis-prevent="true"
             className="flex-1 w-full max-w-7xl 2xl:max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-y-auto custom-scrollbar touch-pan-y transform-gpu overscroll-contain"
             style={{ WebkitOverflowScrolling: 'touch', willChange: 'scroll-position' }}
@@ -1015,7 +1186,10 @@ export default function Work() {
             </div>
 
             {/* Dynamic Grid Layout: 4 Columns on Desktop with Reduced Tight Gaps */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4 lg:gap-5 pb-16 perspective-[1000px]">
+            <div
+              ref={gridRef}
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4 lg:gap-5 pb-16 perspective-[1000px]"
+            >
               {filteredGallery.map((item, index) => (
                 <ModalGalleryCard
                   key={item.id}
@@ -1030,48 +1204,86 @@ export default function Work() {
         document.body
       )}
 
-      {/* SINGLE PHOTO FULLSCREEN LIGHTBOX (Rendered via React Portal at document.body level z-[100000]) */}
+      {/* 3. FULL-SCREEN LIGHTBOX (Rendered via React Portal at document.body level z-[100000]) */}
       {selectedPhoto && createPortal(
         <div
           data-lenis-prevent="true"
           onClick={() => setSelectedPhoto(null)}
-          className="fixed inset-0 z-[100000] bg-black/98 backdrop-blur-xl flex flex-col items-center justify-center p-6 animate-fadeIn cursor-pointer"
+          className="fixed inset-0 z-[100000] bg-black/98 backdrop-blur-xl flex flex-col items-center justify-center p-4 sm:p-6 animate-fadeIn cursor-default select-none overflow-hidden"
         >
-          <div className="absolute top-6 right-6 flex items-center gap-3 z-20">
-            <button
-              onClick={() => setSelectedPhoto(null)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 bg-white/10 text-xs font-bold text-white hover:border-[#FF9800] hover:bg-[#FF9800] hover:text-black hover:shadow-[0_0_20px_rgba(255,152,0,0.5)] transition-all cursor-pointer"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              <span>BACK TO GALLERY</span>
-            </button>
-            <button
-              onClick={() => setSelectedPhoto(null)}
-              aria-label="Close fullscreen photo"
-              className="w-10 h-10 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:border-[#FF9800] hover:bg-[#FF9800] hover:text-black hover:shadow-[0_0_20px_rgba(255,152,0,0.5)] transition-all cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
+          {/* Top Control Bar */}
+          <div className="absolute top-4 sm:top-6 inset-x-4 sm:inset-x-8 flex items-center justify-between z-40">
+            {/* Left: Category & Counter */}
+            <div className="flex items-center gap-2 sm:gap-3 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full backdrop-blur-md">
+              <span className="text-[10px] sm:text-xs font-mono text-[#FF9800] font-bold tracking-widest uppercase">
+                {selectedPhoto.category}
+              </span>
+              <span className="w-1 h-1 rounded-full bg-white/40" />
+              <span className="text-[10px] sm:text-xs font-mono text-white/70 font-semibold tracking-wider">
+                {filteredGallery.findIndex((p) => p.id === selectedPhoto.id) + 1} / {filteredGallery.length}
+              </span>
+            </div>
+
+            {/* Right: Back to Gallery & Close Controls */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button
+                onClick={() => setSelectedPhoto(null)}
+                className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full border border-white/20 bg-white/10 text-[11px] sm:text-xs font-bold text-white hover:border-[#FF9800] hover:bg-[#FF9800] hover:text-black hover:shadow-[0_0_20px_rgba(255,152,0,0.5)] transition-all cursor-pointer"
+              >
+                <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">BACK TO GALLERY</span>
+              </button>
+              <button
+                onClick={() => setSelectedPhoto(null)}
+                aria-label="Close fullscreen photo"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:border-[#FF9800] hover:bg-[#FF9800] hover:text-black hover:shadow-[0_0_20px_rgba(255,152,0,0.5)] transition-all cursor-pointer"
+              >
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
           </div>
 
+          {/* Previous Photograph Control Button */}
+          <button
+            onClick={handlePrevPhoto}
+            aria-label="Previous photograph"
+            className="absolute left-3 sm:left-8 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-14 sm:h-14 rounded-full border border-white/20 bg-black/70 backdrop-blur-md flex items-center justify-center text-white hover:border-[#FF9800] hover:bg-[#FF9800] hover:text-black hover:shadow-[0_0_25px_rgba(255,152,0,0.6)] transition-all cursor-pointer z-40 group"
+          >
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 transform group-hover:-translate-x-0.5 transition-transform" />
+          </button>
+
+          {/* Next Photograph Control Button */}
+          <button
+            onClick={handleNextPhoto}
+            aria-label="Next photograph"
+            className="absolute right-3 sm:right-8 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-14 sm:h-14 rounded-full border border-white/20 bg-black/70 backdrop-blur-md flex items-center justify-center text-white hover:border-[#FF9800] hover:bg-[#FF9800] hover:text-black hover:shadow-[0_0_25px_rgba(255,152,0,0.6)] transition-all cursor-pointer z-40 group"
+          >
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 transform group-hover:translate-x-0.5 transition-transform" />
+          </button>
+
+          {/* Center Stage Photograph & Subtle Transition Container */}
           <div
+            ref={lightboxImgRef}
             onClick={(e) => e.stopPropagation()}
-            className="relative max-h-[85vh] max-w-[90vw] flex flex-col items-center animate-scaleUp"
+            className="relative max-h-[85vh] max-w-[85vw] flex flex-col items-center z-30 will-change-transform"
           >
             <img
               src={selectedPhoto.src}
               alt={selectedPhoto.title}
               loading="eager"
               decoding="async"
-              className="max-h-[75vh] max-w-[90vw] object-contain rounded-2xl border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.9)]"
+              className="max-h-[72vh] sm:max-h-[76vh] max-w-[85vw] object-contain rounded-2xl border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.95)]"
             />
-            <div className="mt-5 text-center">
-              <span className="text-xs font-mono text-[#FF9800] uppercase tracking-widest block mb-1">
+            <div className="mt-4 sm:mt-5 text-center flex flex-col items-center">
+              <span className="text-xs font-mono text-[#FF9800] uppercase tracking-widest block mb-0.5 sm:mb-1">
                 {selectedPhoto.category}
               </span>
-              <h4 className="font-oswald text-2xl sm:text-3xl text-white uppercase tracking-wide font-bold">
+              <h4 className="font-oswald text-xl sm:text-2xl lg:text-3xl text-white uppercase tracking-wide font-bold">
                 {selectedPhoto.title}
               </h4>
+              <span className="hidden sm:inline-block text-[10px] font-mono text-white/40 tracking-widest mt-1.5 uppercase">
+                USE ← → ARROW KEYS OR ESC TO NAVIGATE
+              </span>
             </div>
           </div>
         </div>,
