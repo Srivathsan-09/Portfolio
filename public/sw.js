@@ -1,4 +1,4 @@
-const CACHE_NAME = 'portfolio-images-v3';
+const CACHE_NAME = 'portfolio-images-v4';
 const IMAGE_REGEX = /\.(webp|jpg|jpeg|png|gif|svg)$/i;
 
 // Activate service worker immediately
@@ -20,7 +20,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Cache-First strategy for images
+// Stale-While-Revalidate strategy for image assets so updates reflect immediately
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
@@ -30,19 +30,14 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
         return cache.match(request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          return fetch(request).then((networkResponse) => {
-            // Only cache valid 200 responses
-            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const fetchPromise = fetch(request).then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
               cache.put(request, networkResponse.clone());
             }
             return networkResponse;
-          }).catch(() => {
-            // Fallback if offline and not in cache
-            return cachedResponse;
-          });
+          }).catch(() => cachedResponse);
+
+          return cachedResponse || fetchPromise;
         });
       })
     );

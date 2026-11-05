@@ -20,7 +20,7 @@ export default function Hero({ scrollToSection }) {
   const heroSlides = [
     {
       id: 1,
-      image: '/images/hero.png',
+      image: '/images/hero.png?v=20261105',
       alt: 'Srivathsan holding camera with telephoto lens during golden hour',
       position: 'object-[54%_25%] sm:object-[70%_center] lg:object-center',
       shiftRight: true,

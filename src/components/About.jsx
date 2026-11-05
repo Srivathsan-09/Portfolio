@@ -65,7 +65,7 @@ export default function About({ scrollToSection }) {
       <div className="absolute inset-0 w-full h-full z-0 select-none pointer-events-none overflow-hidden">
         <img
           ref={bgImageRef}
-          src="/images/about.jpg"
+          src="/images/about.jpg?v=20261105"
           alt="Srivathsan photographer portrait smiling with Canon camera and white lens"
           loading="lazy"
           decoding="async"
