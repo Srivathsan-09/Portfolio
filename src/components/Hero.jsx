@@ -13,6 +13,8 @@ export default function Hero({ scrollToSection }) {
   const ctaRef = useRef(null);
   const sliderRef = useRef(null);
   const bgWrapperRef = useRef(null);
+  const lightSweepRef = useRef(null);
+  const curtainPanelsRef = useRef([]);
 
   // Functional slider state for the minimal slider interface
   const [activeSlide, setActiveSlide] = useState(0);
@@ -57,6 +59,8 @@ export default function Hero({ scrollToSection }) {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
       // 1. Entrance Animations on Page Mount
       const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.9 } });
 
@@ -69,13 +73,50 @@ export default function Hero({ scrollToSection }) {
         )
         .fromTo(textRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, '-=0.5')
         .fromTo(ctaRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, '-=0.5')
-        .fromTo(sliderRef.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.7 }, '-=0.4')
-        .fromTo(
-          bgWrapperRef.current,
-          { opacity: 0.8 },
-          { opacity: 1, duration: 1.0, ease: 'power2.out' },
-          0
-        );
+        .fromTo(sliderRef.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.7 }, '-=0.4');
+
+      if (!isReduced) {
+        // Multi-Panel Curtain Reveal: 5 vertical panels unveil with power4.inOut
+        const validPanels = curtainPanelsRef.current.filter(Boolean);
+        if (validPanels.length > 0) {
+          tl.to(
+            validPanels,
+            {
+              scaleY: 0,
+              transformOrigin: 'top',
+              duration: 1.2,
+              stagger: 0.08,
+              ease: 'power4.inOut',
+            },
+            0.1
+          );
+        }
+
+        // Restrained Cinematic Depth: Subtle scale 1.04 -> 1.0
+        if (bgWrapperRef.current) {
+          tl.fromTo(
+            bgWrapperRef.current,
+            { scale: 1.04 },
+            { scale: 1.0, duration: 1.5, ease: 'expo.out' },
+            0.05
+          );
+        }
+
+        // Warm light sweep during the reveal
+        if (lightSweepRef.current) {
+          tl.fromTo(
+            lightSweepRef.current,
+            { x: '-100%', opacity: 0 },
+            { x: '220%', opacity: 1, duration: 1.35, ease: 'power2.inOut' },
+            0.25
+          );
+        }
+      } else {
+        const validPanels = curtainPanelsRef.current.filter(Boolean);
+        if (validPanels.length > 0) {
+          gsap.set(validPanels, { scaleY: 0 });
+        }
+      }
 
       // 2. Smooth Scroll Parallax Fade Out on scroll
       const scrollTargets = [
@@ -103,16 +144,34 @@ export default function Hero({ scrollToSection }) {
     return () => ctx.revert();
   }, []);
 
+  // Micro-interaction on mouse move for subtle image movement on desktop
+  const handleMouseMove = (e) => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    const { clientX, clientY } = e;
+    const xPos = (clientX / window.innerWidth - 0.5) * 8;
+    const yPos = (clientY / window.innerHeight - 0.5) * 8;
+    if (bgWrapperRef.current) {
+      gsap.to(bgWrapperRef.current, {
+        x: xPos,
+        y: yPos,
+        duration: 1.4,
+        ease: 'power1.out',
+        overwrite: 'auto',
+      });
+    }
+  };
+
   const currentSlide = heroSlides[activeSlide];
 
   return (
     <section
       ref={sectionRef}
       id="hero"
+      onMouseMove={handleMouseMove}
       className="relative min-h-screen w-full flex items-center overflow-hidden bg-[#080808]"
     >
       {/* =========================================================================
-          CINEMATIC HERO BACKGROUND WITH POSITIONED IMAGE CONTAINER
+          CINEMATIC HERO BACKGROUND WITH MULTI-PANEL CURTAIN REVEAL
           Shifts photograph towards the right (face at ~72% of viewport width)
           while keeping left side clear for the heading and description.
          ========================================================================= */}
@@ -120,12 +179,13 @@ export default function Hero({ scrollToSection }) {
         {/* Positioned Image Container: Shifts right on desktop, centered on mobile */}
         <div
           ref={bgWrapperRef}
-          className={`absolute inset-y-0 h-full transition-all duration-700 ease-out ${
+          className={`absolute inset-y-0 h-full transition-all duration-700 ease-out will-change-transform ${
             currentSlide.shiftRight
               ? 'left-0 w-full lg:left-[15%] xl:left-[16%] lg:w-[100%] xl:w-[100%]'
               : 'left-0 w-full'
           }`}
         >
+          {/* Pristine Original Photograph */}
           <img
             src={currentSlide.image}
             alt={currentSlide.alt}
@@ -134,6 +194,27 @@ export default function Hero({ scrollToSection }) {
             decoding="async"
             className={`w-full h-full object-cover ${currentSlide.position}`}
           />
+
+          {/* Warm Light Sweep Layer */}
+          <div
+            ref={lightSweepRef}
+            className="absolute inset-0 pointer-events-none z-10 opacity-0 transform-gpu will-change-transform"
+            style={{
+              background:
+                'linear-gradient(105deg, transparent 20%, rgba(255, 152, 0, 0.12) 42%, rgba(255, 176, 46, 0.28) 50%, rgba(255, 152, 0, 0.12) 58%, transparent 80%)',
+            }}
+          />
+
+          {/* Multi-Panel Curtain Reveal: 5 Seamless Vertical Panels */}
+          <div className="absolute inset-0 flex pointer-events-none z-20 overflow-hidden">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                ref={(el) => (curtainPanelsRef.current[i] = el)}
+                className="flex-1 h-full bg-[#080808] -mr-[1px] origin-top will-change-transform"
+              />
+            ))}
+          </div>
         </div>
 
         {/* Desktop Gradient: Deep solid black on left for text readability -> 100% transparent by 60% keeping face naturally illuminated */}

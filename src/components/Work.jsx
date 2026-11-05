@@ -138,15 +138,67 @@ function Interactive3DCard({ card, num, title, image, offsetY, onClick, innerRef
   );
 }
 
-// Optimized 3D Interactive Animated Card for Modal Gallery Grid
+// Optimized 3D Interactive Animated Card for Modal Gallery Grid with Multi-Panel Curtain Reveal
 function ModalGalleryCard({ item, index = 0, onClick }) {
   const cardRef = useRef(null);
   const imgRef = useRef(null);
   const glareRef = useRef(null);
   const contentRef = useRef(null);
+  const lightSweepRef = useRef(null);
+  const curtainPanelsRef = useRef([]);
   const rafId = useRef(null);
 
   const aspectClass = 'aspect-[3/4]';
+
+  // Multi-Panel Curtain Reveal & Warm Light Sweep on Card Mount / Filter Change
+  useEffect(() => {
+    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (isReduced) {
+      if (curtainPanelsRef.current) {
+        gsap.set(curtainPanelsRef.current.filter(Boolean), { scaleY: 0 });
+      }
+      return;
+    }
+
+    const delay = 0.04 + (index % 8) * 0.035;
+    const tl = gsap.timeline({ delay });
+
+    // Restrained scale 1.04 to 1.0
+    if (imgRef.current) {
+      tl.fromTo(
+        imgRef.current,
+        { scale: 1.04 },
+        { scale: 1.0, duration: 1.15, ease: 'expo.out' },
+        0
+      );
+    }
+
+    // 4-Panel Curtain Reveal with power4.inOut
+    const validPanels = curtainPanelsRef.current.filter(Boolean);
+    if (validPanels.length > 0) {
+      tl.to(
+        validPanels,
+        {
+          scaleY: 0,
+          transformOrigin: 'top',
+          duration: 0.85,
+          stagger: 0.05,
+          ease: 'power4.inOut',
+        },
+        0.04
+      );
+    }
+
+    // Warm light sweep during the reveal
+    if (lightSweepRef.current) {
+      tl.fromTo(
+        lightSweepRef.current,
+        { x: '-100%', opacity: 0 },
+        { x: '220%', opacity: 1, duration: 0.95, ease: 'power2.inOut' },
+        0.12
+      );
+    }
+  }, [item.id, index]);
 
   const handleMouseMove = (e) => {
     if (window.matchMedia('(pointer: coarse)').matches) return;
@@ -246,6 +298,27 @@ function ModalGalleryCard({ item, index = 0, onClick }) {
         ref={glareRef}
         className="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-20 mix-blend-screen"
       />
+
+      {/* Warm Light Sweep Layer (Fires on Reveal) */}
+      <div
+        ref={lightSweepRef}
+        className="absolute inset-0 pointer-events-none z-15 opacity-0 transform-gpu will-change-transform"
+        style={{
+          background:
+            'linear-gradient(105deg, transparent 20%, rgba(255, 152, 0, 0.12) 42%, rgba(255, 176, 46, 0.28) 50%, rgba(255, 152, 0, 0.12) 58%, transparent 80%)',
+        }}
+      />
+
+      {/* Multi-Panel Curtain Reveal: 4 Vertical Panels */}
+      <div className="absolute inset-0 flex pointer-events-none z-25 overflow-hidden">
+        {[0, 1, 2, 3].map((p) => (
+          <div
+            key={p}
+            ref={(el) => (curtainPanelsRef.current[p] = el)}
+            className="flex-1 h-full bg-[#0d0d0d] -mr-[1px] origin-top will-change-transform"
+          />
+        ))}
+      </div>
 
       {/* Subtle Cinematic Dark Gradient Overlay (Reveals on Hover) */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10" />
@@ -565,11 +638,20 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
           <img
             src={activeCategory.image}
             alt={activeCategory.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
 
           {/* Aperture Shutter Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent group-hover:from-black/60 transition-colors" />
+
+          {/* Warm Light Sweep Layer on Hover */}
+          <div
+            className="absolute inset-0 pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            style={{
+              background:
+                'linear-gradient(105deg, transparent 20%, rgba(255, 152, 0, 0.15) 45%, rgba(255, 176, 46, 0.3) 50%, rgba(255, 152, 0, 0.15) 55%, transparent 80%)',
+            }}
+          />
 
           {/* Viewfinder Target Focus Reticle Corners */}
           <div className="absolute top-2.5 left-2.5 w-3 h-3 border-t-2 border-l-2 border-[#FF9800]/80 pointer-events-none" />

@@ -13,8 +13,12 @@ export default function About({ scrollToSection }) {
   const quoteRef = useRef(null);
   const ctaRef = useRef(null);
   const bgWrapperRef = useRef(null);
+  const lightSweepRef = useRef(null);
+  const curtainPanelsRef = useRef([]);
 
   useEffect(() => {
+    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     const ctx = gsap.context(() => {
       // 1. Staggered text & elements entrance on scroll enter
       const tl = gsap.timeline({
@@ -32,17 +36,67 @@ export default function About({ scrollToSection }) {
         .fromTo(quoteRef.current, { x: -20, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7 }, '-=0.4')
         .fromTo(ctaRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, '-=0.4');
 
-      // 2. Animate the image wrapper, not the photograph itself
-      gsap.fromTo(
-        bgWrapperRef.current,
-        { opacity: 0.85 },
-        {
-          opacity: 1,
+      // 2. Multi-Panel Curtain Reveal on Scroll Entry (Once only)
+      if (!isReduced) {
+        const revealTl = gsap.timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: 'top 85%',
-            end: 'top 35%',
-            scrub: 0.6,
+            start: 'top 75%',
+            once: true,
+          },
+        });
+
+        // Restrained scale transition from 1.04 to 1.0
+        revealTl.fromTo(
+          bgWrapperRef.current,
+          { scale: 1.04 },
+          { scale: 1.0, duration: 1.5, ease: 'expo.out' },
+          0
+        );
+
+        // 5-Panel Curtain Reveal with power4.inOut
+        const validPanels = curtainPanelsRef.current.filter(Boolean);
+        if (validPanels.length > 0) {
+          revealTl.to(
+            validPanels,
+            {
+              scaleY: 0,
+              transformOrigin: 'top',
+              duration: 1.2,
+              stagger: 0.08,
+              ease: 'power4.inOut',
+            },
+            0.1
+          );
+        }
+
+        // Warm light sweep across the portrait
+        if (lightSweepRef.current) {
+          revealTl.fromTo(
+            lightSweepRef.current,
+            { x: '-100%', opacity: 0 },
+            { x: '220%', opacity: 1, duration: 1.35, ease: 'power2.inOut' },
+            0.25
+          );
+        }
+      } else {
+        const validPanels = curtainPanelsRef.current.filter(Boolean);
+        if (validPanels.length > 0) {
+          gsap.set(validPanels, { scaleY: 0 });
+        }
+      }
+
+      // 3. Subtle Parallax Scrub on Image Container
+      gsap.fromTo(
+        bgWrapperRef.current,
+        { y: -16 },
+        {
+          y: 16,
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1.2,
           },
         }
       );
@@ -51,18 +105,37 @@ export default function About({ scrollToSection }) {
     return () => ctx.revert();
   }, []);
 
+  // Micro-interaction on mouse move for subtle image movement on desktop
+  const handleMouseMove = (e) => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    const { clientX, clientY } = e;
+    const xPos = (clientX / window.innerWidth - 0.5) * -7;
+    const yPos = (clientY / window.innerHeight - 0.5) * -7;
+    if (bgWrapperRef.current) {
+      gsap.to(bgWrapperRef.current, {
+        x: xPos,
+        y: yPos,
+        duration: 1.4,
+        ease: 'power1.out',
+        overwrite: 'auto',
+      });
+    }
+  };
+
   return (
     <section
       ref={sectionRef}
       id="about"
+      onMouseMove={handleMouseMove}
       className="relative min-h-screen w-full flex items-center overflow-hidden bg-[#080808] py-28 lg:py-0"
     >
       {/* =========================================================================
-          FULL-BLEED CINEMATIC ABOUT BACKGROUND (Edge-to-Edge Original Photograph)
+          FULL-BLEED CINEMATIC ABOUT BACKGROUND WITH MULTI-PANEL CURTAIN REVEAL
           No cards, no borders, no containers — pure full-screen photographic immersion
          ========================================================================= */}
       <div className="absolute inset-0 w-full h-full z-0 select-none pointer-events-none overflow-hidden">
-        <div ref={bgWrapperRef} className="absolute inset-0 w-full h-full">
+        <div ref={bgWrapperRef} className="absolute inset-0 w-full h-full will-change-transform">
+          {/* Pristine Original Portrait */}
           <img
             src="/images/about.png"
             alt="Srivathsan photographer portrait smiling with Canon camera and white lens"
@@ -70,6 +143,27 @@ export default function About({ scrollToSection }) {
             decoding="async"
             className="w-full h-full object-cover object-[24%_20%] sm:object-[28%_center] lg:object-[15%_center] xl:object-left"
           />
+
+          {/* Warm Light Sweep Layer */}
+          <div
+            ref={lightSweepRef}
+            className="absolute inset-0 pointer-events-none z-10 opacity-0 transform-gpu will-change-transform"
+            style={{
+              background:
+                'linear-gradient(105deg, transparent 20%, rgba(255, 152, 0, 0.12) 42%, rgba(255, 176, 46, 0.28) 50%, rgba(255, 152, 0, 0.12) 58%, transparent 80%)',
+            }}
+          />
+
+          {/* Multi-Panel Curtain Reveal: 5 Seamless Vertical Panels */}
+          <div className="absolute inset-0 flex pointer-events-none z-20 overflow-hidden">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                ref={(el) => (curtainPanelsRef.current[i] = el)}
+                className="flex-1 h-full bg-[#080808] -mr-[1px] origin-top will-change-transform"
+              />
+            ))}
+          </div>
         </div>
 
         {/* Desktop Gradient: Deep cinematic black on right for text readability -> Transparent on left keeping photographer naturally illuminated */}
