@@ -77,7 +77,7 @@ export default function About({ scrollToSection }) {
           className="absolute inset-0 pointer-events-none hidden lg:block"
           style={{
             background:
-              'linear-gradient(270deg, #080808 0%, #080808 24%, rgba(8,8,8,0.92) 36%, rgba(8,8,8,0.45) 50%, rgba(8,8,8,0.1) 62%, transparent 72%)',
+              'linear-gradient(270deg, #080808 0%, #080808 26%, rgba(8,8,8,0.92) 40%, rgba(8,8,8,0.5) 54%, rgba(8,8,8,0.1) 65%, transparent 75%)',
           }}
         />
 
@@ -107,8 +107,8 @@ export default function About({ scrollToSection }) {
       {/* =========================================================================
           ABOUT TEXT & NARRATIVE (Layered Directly Over the Full-Bleed Photograph)
          ========================================================================= */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-16 py-12 lg:py-24 flex lg:justify-end">
-        <div className="max-w-xl xl:max-w-2xl flex flex-col justify-center lg:ml-auto">
+      <div className="relative z-10 w-full max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 xl:px-20 py-12 lg:py-24 flex lg:justify-end">
+        <div className="max-w-xl xl:max-w-xl flex flex-col justify-center lg:ml-auto lg:mr-2 xl:mr-6">
 
           {/* Label: Warm orange accent line + ABOUT ME */}
           <div ref={tagRef} className="flex items-center gap-3 mb-6 sm:mb-8">
