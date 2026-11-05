@@ -139,7 +139,7 @@ function Interactive3DCard({ card, num, title, image, offsetY, onClick, innerRef
 }
 
 // Optimized 3D Interactive Animated Card for Modal Gallery Grid
-function ModalGalleryCard({ item, onClick }) {
+function ModalGalleryCard({ item, index = 0, onClick }) {
   const cardRef = useRef(null);
   const imgRef = useRef(null);
   const glareRef = useRef(null);
@@ -233,7 +233,8 @@ function ModalGalleryCard({ item, onClick }) {
         ref={imgRef}
         src={item.src}
         alt={item.title}
-        loading="lazy"
+        loading={index < 6 ? 'eager' : 'lazy'}
+        fetchPriority={index < 3 ? 'high' : 'auto'}
         decoding="async"
         className="w-full h-full object-cover transform-gpu transition-transform duration-500 ease-out"
       />
@@ -601,8 +602,10 @@ const shuffleInterleave = (arr) => {
   const getSubjectKey = (src) => {
     const filename = decodeURIComponent(src.split('/').pop().toLowerCase().replace(/\.\w+$/, ''));
     if (filename.includes('floral') || filename.startsWith('15') || filename.startsWith('16') || filename.startsWith('17') || filename.startsWith('18')) return 'singer-floral';
-    if (filename.includes('red and gold') || filename.startsWith('1') || filename.startsWith('6')) return 'dancer-red';
+    if (filename.includes('red and gold') || filename.includes('red-lit') || filename.startsWith('1') || filename.startsWith('6')) return 'dancer-red';
     if (filename.includes('denim') || filename.includes('spotlight singer')) return 'singer-denim';
+    if (filename.includes('bollywood') || filename.includes('neon lights')) return 'dancer-bollywood';
+    if (filename.includes('red and blue') || filename.includes('spotlight dance')) return 'dancer-red-blue';
     if (filename.startsWith('2') || filename.startsWith('19')) return 'dancer-white';
     if (filename.startsWith('4.5') || filename.startsWith('10') || filename.startsWith('14')) return 'dancer-black';
     if (filename.startsWith('7') || filename.startsWith('8')) return 'dancer-hat';
@@ -1011,10 +1014,11 @@ export default function Work() {
 
             {/* Dynamic Grid Layout: 3 Columns Portrait */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 pb-16 perspective-[1000px]">
-              {filteredGallery.map((item) => (
+              {filteredGallery.map((item, index) => (
                 <ModalGalleryCard
                   key={item.id}
                   item={item}
+                  index={index}
                   onClick={() => setSelectedPhoto(item)}
                 />
               ))}

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'portfolio-images-v1';
+const CACHE_NAME = 'portfolio-images-v2';
 const IMAGE_REGEX = /\.(webp|jpg|jpeg|png|gif|svg)$/i;
 
 // Activate service worker immediately
