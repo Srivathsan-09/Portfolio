@@ -286,7 +286,7 @@ function ModalGalleryCard({ item, index = 0, onClick }) {
       <img
         ref={imgRef}
         src={item.src}
-        alt={item.title}
+        alt={`Srivathsan ${item.category} photograph ${index + 1}`}
         loading={index < 8 ? 'eager' : 'lazy'}
         fetchPriority={index < 4 ? 'high' : 'auto'}
         decoding="async"
@@ -333,19 +333,14 @@ function ModalGalleryCard({ item, index = 0, onClick }) {
         </span>
       </div>
 
-      {/* Animated VIEW PHOTO Label & Photo Info (Bottom) */}
+      {/* Animated VIEW PHOTO Label & Category (Bottom) */}
       <div
         ref={contentRef}
         className="absolute bottom-3 inset-x-3 z-20 flex items-center justify-between pointer-events-none transform translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300"
       >
-        <div className="flex flex-col min-w-0 pr-2">
-          <span className="text-[9px] font-mono text-[#FF9800] uppercase tracking-widest leading-tight">
-            {item.category}
-          </span>
-          <span className="text-xs font-oswald text-white uppercase font-bold tracking-wide truncate">
-            {item.title}
-          </span>
-        </div>
+        <span className="text-[10px] font-mono text-[#FF9800] uppercase tracking-widest font-bold">
+          {item.category}
+        </span>
         <div className="px-2.5 py-1 rounded-full bg-[#FF9800] text-black font-bold text-[10px] tracking-wider uppercase flex items-center gap-1 shadow-[0_0_15px_rgba(255,152,0,0.5)] shrink-0">
           <span>VIEW PHOTO</span>
           <ArrowRight className="w-3 h-3" />
@@ -1351,18 +1346,15 @@ export default function Work() {
           >
             <img
               src={selectedPhoto.src}
-              alt={selectedPhoto.title}
+              alt={`Srivathsan ${selectedPhoto.category} photograph`}
               loading="eager"
               decoding="async"
               className="max-h-[72vh] sm:max-h-[76vh] max-w-[85vw] object-contain rounded-2xl border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.95)]"
             />
             <div className="mt-4 sm:mt-5 text-center flex flex-col items-center">
-              <span className="text-xs font-mono text-[#FF9800] uppercase tracking-widest block mb-0.5 sm:mb-1">
+              <span className="text-xs font-mono text-[#FF9800] uppercase tracking-widest block font-bold">
                 {selectedPhoto.category}
               </span>
-              <h4 className="font-oswald text-xl sm:text-2xl lg:text-3xl text-white uppercase tracking-wide font-bold">
-                {selectedPhoto.title}
-              </h4>
               <span className="hidden sm:inline-block text-[10px] font-mono text-white/40 tracking-widest mt-1.5 uppercase">
                 USE ← → ARROW KEYS OR ESC TO NAVIGATE
               </span>
