@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import aboutPortrait from '../assets/about-portrait.jpg';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -137,7 +138,7 @@ export default function About({ scrollToSection }) {
         <div ref={bgWrapperRef} className="absolute inset-0 w-full h-full will-change-transform">
           {/* Pristine Original Portrait */}
           <img
-            src="/images/about.png"
+            src={aboutPortrait}
             alt="Srivathsan photographer portrait in blue denim shirt holding Canon camera with white telephoto lens"
             loading="lazy"
             decoding="async"
