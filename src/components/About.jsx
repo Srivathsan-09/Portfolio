@@ -69,15 +69,15 @@ export default function About({ scrollToSection }) {
           alt="Srivathsan photographer portrait smiling with Canon camera and white lens"
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover object-[56%_20%] sm:object-[84%_center] lg:object-[88%_center] xl:object-[90%_center] transform-gpu transition-all duration-700 ease-out"
+          className="w-full h-full object-cover object-[24%_20%] sm:object-[28%_center] lg:object-left transform-gpu transition-all duration-700 ease-out"
         />
 
-        {/* Desktop Gradient: Deep cinematic black on left for text readability -> Transparent on right keeping photo bright */}
+        {/* Desktop Gradient: Deep cinematic black on right for text readability -> Transparent on left keeping photographer naturally illuminated */}
         <div
           className="absolute inset-0 pointer-events-none hidden lg:block"
           style={{
             background:
-              'linear-gradient(90deg, #080808 0%, rgba(8,8,8,0.98) 22%, rgba(8,8,8,0.86) 38%, rgba(8,8,8,0.35) 54%, rgba(8,8,8,0.08) 68%, transparent 80%)',
+              'linear-gradient(270deg, #080808 0%, #080808 24%, rgba(8,8,8,0.92) 36%, rgba(8,8,8,0.45) 50%, rgba(8,8,8,0.1) 62%, transparent 72%)',
           }}
         />
 
@@ -86,7 +86,7 @@ export default function About({ scrollToSection }) {
           className="absolute inset-0 pointer-events-none hidden sm:block lg:hidden"
           style={{
             background:
-              'linear-gradient(90deg, #080808 0%, rgba(8,8,8,0.95) 36%, rgba(8,8,8,0.72) 56%, transparent 85%)',
+              'linear-gradient(270deg, #080808 0%, rgba(8,8,8,0.95) 36%, rgba(8,8,8,0.72) 56%, transparent 85%)',
           }}
         />
 
@@ -107,8 +107,8 @@ export default function About({ scrollToSection }) {
       {/* =========================================================================
           ABOUT TEXT & NARRATIVE (Layered Directly Over the Full-Bleed Photograph)
          ========================================================================= */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-16 py-12 lg:py-24">
-        <div className="max-w-xl xl:max-w-2xl flex flex-col justify-center">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-16 py-12 lg:py-24 flex lg:justify-end">
+        <div className="max-w-xl xl:max-w-2xl flex flex-col justify-center lg:ml-auto">
 
           {/* Label: Warm orange accent line + ABOUT ME */}
           <div ref={tagRef} className="flex items-center gap-3 mb-6 sm:mb-8">

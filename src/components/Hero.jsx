@@ -22,36 +22,36 @@ export default function Hero({ scrollToSection }) {
       id: 1,
       image: '/images/hero.png',
       alt: 'Srivathsan holding camera with telephoto lens during golden hour',
-      position: 'object-[54%_25%] sm:object-[82%_center] lg:object-[94%_center]',
-      faceTonalOverlay: true,
+      position: 'object-[54%_25%] sm:object-[70%_center] lg:object-center',
+      shiftRight: true,
     },
     {
       id: 2,
       image: '/images/Celebrities/1.webp',
       alt: 'Srivathsan concert photography spotlight',
       position: 'object-[65%_center] sm:object-[78%_center] lg:object-[82%_center]',
-      faceTonalOverlay: false,
+      shiftRight: false,
     },
     {
       id: 3,
       image: '/images/Nature/1.webp',
       alt: 'Srivathsan nature landscape photography',
       position: 'object-center lg:object-[72%_center]',
-      faceTonalOverlay: false,
+      shiftRight: false,
     },
     {
       id: 4,
       image: '/images/Celebrities/4.webp',
       alt: 'Srivathsan stage performance portrait',
       position: 'object-[65%_center] sm:object-[78%_center] lg:object-[82%_center]',
-      faceTonalOverlay: false,
+      shiftRight: false,
     },
     {
       id: 5,
       image: '/images/Architecture/IMG_20260831_005035.webp',
       alt: 'Srivathsan architecture photography',
       position: 'object-center lg:object-[72%_center]',
-      faceTonalOverlay: false,
+      shiftRight: false,
     },
   ];
 
@@ -112,36 +112,36 @@ export default function Hero({ scrollToSection }) {
       className="relative min-h-screen w-full flex items-center overflow-hidden bg-[#080808]"
     >
       {/* =========================================================================
-          FULL-BLEED CINEMATIC HERO BACKGROUND (Edge-to-Edge Original Photograph)
+          CINEMATIC HERO BACKGROUND WITH POSITIONED IMAGE CONTAINER
+          Shifts photograph towards the right (face at ~72% of viewport width)
+          while keeping left side clear for the heading and description.
          ========================================================================= */}
-      <div className="absolute inset-0 w-full h-full z-0 select-none pointer-events-none overflow-hidden">
-        <img
-          ref={bgImageRef}
-          src={currentSlide.image}
-          alt={currentSlide.alt}
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-          className={`w-full h-full object-cover ${currentSlide.position} transform-gpu transition-all duration-700 ease-out`}
-        />
-
-        {/* Soft, cinematic dark overlay creating subtle faded tonal treatment over face area on desktop */}
-        {currentSlide.faceTonalOverlay && (
-          <div
-            className="absolute inset-0 pointer-events-none hidden lg:block"
-            style={{
-              background:
-                'radial-gradient(ellipse at 74% 36%, rgba(8,8,8,0.26) 0%, rgba(8,8,8,0.12) 35%, transparent 65%)',
-            }}
+      <div className="absolute inset-0 w-full h-full z-0 select-none pointer-events-none overflow-hidden bg-[#080808]">
+        {/* Positioned Image Container: Shifts right on desktop, centered on mobile */}
+        <div
+          className={`absolute inset-y-0 h-full transition-all duration-700 ease-out ${
+            currentSlide.shiftRight
+              ? 'left-0 w-full lg:left-[15%] xl:left-[16%] lg:w-[100%] xl:w-[100%]'
+              : 'left-0 w-full'
+          }`}
+        >
+          <img
+            ref={bgImageRef}
+            src={currentSlide.image}
+            alt={currentSlide.alt}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            className={`w-full h-full object-cover ${currentSlide.position} transform-gpu transition-all duration-700 ease-out`}
           />
-        )}
+        </div>
 
-        {/* Desktop Gradient: Deep cinematic black on left -> Smooth transition keeping photograph bright on right */}
+        {/* Desktop Gradient: Deep solid black on left for text readability -> 100% transparent by 60% keeping face naturally illuminated */}
         <div
           className="absolute inset-0 pointer-events-none hidden lg:block"
           style={{
             background:
-              'linear-gradient(90deg, #080808 0%, rgba(8,8,8,0.98) 22%, rgba(8,8,8,0.86) 36%, rgba(8,8,8,0.4) 52%, rgba(8,8,8,0.1) 68%, transparent 80%)',
+              'linear-gradient(90deg, #080808 0%, #080808 24%, rgba(8,8,8,0.92) 34%, rgba(8,8,8,0.5) 44%, rgba(8,8,8,0.1) 52%, transparent 60%)',
           }}
         />
 
@@ -150,7 +150,7 @@ export default function Hero({ scrollToSection }) {
           className="absolute inset-0 pointer-events-none hidden sm:block lg:hidden"
           style={{
             background:
-              'linear-gradient(90deg, #080808 0%, rgba(8,8,8,0.95) 35%, rgba(8,8,8,0.72) 55%, transparent 85%)',
+              'linear-gradient(90deg, #080808 0%, rgba(8,8,8,0.95) 30%, rgba(8,8,8,0.65) 50%, transparent 75%)',
           }}
         />
 
@@ -159,7 +159,7 @@ export default function Hero({ scrollToSection }) {
           className="absolute inset-0 pointer-events-none sm:hidden"
           style={{
             background:
-              'linear-gradient(180deg, rgba(8,8,8,0.74) 0%, rgba(8,8,8,0.48) 32%, rgba(8,8,8,0.25) 58%, rgba(8,8,8,0.85) 88%, #080808 100%)',
+              'linear-gradient(180deg, rgba(8,8,8,0.72) 0%, rgba(8,8,8,0.45) 32%, rgba(8,8,8,0.2) 58%, rgba(8,8,8,0.85) 86%, #080808 100%)',
           }}
         />
 
