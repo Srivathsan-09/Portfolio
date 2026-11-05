@@ -226,7 +226,7 @@ function ModalGalleryCard({ item, index = 0, onClick }) {
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`relative w-full max-w-[270px] sm:max-w-[285px] lg:max-w-[290px] xl:max-w-[300px] mx-auto ${aspectClass} rounded-2xl overflow-hidden border border-white/10 cursor-pointer group card-border-glow bg-black/40 shadow-2xl transform-gpu transition-all duration-300 preserve-3d animate-fadeIn`}
+      className={`relative w-full max-w-[340px] sm:max-w-none mx-auto ${aspectClass} rounded-2xl overflow-hidden border border-white/10 cursor-pointer group card-border-glow bg-black/40 shadow-2xl transform-gpu transition-all duration-300 preserve-3d animate-fadeIn`}
       style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
     >
       <img
@@ -1001,7 +1001,7 @@ export default function Work() {
           {/* MAIN MODAL SCROLLABLE PHOTO GRID */}
           <div
             data-lenis-prevent="true"
-            className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-8 overflow-y-auto custom-scrollbar touch-pan-y transform-gpu overscroll-contain"
+            className="flex-1 w-full max-w-7xl 2xl:max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-y-auto custom-scrollbar touch-pan-y transform-gpu overscroll-contain"
             style={{ WebkitOverflowScrolling: 'touch', willChange: 'scroll-position' }}
           >
             {/* Mobile Category Title Banner */}
@@ -1014,8 +1014,8 @@ export default function Work() {
               </h3>
             </div>
 
-            {/* Dynamic Grid Layout: 3 Columns Portrait with Enhanced Negative Space & Centered Refined Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 xl:gap-12 pb-16 perspective-[1000px] justify-items-center">
+            {/* Dynamic Grid Layout: 4 Columns on Desktop with Reduced Tight Gaps */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4 lg:gap-5 pb-16 perspective-[1000px]">
               {filteredGallery.map((item, index) => (
                 <ModalGalleryCard
                   key={item.id}
