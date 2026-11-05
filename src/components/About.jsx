@@ -138,10 +138,10 @@ export default function About({ scrollToSection }) {
           {/* Pristine Original Portrait */}
           <img
             src="/images/about.png"
-            alt="Srivathsan photographer portrait smiling with Canon camera and white lens"
+            alt="Srivathsan photographer portrait in blue denim shirt holding Canon camera with white telephoto lens"
             loading="lazy"
             decoding="async"
-            className="w-full h-full object-cover object-[24%_20%] sm:object-[28%_center] lg:object-[15%_center] xl:object-left"
+            className="w-full h-full object-cover object-[72%_18%] sm:object-[72%_25%] lg:object-[72%_center] xl:object-[75%_center]"
           />
 
           {/* Warm Light Sweep Layer */}
@@ -166,12 +166,12 @@ export default function About({ scrollToSection }) {
           </div>
         </div>
 
-        {/* Desktop Gradient: Deep cinematic black on right for text readability -> Transparent on left keeping photographer naturally illuminated */}
+        {/* Desktop Gradient: Deep cinematic black on left for text readability -> Transparent on right keeping photographer naturally illuminated */}
         <div
           className="absolute inset-0 pointer-events-none hidden lg:block"
           style={{
             background:
-              'linear-gradient(270deg, #080808 0%, #080808 26%, rgba(8,8,8,0.92) 40%, rgba(8,8,8,0.5) 54%, rgba(8,8,8,0.1) 65%, transparent 75%)',
+              'linear-gradient(90deg, #080808 0%, #080808 26%, rgba(8,8,8,0.92) 40%, rgba(8,8,8,0.5) 54%, rgba(8,8,8,0.1) 65%, transparent 75%)',
           }}
         />
 
@@ -180,7 +180,7 @@ export default function About({ scrollToSection }) {
           className="absolute inset-0 pointer-events-none hidden sm:block lg:hidden"
           style={{
             background:
-              'linear-gradient(270deg, #080808 0%, rgba(8,8,8,0.95) 36%, rgba(8,8,8,0.72) 56%, transparent 85%)',
+              'linear-gradient(90deg, #080808 0%, rgba(8,8,8,0.95) 36%, rgba(8,8,8,0.72) 56%, transparent 85%)',
           }}
         />
 
@@ -189,7 +189,7 @@ export default function About({ scrollToSection }) {
           className="absolute inset-0 pointer-events-none sm:hidden"
           style={{
             background:
-              'linear-gradient(180deg, rgba(8,8,8,0.72) 0%, rgba(8,8,8,0.48) 32%, rgba(8,8,8,0.25) 55%, rgba(8,8,8,0.85) 80%, #080808 100%)',
+              'linear-gradient(180deg, rgba(8,8,8,0.7) 0%, rgba(8,8,8,0.2) 28%, rgba(8,8,8,0.6) 55%, rgba(8,8,8,0.95) 80%, #080808 100%)',
           }}
         />
 
@@ -201,8 +201,8 @@ export default function About({ scrollToSection }) {
       {/* =========================================================================
           ABOUT TEXT & NARRATIVE (Layered Directly Over the Full-Bleed Photograph)
          ========================================================================= */}
-      <div className="relative z-10 w-full max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 xl:px-20 py-12 lg:py-24 flex lg:justify-end">
-        <div className="max-w-xl xl:max-w-xl flex flex-col justify-center lg:ml-auto lg:mr-2 xl:mr-6">
+      <div className="relative z-10 w-full max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 xl:px-20 py-12 lg:py-24 flex lg:justify-start">
+        <div className="max-w-xl xl:max-w-xl flex flex-col justify-center lg:mr-auto lg:ml-2 xl:ml-6">
 
           {/* Label: Warm orange accent line + ABOUT ME */}
           <div ref={tagRef} className="flex items-center gap-3 mb-6 sm:mb-8">
