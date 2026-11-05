@@ -12,7 +12,6 @@ import Work from './components/Work';
 import StoryStrip from './components/StoryStrip';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-import { Analytics } from '@vercel/analytics/react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -134,9 +133,6 @@ export default function App() {
 
       {/* Minimal Footer */}
       <Footer scrollToSection={scrollToSection} />
-
-      {/* Private Vercel Web Analytics (Invisible to visitors) */}
-      <Analytics />
     </div>
   );
 }
