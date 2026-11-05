@@ -62,9 +62,9 @@ export default function Hero({ scrollToSection }) {
         .fromTo(sliderRef.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.7 }, '-=0.4')
         .fromTo(
           imageContainerRef.current,
-          { scale: 1.05, opacity: 0.6 },
-          { scale: 1, opacity: 1, duration: 1.4, ease: 'power2.out' },
-          0
+          { scale: 0.96, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 1.1, ease: 'power2.out' },
+          0.1
         );
 
       // 2. Smooth Scroll Parallax Fade Out on scroll
@@ -83,7 +83,7 @@ export default function Hero({ scrollToSection }) {
           end: 'bottom 35%',
           scrub: 0.6,
         },
-        y: -50,
+        y: -40,
         opacity: 0,
         stagger: 0.02,
         ease: 'power1.inOut',
@@ -99,125 +99,121 @@ export default function Hero({ scrollToSection }) {
       id="hero"
       className="relative min-h-screen flex items-center pt-28 pb-16 lg:pt-32 lg:pb-20 overflow-hidden bg-[#08090B]"
     >
-      {/* RIGHT SIDE: User's Original Photograph with Cinematic Ambient Blend */}
-      <div
-        ref={imageContainerRef}
-        className="absolute top-0 right-0 w-full lg:w-[65%] xl:w-[62%] h-full pointer-events-none select-none z-0 overflow-hidden"
-      >
-        <img
-          src={heroSlides[activeSlide].image}
-          alt={heroSlides[activeSlide].alt}
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-          className="w-full h-full object-cover object-[center_right] lg:object-[75%_center] transform-gpu transition-all duration-700 ease-out"
-        />
+      {/* Subtle Warm Ambient Glow behind elements */}
+      <div className="absolute top-1/4 left-10 w-[450px] h-[450px] bg-[#FF9500]/10 rounded-full blur-[170px] pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 w-[420px] h-[420px] bg-[#FF9500]/8 rounded-full blur-[160px] pointer-events-none" />
 
-        {/* Seamless horizontal gradient fade from dark to transparent (Desktop) */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#08090B] via-[#08090B]/85 to-transparent hidden lg:block" />
-
-        {/* Mobile / Tablet dark backdrop overlay for crystal clear typography legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#08090B] via-[#08090B]/85 to-[#08090B]/60 lg:hidden" />
-
-        {/* Subtle top & bottom edge blending */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#08090B] via-transparent to-[#08090B]/75 pointer-events-none" />
-
-        {/* Subtle warm amber/golden lens glow matching photo sunset */}
-        <div className="absolute -top-10 right-1/4 w-[380px] h-[380px] bg-[#FF9500]/15 rounded-full blur-[140px] pointer-events-none mix-blend-screen" />
-      </div>
-
-      {/* Hero Ambient Background Light */}
-      <div className="absolute top-1/4 left-10 w-[420px] h-[420px] bg-gradient-to-tr from-[#FF9500]/10 via-[#D946EF]/10 to-transparent rounded-full blur-[160px] pointer-events-none" />
-
-      {/* Main Hero Content Container */}
+      {/* Main Two-Column Cinematic Hero Container */}
       <div className="max-w-7xl mx-auto px-6 lg:px-16 w-full relative z-10">
-        <div className="max-w-2xl flex flex-col justify-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
 
-          {/* Label: Warm orange accent line + VISUAL STORYTELLER */}
-          <div ref={tagRef} className="flex items-center gap-3 mb-6 sm:mb-8">
-            <span className="w-6 h-[2px] bg-[#FF9500] rounded-full" />
-            <span className="text-xs font-semibold tracking-[0.3em] text-[#FF9500] uppercase font-mono">
-              VISUAL STORYTELLER
-            </span>
-          </div>
+          {/* LEFT COLUMN: 50% Width - Typography, Narrative & Actions */}
+          <div className="lg:col-span-6 flex flex-col justify-center">
 
-          {/* Main Editorial Heading */}
-          <h1 className="font-oswald text-5xl sm:text-7xl lg:text-[80px] xl:text-[90px] font-bold leading-[0.95] tracking-tight uppercase mb-7 sm:mb-8 text-white">
-            <span ref={(el) => (headingLinesRef.current[0] = el)} className="block">
-              I CAPTURE
-            </span>
-            <span
-              ref={(el) => (headingLinesRef.current[1] = el)}
-              className="block text-[#FF9500] bg-gradient-to-r from-[#FF9500] via-[#FFB03A] to-[#FF9A3C] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(255,149,0,0.25)]"
-            >
-              MOMENTS THAT
-            </span>
-            <span ref={(el) => (headingLinesRef.current[2] = el)} className="block">
-              STAY.
-            </span>
-          </h1>
-
-          {/* Description Paragraph */}
-          <p
-            ref={textRef}
-            className="text-sm sm:text-base leading-relaxed text-[#A5A5A5] max-w-lg font-light mb-9 sm:mb-11"
-          >
-            Photography for me is not just clicking, <br className="hidden sm:inline" />
-            it's feeling, observing and preserving memories.
-          </p>
-
-          {/* Action Button & Scroll Indicator */}
-          <div ref={ctaRef} className="flex flex-wrap items-center gap-6 sm:gap-8 mb-12 sm:mb-16">
-            <button
-              onClick={() => scrollToSection('work')}
-              className="inline-flex items-center gap-3 px-7 py-3.5 rounded-lg border border-[#FF9500]/80 bg-transparent text-xs font-semibold tracking-[0.2em] text-white uppercase hover:bg-[#FF9500] hover:text-black hover:border-[#FF9500] hover:shadow-[0_0_25px_rgba(255,149,0,0.45)] transition-all cursor-pointer group"
-            >
-              <span>EXPLORE MY WORK</span>
-              <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-            </button>
-
-            {/* Glowing SCROLL TO EXPLORE indicator */}
-            <button
-              onClick={() => scrollToSection('about')}
-              className="inline-flex items-center gap-3 text-xs font-mono tracking-[0.25em] text-[#A5A5A5] hover:text-white transition-colors uppercase cursor-pointer group"
-            >
-              <span>SCROLL TO EXPLORE</span>
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF9500] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF9500] shadow-[0_0_8px_#FF9500]" />
+            {/* Label: Warm orange accent line + VISUAL STORYTELLER */}
+            <div ref={tagRef} className="flex items-center gap-3 mb-6 sm:mb-8">
+              <span className="w-6 h-[2px] bg-[#FF9500] rounded-full" />
+              <span className="text-xs font-semibold tracking-[0.3em] text-[#FF9500] uppercase font-mono">
+                VISUAL STORYTELLER
               </span>
-            </button>
+            </div>
+
+            {/* Main Editorial Heading */}
+            <h1 className="font-oswald text-5xl sm:text-7xl lg:text-[76px] xl:text-[88px] font-bold leading-[0.95] tracking-tight uppercase mb-7 sm:mb-8 text-white">
+              <span ref={(el) => (headingLinesRef.current[0] = el)} className="block">
+                I CAPTURE
+              </span>
+              <span
+                ref={(el) => (headingLinesRef.current[1] = el)}
+                className="block text-[#FF9500] bg-gradient-to-r from-[#FF9500] via-[#FFB03A] to-[#FF9A3C] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(255,149,0,0.25)]"
+              >
+                MOMENTS THAT
+              </span>
+              <span ref={(el) => (headingLinesRef.current[2] = el)} className="block">
+                STAY.
+              </span>
+            </h1>
+
+            {/* Description Paragraph */}
+            <p
+              ref={textRef}
+              className="text-sm sm:text-base leading-relaxed text-[#A5A5A5] max-w-lg font-light mb-8 sm:mb-10"
+            >
+              Photography for me is not just clicking, <br className="hidden sm:inline" />
+              it's feeling, observing and preserving memories.
+            </p>
+
+            {/* Action Button & Scroll Indicator */}
+            <div ref={ctaRef} className="flex flex-wrap items-center gap-6 sm:gap-8 mb-10 sm:mb-14">
+              <button
+                onClick={() => scrollToSection('work')}
+                className="inline-flex items-center gap-3 px-7 py-3.5 rounded-lg border border-[#FF9500]/80 bg-transparent text-xs font-semibold tracking-[0.2em] text-white uppercase hover:bg-[#FF9500] hover:text-black hover:border-[#FF9500] hover:shadow-[0_0_25px_rgba(255,149,0,0.45)] transition-all cursor-pointer group"
+              >
+                <span>EXPLORE MY WORK</span>
+                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              {/* Glowing SCROLL TO EXPLORE indicator */}
+              <button
+                onClick={() => scrollToSection('about')}
+                className="inline-flex items-center gap-3 text-xs font-mono tracking-[0.25em] text-[#A5A5A5] hover:text-white transition-colors uppercase cursor-pointer group"
+              >
+                <span>SCROLL TO EXPLORE</span>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF9500] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF9500] shadow-[0_0_8px_#FF9500]" />
+                </span>
+              </button>
+            </div>
+
+            {/* Minimal Functional Slider / Counter Indicator */}
+            <div
+              ref={sliderRef}
+              className="flex items-center gap-5 text-xs font-mono text-[#A5A5A5] select-none"
+            >
+              <span className="w-[2px] h-4 bg-[#FF9500]/70" />
+              <span className="tracking-widest text-white/90">
+                0{activeSlide + 1} / 0{heroSlides.length}
+              </span>
+              <div className="flex items-center gap-2">
+                {heroSlides.map((slide, index) => {
+                  const isActive = activeSlide === index;
+                  return (
+                    <button
+                      key={slide.id}
+                      onClick={() => setActiveSlide(index)}
+                      aria-label={`Go to slide 0${index + 1}`}
+                      className="py-2 cursor-pointer group transition-all"
+                    >
+                      <span
+                        className={`block h-[2px] rounded-full transition-all duration-300 ${
+                          isActive
+                            ? 'w-7 bg-[#FF9500] shadow-[0_0_8px_#FF9500]'
+                            : 'w-4 bg-white/20 group-hover:bg-white/40'
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
           </div>
 
-          {/* Minimal Functional Slider / Counter Indicator matching reference */}
+          {/* RIGHT COLUMN: ~50% Width - Original Photograph with Full Visibility & Original Colours */}
           <div
-            ref={sliderRef}
-            className="flex items-center gap-5 text-xs font-mono text-[#A5A5A5] pt-2 sm:pt-4 select-none"
+            ref={imageContainerRef}
+            className="lg:col-span-6 flex items-center justify-center lg:justify-end w-full"
           >
-            <span className="w-[2px] h-4 bg-[#FF9500]/70" />
-            <span className="tracking-widest text-white/90">
-              0{activeSlide + 1} / 0{heroSlides.length}
-            </span>
-            <div className="flex items-center gap-2">
-              {heroSlides.map((slide, index) => {
-                const isActive = activeSlide === index;
-                return (
-                  <button
-                    key={slide.id}
-                    onClick={() => setActiveSlide(index)}
-                    aria-label={`Go to slide 0${index + 1}`}
-                    className="py-2 cursor-pointer group transition-all"
-                  >
-                    <span
-                      className={`block h-[2px] rounded-full transition-all duration-300 ${
-                        isActive
-                          ? 'w-7 bg-[#FF9500] shadow-[0_0_8px_#FF9500]'
-                          : 'w-4 bg-white/20 group-hover:bg-white/40'
-                      }`}
-                    />
-                  </button>
-                );
-              })}
+            <div className="relative w-full flex items-center justify-center lg:justify-end">
+              <img
+                src={heroSlides[activeSlide].image}
+                alt={heroSlides[activeSlide].alt}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                className="w-full h-auto max-h-[72vh] sm:max-h-[78vh] lg:max-h-[82vh] object-contain object-center lg:object-right rounded-2xl drop-shadow-[0_20px_50px_rgba(0,0,0,0.85)] transition-all duration-500 transform-gpu"
+              />
             </div>
           </div>
 

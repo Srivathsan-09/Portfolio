@@ -34,7 +34,7 @@ export default function About({ scrollToSection }) {
         .fromTo(ctaRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, '-=0.4')
         .fromTo(
           imageContainerRef.current,
-          { x: 40, opacity: 0, scale: 0.96 },
+          { x: 30, opacity: 0, scale: 0.96 },
           { x: 0, opacity: 1, scale: 1, duration: 1.1, ease: 'power2.out' },
           '-=0.8'
         );
@@ -42,10 +42,10 @@ export default function About({ scrollToSection }) {
       // 2. Subtle Parallax Scrub on Image
       gsap.fromTo(
         imgRef.current,
-        { scale: 1.08, y: -15 },
+        { scale: 1.05, y: -10 },
         {
           scale: 1.0,
-          y: 15,
+          y: 10,
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top bottom',
@@ -63,15 +63,15 @@ export default function About({ scrollToSection }) {
     <section
       ref={sectionRef}
       id="about"
-      className="relative py-24 sm:py-28 lg:py-36 overflow-hidden bg-[#08090B]"
+      className="relative min-h-[90vh] lg:min-h-screen flex items-center py-20 lg:py-0 overflow-hidden bg-[#08090B]"
     >
       {/* Warm Ambient Glow behind photo */}
       <div className="absolute top-1/3 right-10 w-[500px] h-[500px] bg-[#FF9500]/10 rounded-full blur-[170px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+      <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full py-8 lg:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
 
-          {/* LEFT SIDE: Heading, Narrative & Quote */}
+          {/* LEFT SIDE: Heading, Narrative & Quote (50% Width) */}
           <div className="lg:col-span-6 flex flex-col justify-center">
 
             {/* Label: Warm orange accent line + ABOUT ME */}
@@ -127,30 +127,21 @@ export default function About({ scrollToSection }) {
 
           </div>
 
-          {/* RIGHT SIDE: User's Original Portrait with Seamless Background Blend */}
-          <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
-            <div
-              ref={imageContainerRef}
-              className="relative w-full aspect-[4/3] sm:aspect-[16/11] lg:aspect-[16/10] rounded-2xl lg:rounded-3xl overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.9)] border border-white/10 group transform-gpu"
-            >
-              {/* User's Original Photograph */}
+          {/* RIGHT SIDE: Full Editorial Photograph Occupying the Right Half — No Small Card, No Cropping */}
+          <div
+            ref={imageContainerRef}
+            className="lg:col-span-6 flex items-center justify-center lg:justify-end w-full"
+          >
+            <div className="relative w-full flex items-center justify-center lg:justify-end">
+              {/* User's Exact Original Photograph Displayed Prominently */}
               <img
                 ref={imgRef}
                 src="/images/about.jpg"
                 alt="Srivathsan photographer portrait smiling with Canon camera and white lens"
                 loading="lazy"
                 decoding="async"
-                className="w-full h-full object-cover object-[center_25%] transition-transform duration-700 ease-out"
+                className="w-full h-auto max-h-[75vh] sm:max-h-[82vh] lg:max-h-[88vh] object-contain object-center lg:object-right rounded-2xl drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] transition-transform duration-700 ease-out transform-gpu"
               />
-
-              {/* Seamless horizontal gradient blend on the left edge matching reference */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#08090B] via-[#08090B]/30 to-transparent hidden sm:block pointer-events-none" />
-
-              {/* Mobile gradient overlay for gentle blending */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#08090B]/70 via-transparent to-[#08090B]/30 sm:hidden pointer-events-none" />
-
-              {/* Glowing border highlight on hover */}
-              <div className="absolute inset-0 rounded-2xl lg:rounded-3xl border border-white/5 pointer-events-none group-hover:border-[#FF9500]/40 transition-colors duration-500" />
             </div>
           </div>
 
