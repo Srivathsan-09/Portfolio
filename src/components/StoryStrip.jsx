@@ -20,7 +20,7 @@ export default function StoryStrip() {
   const soulCharRefs = useRef([]);
 
   // Background Depth Spotlights
-  const glowPurpleRef = useRef(null);
+  const glowAmberRef = useRef(null);
   const glowOrangeRef = useRef(null);
 
   const storyWord = ['S', 'T', 'O', 'R', 'Y', '.'];
@@ -136,7 +136,7 @@ export default function StoryStrip() {
         );
 
         // --------------------------------------------------
-        // SCENE 2: STORY. ("STORY." 3D Assembly & Volumetric Purple Glow)
+        // SCENE 2: STORY. ("STORY." 3D Assembly & Volumetric Warm Glow)
         // --------------------------------------------------
         scrollTl
           .to(
@@ -164,7 +164,7 @@ export default function StoryStrip() {
             0.5
           )
           .to(
-            glowPurpleRef.current,
+            glowAmberRef.current,
             {
               opacity: 0.75,
               scale: 1.3,
@@ -270,7 +270,7 @@ export default function StoryStrip() {
             3.8
           )
           .to(
-            [glowPurpleRef.current, glowOrangeRef.current],
+            [glowAmberRef.current, glowOrangeRef.current],
             {
               opacity: 0.45,
               scale: 1.0,
@@ -392,13 +392,13 @@ export default function StoryStrip() {
       >
         {/* Layer 1: Background Depth Spotlights */}
         <div
-          ref={glowPurpleRef}
-          className="absolute top-1/2 left-1/3 -translate-y-1/2 w-[450px] h-[320px] bg-gradient-to-r from-[#C026D3]/35 via-[#D946EF]/25 to-transparent rounded-full blur-[140px] pointer-events-none opacity-20 transform-gpu"
+          ref={glowAmberRef}
+          className="absolute top-1/2 left-1/3 -translate-y-1/2 w-[450px] h-[320px] bg-gradient-to-r from-[#FF9800]/25 via-[#FFB02E]/20 to-transparent rounded-full blur-[140px] pointer-events-none opacity-20 transform-gpu"
           style={{ transform: 'translateZ(-800px)' }}
         />
         <div
           ref={glowOrangeRef}
-          className="absolute top-1/2 right-1/3 -translate-y-1/2 w-[450px] h-[320px] bg-gradient-to-r from-[#FF9A3C]/35 via-[#F97316]/25 to-transparent rounded-full blur-[140px] pointer-events-none opacity-20 transform-gpu"
+          className="absolute top-1/2 right-1/3 -translate-y-1/2 w-[450px] h-[320px] bg-gradient-to-r from-[#FFB02E]/30 via-[#FF9800]/20 to-transparent rounded-full blur-[140px] pointer-events-none opacity-20 transform-gpu"
           style={{ transform: 'translateZ(-800px)' }}
         />
 
@@ -425,7 +425,7 @@ export default function StoryStrip() {
             {/* SCENE 2: STORY. (3D Character Assembly) */}
             <span
               ref={storyBoxRef}
-              className="inline-flex items-center text-gradient-purple drop-shadow-[0_0_20px_rgba(217,70,239,0.4)] preserve-3d transform-gpu"
+              className="inline-flex items-center text-gradient-orange drop-shadow-[0_0_20px_rgba(255,152,0,0.4)] preserve-3d transform-gpu"
               style={{ transformStyle: 'preserve-3d' }}
             >
               {storyWord.map((char, i) => (

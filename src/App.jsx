@@ -107,11 +107,11 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#08090B] text-[#F5F5F5] font-sans selection:bg-[#FF9500] selection:text-black">
+    <div className="relative min-h-screen bg-[#080808] text-[#FFFFFF] font-sans selection:bg-[#FF9800] selection:text-black">
       {/* Scroll Progress Bar at very top */}
       <div
         ref={scrollProgressRef}
-        className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#A855F7] via-[#D946EF] to-[#FF9A3C] z-[100] origin-left shadow-[0_0_12px_#D946EF] pointer-events-none transform scale-x-0 transition-transform duration-75"
+        className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#FF9800] via-[#FFB02E] to-[#FFA726] z-[100] origin-left shadow-[0_0_12px_#FF9800] pointer-events-none transform scale-x-0 transition-transform duration-75"
       />
 
       {/* Dynamic Animated Cinematic Background */}

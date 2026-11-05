@@ -35,10 +35,10 @@ export default function About({ scrollToSection }) {
       // 2. Subtle Parallax Scrub on Full-Bleed Background Image
       gsap.fromTo(
         bgImageRef.current,
-        { scale: 1.05, y: -15 },
+        { scale: 1.04, y: -12 },
         {
           scale: 1.0,
-          y: 15,
+          y: 12,
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top bottom',
@@ -56,7 +56,7 @@ export default function About({ scrollToSection }) {
     <section
       ref={sectionRef}
       id="about"
-      className="relative min-h-screen w-full flex items-center overflow-hidden bg-[#08090B] py-28 lg:py-0"
+      className="relative min-h-screen w-full flex items-center overflow-hidden bg-[#080808] py-28 lg:py-0"
     >
       {/* =========================================================================
           FULL-BLEED CINEMATIC ABOUT BACKGROUND (Edge-to-Edge Original Photograph)
@@ -69,15 +69,15 @@ export default function About({ scrollToSection }) {
           alt="Srivathsan photographer portrait smiling with Canon camera and white lens"
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover object-[78%_center] sm:object-[80%_center] lg:object-[86%_center] transform-gpu transition-all duration-700 ease-out"
+          className="w-full h-full object-cover object-[80%_center] sm:object-[84%_center] lg:object-[88%_center] xl:object-[90%_center] transform-gpu transition-all duration-700 ease-out"
         />
 
-        {/* Desktop Gradient: Solid dark on left for text readability -> Transparent on right keeping photo bright */}
+        {/* Desktop Gradient: Deep cinematic black on left for text readability -> Transparent on right keeping photo bright */}
         <div
           className="absolute inset-0 pointer-events-none hidden lg:block"
           style={{
             background:
-              'linear-gradient(90deg, #08090B 0%, rgba(8,9,11,0.96) 26%, rgba(8,9,11,0.85) 42%, rgba(8,9,11,0.4) 58%, transparent 76%)',
+              'linear-gradient(90deg, #080808 0%, rgba(8,8,8,0.98) 22%, rgba(8,8,8,0.86) 38%, rgba(8,8,8,0.35) 54%, rgba(8,8,8,0.08) 68%, transparent 80%)',
           }}
         />
 
@@ -86,7 +86,7 @@ export default function About({ scrollToSection }) {
           className="absolute inset-0 pointer-events-none hidden sm:block lg:hidden"
           style={{
             background:
-              'linear-gradient(90deg, #08090B 0%, rgba(8,9,11,0.95) 36%, rgba(8,9,11,0.78) 56%, transparent 85%)',
+              'linear-gradient(90deg, #080808 0%, rgba(8,8,8,0.95) 36%, rgba(8,8,8,0.72) 56%, transparent 85%)',
           }}
         />
 
@@ -95,13 +95,13 @@ export default function About({ scrollToSection }) {
           className="absolute inset-0 pointer-events-none sm:hidden"
           style={{
             background:
-              'linear-gradient(180deg, rgba(8,9,11,0.94) 0%, rgba(8,9,11,0.82) 48%, rgba(8,9,11,0.35) 75%, rgba(8,9,11,0.9) 100%)',
+              'linear-gradient(180deg, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.82) 48%, rgba(8,8,8,0.3) 75%, rgba(8,8,8,0.9) 100%)',
           }}
         />
 
         {/* Subtle top & bottom edge blending */}
-        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#08090B] to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#08090B] to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#080808] to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#080808] to-transparent pointer-events-none" />
       </div>
 
       {/* =========================================================================
@@ -112,8 +112,8 @@ export default function About({ scrollToSection }) {
 
           {/* Label: Warm orange accent line + ABOUT ME */}
           <div ref={tagRef} className="flex items-center gap-3 mb-6 sm:mb-8">
-            <span className="w-6 h-[2px] bg-[#FF9500] rounded-full" />
-            <span className="text-xs font-semibold tracking-[0.3em] text-[#FF9500] uppercase font-mono">
+            <span className="w-6 h-[2px] bg-[#FF9800] rounded-full" />
+            <span className="text-xs font-semibold tracking-[0.3em] text-[#FF9800] uppercase font-mono">
               ABOUT ME
             </span>
           </div>
@@ -124,14 +124,14 @@ export default function About({ scrollToSection }) {
             className="font-oswald text-5xl sm:text-7xl lg:text-[76px] xl:text-[84px] font-bold leading-[0.95] tracking-tight uppercase mb-8 text-white"
           >
             <span className="block">THE MIND</span>
-            <span className="text-[#FF9500] block drop-shadow-[0_0_25px_rgba(255,149,0,0.25)]">
+            <span className="text-[#FF9800] block bg-gradient-to-r from-[#FF9800] via-[#FFB02E] to-[#FFA726] bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(255,152,0,0.25)]">
               BEHIND THE
             </span>
             <span className="block">LENS.</span>
           </h2>
 
           {/* Story Paragraphs */}
-          <div ref={textRef} className="space-y-4 text-sm sm:text-base leading-relaxed text-[#A5A5A5] font-light max-w-xl mb-6 sm:mb-8">
+          <div ref={textRef} className="space-y-4 text-sm sm:text-base leading-relaxed text-[#A0A0A0] font-light max-w-xl mb-6 sm:mb-8">
             <p>
               I'm Srivathsan, a visual storyteller, photographer, and creator who loves turning ideas and moments into something people can experience.
             </p>
@@ -143,7 +143,7 @@ export default function About({ scrollToSection }) {
           {/* Highlighted Quote Block with Orange Accent Border */}
           <div
             ref={quoteRef}
-            className="border-l-2 border-[#FF9500] pl-5 py-1 mb-8 sm:mb-10 max-w-xl bg-gradient-to-r from-[#FF9500]/5 to-transparent rounded-r-lg"
+            className="border-l-2 border-[#FF9800] pl-5 py-1 mb-8 sm:mb-10 max-w-xl bg-gradient-to-r from-[#FF9800]/5 to-transparent rounded-r-lg"
           >
             <p className="text-sm sm:text-base italic text-white/95 leading-relaxed font-light">
               “Photography taught me to notice the details. Technology taught me to build them. I bring both perspectives into everything I create.”
@@ -154,7 +154,7 @@ export default function About({ scrollToSection }) {
           <div ref={ctaRef}>
             <button
               onClick={() => (scrollToSection ? scrollToSection('work') : null)}
-              className="inline-flex items-center gap-3 px-7 py-3.5 rounded-lg border border-[#FF9500]/80 bg-transparent text-xs font-semibold tracking-[0.2em] text-white uppercase hover:bg-[#FF9500] hover:text-black hover:border-[#FF9500] hover:shadow-[0_0_25px_rgba(255,149,0,0.45)] transition-all cursor-pointer group"
+              className="inline-flex items-center gap-3 px-7 py-3.5 rounded-lg border border-[#FF9800]/80 bg-transparent text-xs font-semibold tracking-[0.2em] text-white uppercase hover:bg-[#FF9800] hover:text-black hover:border-[#FF9800] hover:shadow-[0_0_25px_rgba(255,152,0,0.45)] transition-all cursor-pointer group"
             >
               <span>GET TO KNOW ME</span>
               <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />

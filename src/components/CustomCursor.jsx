@@ -72,8 +72,8 @@ export default function CustomCursor() {
       if (ringRef.current) {
         const scale = isClicking ? 0.8 : isHovered ? 1.5 : 1.0;
         ringRef.current.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%) scale(${scale})`;
-        ringRef.current.style.borderColor = isHovered ? 'rgba(217, 70, 239, 0.8)' : 'rgba(217, 70, 239, 0.45)';
-        ringRef.current.style.backgroundColor = isHovered ? 'rgba(168, 85, 247, 0.12)' : 'transparent';
+        ringRef.current.style.borderColor = isHovered ? 'rgba(255, 152, 0, 0.85)' : 'rgba(255, 152, 0, 0.45)';
+        ringRef.current.style.backgroundColor = isHovered ? 'rgba(255, 176, 46, 0.12)' : 'transparent';
       }
 
       animationFrameId = requestAnimationFrame(animate);
@@ -97,13 +97,13 @@ export default function CustomCursor() {
       {/* Outer Glowing Ring */}
       <div
         ref={ringRef}
-        className="fixed top-0 left-0 pointer-events-none z-[9999] w-8 h-8 rounded-full border border-[#D946EF]/50 shadow-[0_0_12px_rgba(217,70,239,0.3)] hidden md:block opacity-0 transform-gpu will-change-transform"
+        className="fixed top-0 left-0 pointer-events-none z-[9999] w-8 h-8 rounded-full border border-[#FF9800]/50 shadow-[0_0_12px_rgba(255,152,0,0.3)] hidden md:block opacity-0 transform-gpu will-change-transform"
         style={{ transition: 'width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s, opacity 0.2s' }}
       />
       {/* Inner Glowing Center Dot */}
       <div
         ref={dotRef}
-        className="fixed top-0 left-0 pointer-events-none z-[9999] w-2 h-2 bg-[#D946EF] rounded-full shadow-[0_0_8px_#D946EF] hidden md:block opacity-0 transform-gpu will-change-transform"
+        className="fixed top-0 left-0 pointer-events-none z-[9999] w-2 h-2 bg-[#FF9800] rounded-full shadow-[0_0_8px_#FF9800] hidden md:block opacity-0 transform-gpu will-change-transform"
         style={{ transition: 'opacity 0.2s' }}
       />
     </>

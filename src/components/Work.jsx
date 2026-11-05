@@ -112,9 +112,9 @@ function Interactive3DCard({ card, num, title, image, offsetY, onClick, innerRef
         className="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-20 mix-blend-screen"
       />
 
-      <div className="absolute inset-0 bg-gradient-to-t from-[#03050B] via-[#03050B]/30 to-transparent opacity-85 group-hover:opacity-70 transition-opacity pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/30 to-transparent opacity-85 group-hover:opacity-70 transition-opacity pointer-events-none" />
 
-      <div className="absolute inset-0 rounded-3xl border border-white/10 group-hover:border-[#D946EF] group-hover:shadow-[0_0_30px_rgba(217,70,239,0.5)] transition-all pointer-events-none" />
+      <div className="absolute inset-0 rounded-3xl border border-white/10 group-hover:border-[#FF9800] group-hover:shadow-[0_0_30px_rgba(255,152,0,0.45)] transition-all pointer-events-none" />
 
       <div
         ref={contentRef}
@@ -122,15 +122,15 @@ function Interactive3DCard({ card, num, title, image, offsetY, onClick, innerRef
         style={{ transformStyle: 'preserve-3d' }}
       >
         <div className="flex items-baseline gap-2">
-          <span className="text-xs font-mono text-[#D946EF] font-bold drop-shadow-[0_0_8px_#D946EF] group-hover:scale-110 transition-transform">
+          <span className="text-xs font-mono text-[#FF9800] font-bold drop-shadow-[0_0_8px_#FF9800] group-hover:scale-110 transition-transform">
             {num}
           </span>
-          <h3 className="font-oswald text-xl sm:text-2xl font-bold text-white tracking-wide uppercase group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-[#FF9A3C] transition-all">
+          <h3 className="font-oswald text-xl sm:text-2xl font-bold text-white tracking-wide uppercase group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-[#FFB02E] transition-all">
             {title}
           </h3>
         </div>
 
-        <div className="w-9 h-9 rounded-full border border-white/20 bg-black/50 backdrop-blur-md flex items-center justify-center text-white/80 group-hover:text-white group-hover:border-[#D946EF] group-hover:bg-[#D946EF]/30 group-hover:shadow-[0_0_15px_#D946EF] group-hover:scale-110 transition-all">
+        <div className="w-9 h-9 rounded-full border border-white/20 bg-black/50 backdrop-blur-md flex items-center justify-center text-white/80 group-hover:text-black group-hover:border-[#FF9800] group-hover:bg-[#FF9800] group-hover:shadow-[0_0_15px_#FF9800] group-hover:scale-110 transition-all">
           <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
         </div>
       </div>
@@ -246,7 +246,7 @@ function ModalGalleryCard({ item, index = 0, onClick }) {
       />
 
       {/* Glowing Neon Border Ring */}
-      <div className="absolute inset-0 rounded-2xl border border-white/10 group-hover:border-[#D946EF] group-hover:shadow-[0_0_25px_rgba(217,70,239,0.5)] transition-all pointer-events-none" />
+      <div className="absolute inset-0 rounded-2xl border border-white/10 group-hover:border-[#FF9800] group-hover:shadow-[0_0_25px_rgba(255,152,0,0.45)] transition-all pointer-events-none" />
     </div>
   );
 }
@@ -369,7 +369,7 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
   return (
     <div className="relative flex flex-col items-center justify-center select-none w-full max-w-[540px] mx-auto py-2">
       {/* Outer Radial Ambient Light Glow */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-[#D946EF]/25 via-[#A855F7]/15 to-[#FF9A3C]/25 rounded-full blur-[120px] pointer-events-none transform scale-110" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-[#FF9800]/25 via-[#FFB02E]/15 to-[#FFA726]/20 rounded-full blur-[120px] pointer-events-none transform scale-110" />
 
       {/* Rotating Wheel Graphic Container */}
       <div
@@ -388,9 +388,9 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
         <svg viewBox="0 0 400 400" className="absolute inset-0 w-full h-full transform-gpu">
           <defs>
             <radialGradient id="activeSectorGradient" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#D946EF" stopOpacity="0.4" />
-              <stop offset="70%" stopColor="#A855F7" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="#FF9A3C" stopOpacity="0.05" />
+              <stop offset="0%" stopColor="#FF9800" stopOpacity="0.4" />
+              <stop offset="70%" stopColor="#FFB02E" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#FFA726" stopOpacity="0.05" />
             </radialGradient>
             <radialGradient id="inactiveSectorGradient" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#ffffff" stopOpacity="0.04" />
@@ -420,7 +420,7 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
                 key={idx}
                 d={pathData}
                 fill={isSelected ? 'url(#activeSectorGradient)' : 'url(#inactiveSectorGradient)'}
-                stroke={isSelected ? 'rgba(217, 70, 239, 0.9)' : 'rgba(255, 255, 255, 0.15)'}
+                stroke={isSelected ? 'rgba(255, 152, 0, 0.95)' : 'rgba(255, 255, 255, 0.15)'}
                 strokeWidth={isSelected ? '2.5' : '1'}
                 className="transition-all duration-300 cursor-pointer pointer-events-auto"
                 onClick={(e) => {
@@ -453,7 +453,7 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
                   className="font-oswald uppercase tracking-[0.16em] transition-all duration-300"
                 >
                   <tspan
-                    fill={isSelected ? '#FF9A3C' : '#D946EF'}
+                    fill={isSelected ? '#FFB02E' : '#FF9800'}
                     fontSize={isSelected ? '12.5' : '11'}
                     fontWeight="700"
                     fontFamily="monospace"
@@ -474,7 +474,7 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
 
           {/* Outer Boundary Camera Lens Rim */}
           <circle cx="200" cy="200" r="192" fill="none" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="3" />
-          <circle cx="200" cy="200" r="185" fill="none" stroke="rgba(217, 70, 239, 0.4)" strokeWidth="1" strokeDasharray="4 4" />
+          <circle cx="200" cy="200" r="185" fill="none" stroke="rgba(255, 152, 0, 0.4)" strokeWidth="1" strokeDasharray="4 4" />
 
           {/* Lens Aperture Stop Ticks & Markings Around Rim */}
           {lensStops.map((stop, i) => {
@@ -493,7 +493,7 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
 
           {/* Inner Lens Hub Ring */}
           <circle cx="200" cy="200" r="96" fill="none" stroke="rgba(255, 255, 255, 0.35)" strokeWidth="3" />
-          <circle cx="200" cy="200" r="90" fill="none" stroke="rgba(255, 154, 60, 0.5)" strokeWidth="1.5" />
+          <circle cx="200" cy="200" r="90" fill="none" stroke="rgba(255, 176, 46, 0.5)" strokeWidth="1.5" />
 
           {/* Spoke Partition Lines */}
           {categories.map((_, idx) => {
@@ -525,7 +525,7 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
             openGalleryModal(activeCategory.title);
           }}
           style={{ transform: `rotate(${-rotationAngle}deg)` }}
-          className="absolute w-[155px] h-[155px] sm:w-[190px] sm:h-[190px] lg:w-[225px] lg:h-[225px] xl:w-[245px] xl:h-[245px] rounded-full overflow-hidden border-2 border-white/30 shadow-[0_0_35px_rgba(217,70,239,0.5)] cursor-pointer group transition-transform duration-500 hover:scale-105 z-30"
+          className="absolute w-[155px] h-[155px] sm:w-[190px] sm:h-[190px] lg:w-[225px] lg:h-[225px] xl:w-[245px] xl:h-[245px] rounded-full overflow-hidden border-2 border-white/30 shadow-[0_0_35px_rgba(255,152,0,0.45)] cursor-pointer group transition-transform duration-500 hover:scale-105 z-30"
         >
           {/* Active Image */}
           <img
@@ -538,17 +538,17 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent group-hover:from-black/60 transition-colors" />
 
           {/* Viewfinder Target Focus Reticle Corners */}
-          <div className="absolute top-2.5 left-2.5 w-3 h-3 border-t-2 border-l-2 border-[#FF9A3C]/80 pointer-events-none" />
-          <div className="absolute top-2.5 right-2.5 w-3 h-3 border-t-2 border-r-2 border-[#FF9A3C]/80 pointer-events-none" />
-          <div className="absolute bottom-2.5 left-2.5 w-3 h-3 border-b-2 border-l-2 border-[#FF9A3C]/80 pointer-events-none" />
-          <div className="absolute bottom-2.5 right-2.5 w-3 h-3 border-b-2 border-r-2 border-[#FF9A3C]/80 pointer-events-none" />
+          <div className="absolute top-2.5 left-2.5 w-3 h-3 border-t-2 border-l-2 border-[#FF9800]/80 pointer-events-none" />
+          <div className="absolute top-2.5 right-2.5 w-3 h-3 border-t-2 border-r-2 border-[#FF9800]/80 pointer-events-none" />
+          <div className="absolute bottom-2.5 left-2.5 w-3 h-3 border-b-2 border-l-2 border-[#FF9800]/80 pointer-events-none" />
+          <div className="absolute bottom-2.5 right-2.5 w-3 h-3 border-b-2 border-r-2 border-[#FF9800]/80 pointer-events-none" />
 
           {/* Center Lens CTA Details */}
           <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center z-10">
             <h4 className="font-oswald text-base sm:text-lg lg:text-xl font-bold text-white uppercase leading-tight my-0.5 drop-shadow-md">
               {activeCategory.title}
             </h4>
-            <div className="mt-1 px-3 py-1 rounded-full border border-[#FF9A3C]/60 bg-[#FF9A3C]/20 text-[#FF9A3C] text-[9px] font-bold tracking-widest uppercase inline-flex items-center gap-1.5 shadow-md group-hover:bg-[#FF9A3C] group-hover:text-black transition-all">
+            <div className="mt-1 px-3 py-1 rounded-full border border-[#FF9800]/60 bg-[#FF9800]/20 text-[#FF9800] text-[9px] font-bold tracking-widest uppercase inline-flex items-center gap-1.5 shadow-md group-hover:bg-[#FF9800] group-hover:text-black transition-all">
               <span>EXPLORE</span>
               <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
             </div>
@@ -559,7 +559,7 @@ function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryM
 
       {/* Motion Guidance Subtext */}
       <div className="mt-4 flex items-center gap-2 text-[11px] font-mono text-white/50 tracking-wider uppercase">
-        <Sparkles className="w-3.5 h-3.5 text-[#D946EF] animate-pulse" />
+        <Sparkles className="w-3.5 h-3.5 text-[#FF9800] animate-pulse" />
         <span>SPIN WHEEL OR TILT PHONE TO ROTATE</span>
       </div>
 
@@ -835,11 +835,11 @@ export default function Work() {
               
               {/* Section Header Tag */}
               <div ref={tagRef} className="flex items-center gap-4 mb-3 sm:mb-4">
-                <span className="text-xs sm:text-sm font-mono text-[#A855F7] font-semibold tracking-wider">
+                <span className="text-xs sm:text-sm font-mono text-[#FF9800] font-semibold tracking-wider">
                   02
                 </span>
-                <span className="w-8 h-[1px] bg-[#A855F7]/40" />
-                <span className="text-xs font-semibold tracking-[0.3em] text-[#A855F7] uppercase">
+                <span className="w-8 h-[1px] bg-[#FF9800]/40" />
+                <span className="text-xs font-semibold tracking-[0.3em] text-[#FF9800] uppercase">
                   MY WORK
                 </span>
               </div>
@@ -856,7 +856,7 @@ export default function Work() {
 
               {/* Active Category Information Card (Compact on Mobile, Full Spacing on Desktop) */}
               <div ref={subtextRef} className="bg-white/5 border border-white/10 rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-8 backdrop-blur-md relative overflow-hidden shadow-xl">
-                <div className="flex items-center justify-between text-xs font-mono text-[#D946EF] font-bold tracking-wider uppercase mb-1.5 lg:mb-3">
+                <div className="flex items-center justify-between text-xs font-mono text-[#FF9800] font-bold tracking-wider uppercase mb-1.5 lg:mb-3">
                   <span>COLLECTION {activeCategory.num} / {String(workCards.length).padStart(2, '0')}</span>
                 </div>
 
@@ -864,7 +864,7 @@ export default function Work() {
                   {activeCategory.title}
                 </h3>
 
-                <p className="text-xs lg:text-sm text-[#85848D] leading-relaxed font-light mb-3.5 lg:mb-6">
+                <p className="text-xs lg:text-sm text-[#A0A0A0] leading-relaxed font-light mb-3.5 lg:mb-6">
                   Explore selected captures from {activeCategory.title.toLowerCase()} moments. Click the wheel center or button below to view the complete collection.
                 </p>
 
@@ -872,7 +872,7 @@ export default function Work() {
                 <div className="flex items-center gap-3 lg:gap-4">
                   <button
                     onClick={() => openGalleryModal(activeCategory.title)}
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 lg:px-6 py-2.5 lg:py-3.5 rounded-full bg-gradient-to-r from-[#D946EF] to-[#A855F7] text-white font-semibold text-xs lg:text-sm tracking-wider uppercase shadow-[0_0_15px_rgba(217,70,239,0.35)] hover:shadow-[0_0_25px_rgba(217,70,239,0.6)] hover:scale-[1.02] transition-all cursor-pointer group"
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 lg:px-6 py-2.5 lg:py-3.5 rounded-full bg-gradient-to-r from-[#FF9800] via-[#FFB02E] to-[#FFA726] text-black font-bold text-xs lg:text-sm tracking-wider uppercase shadow-[0_0_20px_rgba(255,152,0,0.4)] hover:shadow-[0_0_30px_rgba(255,152,0,0.65)] hover:scale-[1.02] transition-all cursor-pointer group"
                   >
                     <span>EXPLORE {activeCategory.title}</span>
                     <ArrowRight className="w-3.5 h-3.5 lg:w-4 lg:h-4 transform group-hover:translate-x-1 transition-transform" />
@@ -882,14 +882,14 @@ export default function Work() {
                     <button
                       onClick={handlePrevWheel}
                       aria-label="Previous Category"
-                      className="w-9 h-9 lg:w-11 lg:h-11 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
+                      className="w-9 h-9 lg:w-11 lg:h-11 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9800] hover:bg-[#FF9800]/20 hover:text-[#FF9800] transition-all cursor-pointer"
                     >
                       <ChevronLeft className="w-4 h-4 lg:w-5 lg:h-5" />
                     </button>
                     <button
                       onClick={handleNextWheel}
                       aria-label="Next Category"
-                      className="w-9 h-9 lg:w-11 lg:h-11 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9A3C] hover:bg-[#FF9A3C]/20 hover:text-[#FF9A3C] transition-all cursor-pointer"
+                      className="w-9 h-9 lg:w-11 lg:h-11 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9800] hover:bg-[#FF9800]/20 hover:text-[#FF9800] transition-all cursor-pointer"
                     >
                       <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5" />
                     </button>
@@ -918,10 +918,10 @@ export default function Work() {
               onClick={() => openGalleryModal('ALL')}
               className="inline-flex items-center gap-4 group cursor-pointer"
             >
-              <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#FF9A3C] transition-colors uppercase">
+              <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#FF9800] transition-colors uppercase">
                 VIEW ALL WORK
               </span>
-              <div className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white/80 group-hover:border-[#FF9A3C] group-hover:bg-[#FF9A3C]/20 group-hover:text-white group-hover:scale-110 transition-all">
+              <div className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white/80 group-hover:border-[#FF9800] group-hover:bg-[#FF9800]/20 group-hover:text-white group-hover:scale-110 transition-all">
                 <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
               </div>
             </button>
@@ -934,16 +934,16 @@ export default function Work() {
       {activeCategoryModal && createPortal(
         <div
           data-lenis-prevent="true"
-          className="fixed inset-0 z-[99999] flex flex-col bg-[#03050B] animate-fadeIn overflow-hidden"
+          className="fixed inset-0 z-[99999] flex flex-col bg-[#080808] animate-fadeIn overflow-hidden"
         >
           {/* TOP MODAL HEADER BAR */}
-          <div className="w-full bg-[#03050B]/98 border-b border-white/10 px-4 sm:px-12 py-3.5 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 z-20 shrink-0 shadow-2xl">
+          <div className="w-full bg-[#080808]/98 border-b border-white/10 px-4 sm:px-12 py-3.5 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 z-20 shrink-0 shadow-2xl">
             
             {/* Top Action Controls Row: BACK TO WORK & CLOSE (Mobile) / Left Group (Desktop) */}
             <div className="flex items-center justify-between sm:justify-start gap-4 w-full sm:w-auto">
               <button
                 onClick={() => setActiveCategoryModal(false)}
-                className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full border border-[#D946EF]/40 bg-[#D946EF]/15 text-[11px] sm:text-xs font-bold text-white hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer group shrink-0"
+                className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full border border-[#FF9800]/50 bg-[#FF9800]/15 text-[11px] sm:text-xs font-bold text-white hover:bg-[#FF9800] hover:text-black hover:border-[#FF9800] hover:shadow-[0_0_20px_rgba(255,152,0,0.5)] transition-all cursor-pointer group shrink-0"
               >
                 <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 transform group-hover:-translate-x-0.5 transition-transform" />
                 <span>BACK TO WORK</span>
@@ -951,7 +951,7 @@ export default function Work() {
 
               {/* Title & Collection Name for Desktop */}
               <div className="hidden sm:block">
-                <span className="text-[10px] font-mono text-[#D946EF] tracking-widest uppercase block">
+                <span className="text-[10px] font-mono text-[#FF9800] tracking-widest uppercase block">
                   PORTFOLIO GALLERY
                 </span>
                 <h3 className="font-oswald text-xl sm:text-2xl font-bold text-white uppercase leading-none">
@@ -963,7 +963,7 @@ export default function Work() {
               <button
                 onClick={() => setActiveCategoryModal(false)}
                 aria-label="Close gallery modal"
-                className="sm:hidden w-9 h-9 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:border-[#D946EF] hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer shrink-0"
+                className="sm:hidden w-9 h-9 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:border-[#FF9800] hover:bg-[#FF9800] hover:text-black hover:shadow-[0_0_20px_rgba(255,152,0,0.5)] transition-all cursor-pointer shrink-0"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -977,8 +977,8 @@ export default function Work() {
                   onClick={() => setModalFilter(cat)}
                   className={`px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold tracking-wider transition-all whitespace-nowrap cursor-pointer shrink-0 ${
                     modalFilter === cat
-                      ? 'bg-[#D946EF] text-white shadow-[0_0_18px_rgba(217,70,239,0.6)]'
-                      : 'text-[#85848D] hover:text-white bg-white/5 border border-white/10 hover:border-white/20'
+                      ? 'bg-[#FF9800] text-black font-bold shadow-[0_0_18px_rgba(255,152,0,0.6)]'
+                      : 'text-[#A0A0A0] hover:text-white bg-white/5 border border-white/10 hover:border-white/20'
                   }`}
                 >
                   {cat}
@@ -990,7 +990,7 @@ export default function Work() {
             <button
               onClick={() => setActiveCategoryModal(false)}
               aria-label="Close gallery modal"
-              className="hidden sm:flex w-10 h-10 rounded-full border border-white/20 bg-white/10 items-center justify-center text-white hover:border-[#D946EF] hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer ml-3 shrink-0"
+              className="hidden sm:flex w-10 h-10 rounded-full border border-white/20 bg-white/10 items-center justify-center text-white hover:border-[#FF9800] hover:bg-[#FF9800] hover:text-black hover:shadow-[0_0_20px_rgba(255,152,0,0.5)] transition-all cursor-pointer ml-3 shrink-0"
             >
               <X className="w-5 h-5" />
             </button>
@@ -1004,7 +1004,7 @@ export default function Work() {
           >
             {/* Mobile Category Title Banner */}
             <div className="sm:hidden mb-5">
-              <span className="text-[10px] font-mono text-[#D946EF] tracking-widest uppercase block mb-0.5">
+              <span className="text-[10px] font-mono text-[#FF9800] tracking-widest uppercase block mb-0.5">
                 PORTFOLIO GALLERY
               </span>
               <h3 className="font-oswald text-2xl font-bold text-white uppercase tracking-wide">
@@ -1038,7 +1038,7 @@ export default function Work() {
           <div className="absolute top-6 right-6 flex items-center gap-3 z-20">
             <button
               onClick={() => setSelectedPhoto(null)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 bg-white/10 text-xs font-bold text-white hover:border-[#D946EF] hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 bg-white/10 text-xs font-bold text-white hover:border-[#FF9800] hover:bg-[#FF9800] hover:text-black hover:shadow-[0_0_20px_rgba(255,152,0,0.5)] transition-all cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>BACK TO GALLERY</span>
@@ -1046,7 +1046,7 @@ export default function Work() {
             <button
               onClick={() => setSelectedPhoto(null)}
               aria-label="Close fullscreen photo"
-              className="w-10 h-10 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:border-[#D946EF] hover:bg-[#D946EF] hover:shadow-[0_0_20px_#D946EF] transition-all cursor-pointer"
+              className="w-10 h-10 rounded-full border border-white/20 bg-white/10 flex items-center justify-center text-white hover:border-[#FF9800] hover:bg-[#FF9800] hover:text-black hover:shadow-[0_0_20px_rgba(255,152,0,0.5)] transition-all cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -1064,7 +1064,7 @@ export default function Work() {
               className="max-h-[75vh] max-w-[90vw] object-contain rounded-2xl border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.9)]"
             />
             <div className="mt-5 text-center">
-              <span className="text-xs font-mono text-[#D946EF] uppercase tracking-widest block mb-1">
+              <span className="text-xs font-mono text-[#FF9800] uppercase tracking-widest block mb-1">
                 {selectedPhoto.category}
               </span>
               <h4 className="font-oswald text-2xl sm:text-3xl text-white uppercase tracking-wide font-bold">

@@ -22,31 +22,36 @@ export default function Hero({ scrollToSection }) {
       id: 1,
       image: '/images/hero.png',
       alt: 'Srivathsan holding camera with telephoto lens during golden hour',
-      position: 'object-[78%_center] sm:object-[80%_center] lg:object-[84%_center]',
+      position: 'object-[90%_center] sm:object-[92%_center] lg:object-[94%_center]',
+      faceTonalOverlay: true,
     },
     {
       id: 2,
       image: '/images/Celebrities/1.webp',
       alt: 'Srivathsan concert photography spotlight',
-      position: 'object-[75%_center] lg:object-[80%_center]',
+      position: 'object-[78%_center] lg:object-[82%_center]',
+      faceTonalOverlay: false,
     },
     {
       id: 3,
       image: '/images/Nature/1.webp',
       alt: 'Srivathsan nature landscape photography',
-      position: 'object-center lg:object-[70%_center]',
+      position: 'object-center lg:object-[72%_center]',
+      faceTonalOverlay: false,
     },
     {
       id: 4,
       image: '/images/Celebrities/4.webp',
       alt: 'Srivathsan stage performance portrait',
-      position: 'object-[75%_center] lg:object-[80%_center]',
+      position: 'object-[78%_center] lg:object-[82%_center]',
+      faceTonalOverlay: false,
     },
     {
       id: 5,
       image: '/images/Architecture/IMG_20260831_005035.webp',
       alt: 'Srivathsan architecture photography',
-      position: 'object-center lg:object-[70%_center]',
+      position: 'object-center lg:object-[72%_center]',
+      faceTonalOverlay: false,
     },
   ];
 
@@ -104,11 +109,10 @@ export default function Hero({ scrollToSection }) {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative min-h-screen w-full flex items-center overflow-hidden bg-[#08090B]"
+      className="relative min-h-screen w-full flex items-center overflow-hidden bg-[#080808]"
     >
       {/* =========================================================================
           FULL-BLEED CINEMATIC HERO BACKGROUND (Edge-to-Edge Original Photograph)
-          No cards, no borders, no containers — pure full-screen photographic immersion
          ========================================================================= */}
       <div className="absolute inset-0 w-full h-full z-0 select-none pointer-events-none overflow-hidden">
         <img
@@ -121,12 +125,23 @@ export default function Hero({ scrollToSection }) {
           className={`w-full h-full object-cover ${currentSlide.position} transform-gpu transition-all duration-700 ease-out`}
         />
 
-        {/* Desktop Gradient: Solid dark on left for text readability -> Transparent on right keeping photo bright */}
+        {/* Soft, cinematic dark overlay creating subtle faded tonal treatment over face area without modifying original features */}
+        {currentSlide.faceTonalOverlay && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(ellipse at 74% 36%, rgba(8,8,8,0.26) 0%, rgba(8,8,8,0.12) 35%, transparent 65%)',
+            }}
+          />
+        )}
+
+        {/* Desktop Gradient: Deep cinematic black on left -> Smooth transition keeping photograph bright on right */}
         <div
           className="absolute inset-0 pointer-events-none hidden lg:block"
           style={{
             background:
-              'linear-gradient(90deg, #08090B 0%, rgba(8,9,11,0.96) 24%, rgba(8,9,11,0.85) 38%, rgba(8,9,11,0.45) 54%, transparent 72%)',
+              'linear-gradient(90deg, #080808 0%, rgba(8,8,8,0.98) 22%, rgba(8,8,8,0.86) 36%, rgba(8,8,8,0.4) 52%, rgba(8,8,8,0.1) 68%, transparent 80%)',
           }}
         />
 
@@ -135,34 +150,34 @@ export default function Hero({ scrollToSection }) {
           className="absolute inset-0 pointer-events-none hidden sm:block lg:hidden"
           style={{
             background:
-              'linear-gradient(90deg, #08090B 0%, rgba(8,9,11,0.95) 35%, rgba(8,9,11,0.75) 55%, transparent 85%)',
+              'linear-gradient(90deg, #080808 0%, rgba(8,8,8,0.95) 35%, rgba(8,8,8,0.72) 55%, transparent 85%)',
           }}
         />
 
-        {/* Mobile Gradient: Balanced vertical + horizontal fade */}
+        {/* Mobile Gradient: Balanced vertical fade */}
         <div
           className="absolute inset-0 pointer-events-none sm:hidden"
           style={{
             background:
-              'linear-gradient(180deg, rgba(8,9,11,0.94) 0%, rgba(8,9,11,0.82) 48%, rgba(8,9,11,0.35) 75%, rgba(8,9,11,0.9) 100%)',
+              'linear-gradient(180deg, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.82) 48%, rgba(8,8,8,0.3) 75%, rgba(8,8,8,0.9) 100%)',
           }}
         />
 
         {/* Subtle top & bottom edge blending */}
-        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#08090B]/90 to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#08090B] to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#080808]/90 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#080808] to-transparent pointer-events-none" />
       </div>
 
       {/* =========================================================================
-          HERO TEXT & INTERACTIVE CONTENT (Layered Directly Over the Full-Bleed Photo)
+          HERO TEXT & INTERACTIVE CONTENT (Layered Directly Over the Photo)
          ========================================================================= */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-16 pt-28 pb-16 lg:pt-36 lg:pb-24">
         <div className="max-w-xl xl:max-w-2xl flex flex-col justify-center">
 
-          {/* Label: Warm orange accent line + VISUAL STORYTELLER */}
+          {/* Label: Warm cinematic orange accent line + VISUAL STORYTELLER */}
           <div ref={tagRef} className="flex items-center gap-3 mb-6 sm:mb-8">
-            <span className="w-6 h-[2px] bg-[#FF9500] rounded-full" />
-            <span className="text-xs font-semibold tracking-[0.3em] text-[#FF9500] uppercase font-mono">
+            <span className="w-6 h-[2px] bg-[#FF9800] rounded-full" />
+            <span className="text-xs font-semibold tracking-[0.3em] text-[#FF9800] uppercase font-mono">
               VISUAL STORYTELLER
             </span>
           </div>
@@ -174,7 +189,7 @@ export default function Hero({ scrollToSection }) {
             </span>
             <span
               ref={(el) => (headingLinesRef.current[1] = el)}
-              className="block text-[#FF9500] bg-gradient-to-r from-[#FF9500] via-[#FFB03A] to-[#FF9A3C] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(255,149,0,0.25)]"
+              className="block text-[#FF9800] bg-gradient-to-r from-[#FF9800] via-[#FFB02E] to-[#FFA726] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(255,152,0,0.25)]"
             >
               MOMENTS THAT
             </span>
@@ -186,7 +201,7 @@ export default function Hero({ scrollToSection }) {
           {/* Description Paragraph */}
           <p
             ref={textRef}
-            className="text-sm sm:text-base leading-relaxed text-[#A5A5A5] max-w-lg font-light mb-8 sm:mb-10"
+            className="text-sm sm:text-base leading-relaxed text-[#A0A0A0] max-w-lg font-light mb-8 sm:mb-10"
           >
             Photography for me is not just clicking, <br className="hidden sm:inline" />
             it's feeling, observing and preserving memories.
@@ -196,7 +211,7 @@ export default function Hero({ scrollToSection }) {
           <div ref={ctaRef} className="flex flex-wrap items-center gap-6 sm:gap-8 mb-10 sm:mb-14">
             <button
               onClick={() => scrollToSection('work')}
-              className="inline-flex items-center gap-3 px-7 py-3.5 rounded-lg border border-[#FF9500]/80 bg-transparent text-xs font-semibold tracking-[0.2em] text-white uppercase hover:bg-[#FF9500] hover:text-black hover:border-[#FF9500] hover:shadow-[0_0_25px_rgba(255,149,0,0.45)] transition-all cursor-pointer group"
+              className="inline-flex items-center gap-3 px-7 py-3.5 rounded-lg border border-[#FF9800]/80 bg-transparent text-xs font-semibold tracking-[0.2em] text-white uppercase hover:bg-[#FF9800] hover:text-black hover:border-[#FF9800] hover:shadow-[0_0_25px_rgba(255,152,0,0.45)] transition-all cursor-pointer group"
             >
               <span>EXPLORE MY WORK</span>
               <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
@@ -205,12 +220,12 @@ export default function Hero({ scrollToSection }) {
             {/* Glowing SCROLL TO EXPLORE indicator */}
             <button
               onClick={() => scrollToSection('about')}
-              className="inline-flex items-center gap-3 text-xs font-mono tracking-[0.25em] text-[#A5A5A5] hover:text-white transition-colors uppercase cursor-pointer group"
+              className="inline-flex items-center gap-3 text-xs font-mono tracking-[0.25em] text-[#A0A0A0] hover:text-white transition-colors uppercase cursor-pointer group"
             >
               <span>SCROLL TO EXPLORE</span>
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF9500] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF9500] shadow-[0_0_8px_#FF9500]" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF9800] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF9800] shadow-[0_0_8px_#FF9800]" />
               </span>
             </button>
           </div>
@@ -218,9 +233,9 @@ export default function Hero({ scrollToSection }) {
           {/* Minimal Functional Slider / Counter Indicator */}
           <div
             ref={sliderRef}
-            className="flex items-center gap-5 text-xs font-mono text-[#A5A5A5] select-none"
+            className="flex items-center gap-5 text-xs font-mono text-[#A0A0A0] select-none"
           >
-            <span className="w-[2px] h-4 bg-[#FF9500]/70" />
+            <span className="w-[2px] h-4 bg-[#FF9800]/70" />
             <span className="tracking-widest text-white/90">
               0{activeSlide + 1} / 0{heroSlides.length}
             </span>
@@ -237,7 +252,7 @@ export default function Hero({ scrollToSection }) {
                     <span
                       className={`block h-[2px] rounded-full transition-all duration-300 ${
                         isActive
-                          ? 'w-7 bg-[#FF9500] shadow-[0_0_8px_#FF9500]'
+                          ? 'w-7 bg-[#FF9800] shadow-[0_0_8px_#FF9800]'
                           : 'w-4 bg-white/20 group-hover:bg-white/40'
                       }`}
                     />
