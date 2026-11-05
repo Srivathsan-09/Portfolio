@@ -12,7 +12,7 @@ export default function About({ scrollToSection }) {
   const textRef = useRef(null);
   const quoteRef = useRef(null);
   const ctaRef = useRef(null);
-  const bgImageRef = useRef(null);
+  const bgWrapperRef = useRef(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -32,18 +32,17 @@ export default function About({ scrollToSection }) {
         .fromTo(quoteRef.current, { x: -20, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7 }, '-=0.4')
         .fromTo(ctaRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, '-=0.4');
 
-      // 2. Subtle Parallax Scrub on Full-Bleed Background Image
+      // 2. Animate the image wrapper, not the photograph itself
       gsap.fromTo(
-        bgImageRef.current,
-        { scale: 1.04, y: -12 },
+        bgWrapperRef.current,
+        { opacity: 0.85 },
         {
-          scale: 1.0,
-          y: 12,
+          opacity: 1,
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 1,
+            start: 'top 85%',
+            end: 'top 35%',
+            scrub: 0.6,
           },
         }
       );
@@ -63,14 +62,15 @@ export default function About({ scrollToSection }) {
           No cards, no borders, no containers — pure full-screen photographic immersion
          ========================================================================= */}
       <div className="absolute inset-0 w-full h-full z-0 select-none pointer-events-none overflow-hidden">
-        <img
-          ref={bgImageRef}
-          src="/images/about.jpg?v=20261105"
-          alt="Srivathsan photographer portrait smiling with Canon camera and white lens"
-          loading="lazy"
-          decoding="async"
-          className="w-full h-full object-cover object-[24%_20%] sm:object-[28%_center] lg:object-left transform-gpu transition-all duration-700 ease-out"
-        />
+        <div ref={bgWrapperRef} className="absolute inset-0 w-full h-full">
+          <img
+            src="/images/about.png"
+            alt="Srivathsan photographer portrait smiling with Canon camera and white lens"
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-cover object-[24%_20%] sm:object-[28%_center] lg:object-[15%_center] xl:object-left"
+          />
+        </div>
 
         {/* Desktop Gradient: Deep cinematic black on right for text readability -> Transparent on left keeping photographer naturally illuminated */}
         <div

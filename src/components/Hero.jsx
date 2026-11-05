@@ -12,7 +12,7 @@ export default function Hero({ scrollToSection }) {
   const textRef = useRef(null);
   const ctaRef = useRef(null);
   const sliderRef = useRef(null);
-  const bgImageRef = useRef(null);
+  const bgWrapperRef = useRef(null);
 
   // Functional slider state for the minimal slider interface
   const [activeSlide, setActiveSlide] = useState(0);
@@ -20,7 +20,7 @@ export default function Hero({ scrollToSection }) {
   const heroSlides = [
     {
       id: 1,
-      image: '/images/hero.png?v=20261105',
+      image: '/images/hero.png',
       alt: 'Srivathsan holding camera with telephoto lens during golden hour',
       position: 'object-[54%_25%] sm:object-[70%_center] lg:object-center',
       shiftRight: true,
@@ -71,9 +71,9 @@ export default function Hero({ scrollToSection }) {
         .fromTo(ctaRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, '-=0.5')
         .fromTo(sliderRef.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.7 }, '-=0.4')
         .fromTo(
-          bgImageRef.current,
-          { scale: 1.04, opacity: 0.7 },
-          { scale: 1, opacity: 1, duration: 1.4, ease: 'power2.out' },
+          bgWrapperRef.current,
+          { opacity: 0.8 },
+          { opacity: 1, duration: 1.0, ease: 'power2.out' },
           0
         );
 
@@ -119,6 +119,7 @@ export default function Hero({ scrollToSection }) {
       <div className="absolute inset-0 w-full h-full z-0 select-none pointer-events-none overflow-hidden bg-[#080808]">
         {/* Positioned Image Container: Shifts right on desktop, centered on mobile */}
         <div
+          ref={bgWrapperRef}
           className={`absolute inset-y-0 h-full transition-all duration-700 ease-out ${
             currentSlide.shiftRight
               ? 'left-0 w-full lg:left-[15%] xl:left-[16%] lg:w-[100%] xl:w-[100%]'
@@ -126,13 +127,12 @@ export default function Hero({ scrollToSection }) {
           }`}
         >
           <img
-            ref={bgImageRef}
             src={currentSlide.image}
             alt={currentSlide.alt}
             loading="eager"
             fetchPriority="high"
             decoding="async"
-            className={`w-full h-full object-cover ${currentSlide.position} transform-gpu transition-all duration-700 ease-out`}
+            className={`w-full h-full object-cover ${currentSlide.position}`}
           />
         </div>
 
