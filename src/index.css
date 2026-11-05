@@ -2,20 +2,20 @@
 
 @layer base {
   :root {
-    --bg-primary: #03050B;
-    --bg-secondary: #05060C;
-    --text-primary: #F2F0F4;
-    --text-secondary: #85848D;
+    --bg-primary: #08090B;
+    --bg-secondary: #0D0E12;
+    --text-primary: #F5F5F5;
+    --text-secondary: #A5A5A5;
+    --accent-orange: #FF9500;
+    --accent-amber: #FFB03A;
     --accent-purple: #A855F7;
     --accent-magenta: #D946EF;
     --accent-violet: #C026D3;
-    --accent-orange: #FF9A3C;
-    --accent-red: #E44A5F;
   }
 
   body {
-    background-color: #03050B;
-    color: #F2F0F4;
+    background-color: #08090B;
+    color: #F5F5F5;
     font-family: 'Plus Jakarta Sans', sans-serif;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
@@ -73,7 +73,7 @@
 }
 
 .text-gradient-orange {
-  background: linear-gradient(135deg, #FF9A3C 0%, #F97316 100%);
+  background: linear-gradient(135deg, #FF9500 0%, #FFB03A 60%, #FFA825 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

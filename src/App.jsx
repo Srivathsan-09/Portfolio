@@ -107,7 +107,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#03050B] text-[#F2F0F4] font-sans selection:bg-[#A855F7] selection:text-white">
+    <div className="relative min-h-screen bg-[#08090B] text-[#F5F5F5] font-sans selection:bg-[#FF9500] selection:text-black">
       {/* Scroll Progress Bar at very top */}
       <div
         ref={scrollProgressRef}
@@ -126,7 +126,7 @@ export default function App() {
       {/* Main Scroll-Driven Page Sections */}
       <main className="relative z-10">
         <Hero scrollToSection={scrollToSection} />
-        <About />
+        <About scrollToSection={scrollToSection} />
         <Work />
         <StoryStrip />
         <Contact />

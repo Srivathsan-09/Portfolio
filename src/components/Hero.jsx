@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -9,49 +10,82 @@ export default function Hero({ scrollToSection }) {
   const tagRef = useRef(null);
   const headingLinesRef = useRef([]);
   const textRef = useRef(null);
-  const buttonRef = useRef(null);
-  const imageCardRef = useRef(null);
+  const ctaRef = useRef(null);
+  const sliderRef = useRef(null);
+  const imageContainerRef = useRef(null);
+
+  // Functional slider state for the minimal slider interface
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const heroSlides = [
+    {
+      id: 1,
+      image: '/images/hero.png',
+      alt: 'Srivathsan holding camera with telephoto lens during golden hour',
+    },
+    {
+      id: 2,
+      image: '/images/Celebrities/1.webp',
+      alt: 'Srivathsan concert photography spotlight',
+    },
+    {
+      id: 3,
+      image: '/images/Nature/1.webp',
+      alt: 'Srivathsan nature landscape photography',
+    },
+    {
+      id: 4,
+      image: '/images/Celebrities/4.webp',
+      alt: 'Srivathsan stage performance portrait',
+    },
+    {
+      id: 5,
+      image: '/images/Architecture/IMG_20260831_005035.webp',
+      alt: 'Srivathsan architecture photography',
+    },
+  ];
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // 1. Entrance Animations on Page Mount (Text & Image reveal smoothly together)
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.8 } });
+      // 1. Entrance Animations on Page Mount
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.9 } });
 
-      tl.fromTo(tagRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1 })
+      tl.fromTo(tagRef.current, { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 })
         .fromTo(
           headingLinesRef.current,
-          { y: 30, opacity: 0 },
-          { y: 0, opacity: 1, stagger: 0.08 },
-          '-=0.5'
+          { y: 36, opacity: 0 },
+          { y: 0, opacity: 1, stagger: 0.1 },
+          '-=0.4'
         )
-        .fromTo(textRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1 }, '-=0.5')
-        .fromTo(buttonRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1 }, '-=0.5')
+        .fromTo(textRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, '-=0.5')
+        .fromTo(ctaRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, '-=0.5')
+        .fromTo(sliderRef.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.7 }, '-=0.4')
         .fromTo(
-          imageCardRef.current,
-          { scale: 0.97, opacity: 0.8 },
-          { scale: 1, opacity: 1, duration: 0.6 },
+          imageContainerRef.current,
+          { scale: 1.05, opacity: 0.6 },
+          { scale: 1, opacity: 1, duration: 1.4, ease: 'power2.out' },
           0
         );
 
-      // 2. Smooth Scroll Fade-Out (Scroll Down) - Only triggers when scrolling down past top
+      // 2. Smooth Scroll Parallax Fade Out on scroll
       const scrollTargets = [
         tagRef.current,
         ...headingLinesRef.current,
         textRef.current,
-        buttonRef.current,
-        imageCardRef.current,
+        ctaRef.current,
+        sliderRef.current,
       ].filter(Boolean);
 
       gsap.to(scrollTargets, {
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top -5%',
-          end: 'bottom 25%',
+          end: 'bottom 35%',
           scrub: 0.6,
         },
-        y: -60,
+        y: -50,
         opacity: 0,
-        stagger: 0.03,
+        stagger: 0.02,
         ease: 'power1.inOut',
       });
     }, sectionRef);
@@ -63,78 +97,127 @@ export default function Hero({ scrollToSection }) {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative min-h-screen flex items-center pt-28 pb-16 lg:pt-36 lg:pb-24 overflow-hidden"
+      className="relative min-h-screen flex items-center pt-28 pb-16 lg:pt-32 lg:pb-20 overflow-hidden bg-[#08090B]"
     >
-      {/* Hero Ambient Glow */}
-      <div className="absolute top-1/3 left-1/4 w-[450px] h-[450px] bg-gradient-to-tr from-purple-600/20 via-magenta-500/20 to-orange-500/10 rounded-full blur-[120px] pointer-events-none animate-pulse-glow" />
+      {/* RIGHT SIDE: User's Original Photograph with Cinematic Ambient Blend */}
+      <div
+        ref={imageContainerRef}
+        className="absolute top-0 right-0 w-full lg:w-[65%] xl:w-[62%] h-full pointer-events-none select-none z-0 overflow-hidden"
+      >
+        <img
+          src={heroSlides[activeSlide].image}
+          alt={heroSlides[activeSlide].alt}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          className="w-full h-full object-cover object-[center_right] lg:object-[75%_center] transform-gpu transition-all duration-700 ease-out"
+        />
 
+        {/* Seamless horizontal gradient fade from dark to transparent (Desktop) */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#08090B] via-[#08090B]/85 to-transparent hidden lg:block" />
+
+        {/* Mobile / Tablet dark backdrop overlay for crystal clear typography legibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#08090B] via-[#08090B]/85 to-[#08090B]/60 lg:hidden" />
+
+        {/* Subtle top & bottom edge blending */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#08090B] via-transparent to-[#08090B]/75 pointer-events-none" />
+
+        {/* Subtle warm amber/golden lens glow matching photo sunset */}
+        <div className="absolute -top-10 right-1/4 w-[380px] h-[380px] bg-[#FF9500]/15 rounded-full blur-[140px] pointer-events-none mix-blend-screen" />
+      </div>
+
+      {/* Hero Ambient Background Light */}
+      <div className="absolute top-1/4 left-10 w-[420px] h-[420px] bg-gradient-to-tr from-[#FF9500]/10 via-[#D946EF]/10 to-transparent rounded-full blur-[160px] pointer-events-none" />
+
+      {/* Main Hero Content Container */}
       <div className="max-w-7xl mx-auto px-6 lg:px-16 w-full relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
-          {/* LEFT SIDE: Heading & Intro */}
-          <div className="lg:col-span-7 flex flex-col justify-center">
-            
-            {/* Small purple uppercase label */}
-            <div ref={tagRef} className="flex items-center gap-3 mb-6">
-              <span className="w-2 h-2 rounded-full bg-[#A855F7] shadow-[0_0_10px_#A855F7] animate-pulse" />
-              <span className="text-xs font-semibold tracking-[0.3em] text-[#A855F7] uppercase font-sans">
-                VISUAL STORYTELLER
-              </span>
-            </div>
+        <div className="max-w-2xl flex flex-col justify-center">
 
-            {/* Editorial Heading lines */}
-            <h1 className="font-oswald text-5xl sm:text-7xl lg:text-8xl xl:text-[90px] font-bold leading-[0.95] tracking-tight uppercase mb-8 text-white">
-              <span ref={(el) => (headingLinesRef.current[0] = el)} className="block">
-                I CAPTURE
-              </span>
-              <span ref={(el) => (headingLinesRef.current[1] = el)} className="text-gradient-purple block">
-                MOMENTS THAT
-              </span>
-              <span ref={(el) => (headingLinesRef.current[2] = el)} className="block">
-                STAY.
-              </span>
-            </h1>
-
-            {/* Subtext */}
-            <p ref={textRef} className="text-sm sm:text-base leading-relaxed text-[#85848D] max-w-md font-light mb-12">
-              Photography for me is not just clicking, <br className="hidden sm:inline" />
-              it's feeling, observing and preserving memories.
-            </p>
-
-            {/* SCROLL TO EXPLORE button */}
-            <div ref={buttonRef}>
-              <button
-                onClick={() => scrollToSection('about')}
-                className="inline-flex items-center gap-4 group text-left cursor-pointer w-fit"
-              >
-                <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#D946EF] transition-colors uppercase font-sans">
-                  SCROLL TO EXPLORE
-                </span>
-                <div className="relative w-8 h-8 rounded-full border border-white/15 flex items-center justify-center group-hover:border-purple-500/50 transition-colors">
-                  <span className="w-2 h-2 rounded-full bg-[#D946EF] shadow-[0_0_8px_#D946EF] group-hover:scale-125 transition-transform" />
-                </div>
-              </button>
-            </div>
-
+          {/* Label: Warm orange accent line + VISUAL STORYTELLER */}
+          <div ref={tagRef} className="flex items-center gap-3 mb-6 sm:mb-8">
+            <span className="w-6 h-[2px] bg-[#FF9500] rounded-full" />
+            <span className="text-xs font-semibold tracking-[0.3em] text-[#FF9500] uppercase font-mono">
+              VISUAL STORYTELLER
+            </span>
           </div>
 
-          {/* RIGHT SIDE: Portrait Photography Card */}
-          <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
-            <div
-              ref={imageCardRef}
-              className="relative w-full max-w-[360px] sm:max-w-[400px] aspect-[3/4] rounded-3xl overflow-hidden card-border-glow group shadow-[0_25px_60px_rgba(0,0,0,0.85)] transform-gpu"
+          {/* Main Editorial Heading */}
+          <h1 className="font-oswald text-5xl sm:text-7xl lg:text-[80px] xl:text-[90px] font-bold leading-[0.95] tracking-tight uppercase mb-7 sm:mb-8 text-white">
+            <span ref={(el) => (headingLinesRef.current[0] = el)} className="block">
+              I CAPTURE
+            </span>
+            <span
+              ref={(el) => (headingLinesRef.current[1] = el)}
+              className="block text-[#FF9500] bg-gradient-to-r from-[#FF9500] via-[#FFB03A] to-[#FF9A3C] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(255,149,0,0.25)]"
             >
-              <img
-                src="/images/hero.webp"
-                loading="eager"
-                fetchpriority="high"
-                decoding="async"
-                alt="Srivathsan photography golden hour silhouette"
-                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
+              MOMENTS THAT
+            </span>
+            <span ref={(el) => (headingLinesRef.current[2] = el)} className="block">
+              STAY.
+            </span>
+          </h1>
 
-              <div className="absolute inset-0 bg-gradient-to-t from-[#03050B] via-transparent to-transparent opacity-80 pointer-events-none" />
-              <div className="absolute inset-0 rounded-3xl border border-white/10 pointer-events-none group-hover:border-purple-500/30 transition-colors" />
+          {/* Description Paragraph */}
+          <p
+            ref={textRef}
+            className="text-sm sm:text-base leading-relaxed text-[#A5A5A5] max-w-lg font-light mb-9 sm:mb-11"
+          >
+            Photography for me is not just clicking, <br className="hidden sm:inline" />
+            it's feeling, observing and preserving memories.
+          </p>
+
+          {/* Action Button & Scroll Indicator */}
+          <div ref={ctaRef} className="flex flex-wrap items-center gap-6 sm:gap-8 mb-12 sm:mb-16">
+            <button
+              onClick={() => scrollToSection('work')}
+              className="inline-flex items-center gap-3 px-7 py-3.5 rounded-lg border border-[#FF9500]/80 bg-transparent text-xs font-semibold tracking-[0.2em] text-white uppercase hover:bg-[#FF9500] hover:text-black hover:border-[#FF9500] hover:shadow-[0_0_25px_rgba(255,149,0,0.45)] transition-all cursor-pointer group"
+            >
+              <span>EXPLORE MY WORK</span>
+              <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+            </button>
+
+            {/* Glowing SCROLL TO EXPLORE indicator */}
+            <button
+              onClick={() => scrollToSection('about')}
+              className="inline-flex items-center gap-3 text-xs font-mono tracking-[0.25em] text-[#A5A5A5] hover:text-white transition-colors uppercase cursor-pointer group"
+            >
+              <span>SCROLL TO EXPLORE</span>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF9500] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF9500] shadow-[0_0_8px_#FF9500]" />
+              </span>
+            </button>
+          </div>
+
+          {/* Minimal Functional Slider / Counter Indicator matching reference */}
+          <div
+            ref={sliderRef}
+            className="flex items-center gap-5 text-xs font-mono text-[#A5A5A5] pt-2 sm:pt-4 select-none"
+          >
+            <span className="w-[2px] h-4 bg-[#FF9500]/70" />
+            <span className="tracking-widest text-white/90">
+              0{activeSlide + 1} / 0{heroSlides.length}
+            </span>
+            <div className="flex items-center gap-2">
+              {heroSlides.map((slide, index) => {
+                const isActive = activeSlide === index;
+                return (
+                  <button
+                    key={slide.id}
+                    onClick={() => setActiveSlide(index)}
+                    aria-label={`Go to slide 0${index + 1}`}
+                    className="py-2 cursor-pointer group transition-all"
+                  >
+                    <span
+                      className={`block h-[2px] rounded-full transition-all duration-300 ${
+                        isActive
+                          ? 'w-7 bg-[#FF9500] shadow-[0_0_8px_#FF9500]'
+                          : 'w-4 bg-white/20 group-hover:bg-white/40'
+                      }`}
+                    />
+                  </button>
+                );
+              })}
             </div>
           </div>
 
