@@ -822,9 +822,11 @@ export default function Work() {
       <section
         ref={sectionRef}
         id="work"
-        className="relative py-20 lg:py-28 overflow-hidden"
+        className="relative py-20 lg:py-28 overflow-hidden bg-[#080808]"
       >
-        <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-orange-950/20 rounded-full blur-[160px] pointer-events-none" />
+        {/* Smooth top blend from #080808 for completely seamless transition from About section */}
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#080808] via-[#080808]/90 to-transparent pointer-events-none z-0" />
+        <div className="absolute top-1/4 right-1/4 w-[450px] h-[450px] bg-[#FF9800]/8 rounded-full blur-[160px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full">
           

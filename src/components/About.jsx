@@ -69,7 +69,7 @@ export default function About({ scrollToSection }) {
           alt="Srivathsan photographer portrait smiling with Canon camera and white lens"
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover object-[80%_center] sm:object-[84%_center] lg:object-[88%_center] xl:object-[90%_center] transform-gpu transition-all duration-700 ease-out"
+          className="w-full h-full object-cover object-[56%_20%] sm:object-[84%_center] lg:object-[88%_center] xl:object-[90%_center] transform-gpu transition-all duration-700 ease-out"
         />
 
         {/* Desktop Gradient: Deep cinematic black on left for text readability -> Transparent on right keeping photo bright */}
@@ -90,18 +90,18 @@ export default function About({ scrollToSection }) {
           }}
         />
 
-        {/* Mobile Gradient: Balanced vertical fade */}
+        {/* Mobile Gradient: Clear text readability while keeping smiling portrait and camera bright and recognizable */}
         <div
           className="absolute inset-0 pointer-events-none sm:hidden"
           style={{
             background:
-              'linear-gradient(180deg, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.82) 48%, rgba(8,8,8,0.3) 75%, rgba(8,8,8,0.9) 100%)',
+              'linear-gradient(180deg, rgba(8,8,8,0.72) 0%, rgba(8,8,8,0.48) 32%, rgba(8,8,8,0.25) 55%, rgba(8,8,8,0.85) 80%, #080808 100%)',
           }}
         />
 
-        {/* Subtle top & bottom edge blending */}
-        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#080808] to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#080808] to-transparent pointer-events-none" />
+        {/* Deep top & bottom edge blending into #080808 so transition between sections is seamless */}
+        <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#080808] via-[#080808]/80 to-transparent pointer-events-none z-[5]" />
+        <div className="absolute inset-x-0 bottom-0 h-44 sm:h-64 bg-gradient-to-t from-[#080808] via-[#080808]/95 via-45% to-transparent pointer-events-none z-[5]" />
       </div>
 
       {/* =========================================================================
@@ -121,7 +121,7 @@ export default function About({ scrollToSection }) {
           {/* Main Editorial Heading */}
           <h2
             ref={headingRef}
-            className="font-oswald text-5xl sm:text-7xl lg:text-[76px] xl:text-[84px] font-bold leading-[0.95] tracking-tight uppercase mb-8 text-white"
+            className="font-oswald text-5xl sm:text-7xl lg:text-[76px] xl:text-[84px] font-bold leading-[0.95] tracking-tight uppercase mb-8 text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.85)]"
           >
             <span className="block">THE MIND</span>
             <span className="text-[#FF9800] block bg-gradient-to-r from-[#FF9800] via-[#FFB02E] to-[#FFA726] bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(255,152,0,0.25)]">
@@ -131,7 +131,7 @@ export default function About({ scrollToSection }) {
           </h2>
 
           {/* Story Paragraphs */}
-          <div ref={textRef} className="space-y-4 text-sm sm:text-base leading-relaxed text-[#A0A0A0] font-light max-w-xl mb-6 sm:mb-8">
+          <div ref={textRef} className="space-y-4 text-sm sm:text-base leading-relaxed text-[#A0A0A0] font-light max-w-xl mb-6 sm:mb-8 drop-shadow-[0_1px_8px_rgba(0,0,0,0.85)]">
             <p>
               I'm Srivathsan, a visual storyteller, photographer, and creator who loves turning ideas and moments into something people can experience.
             </p>
@@ -143,9 +143,9 @@ export default function About({ scrollToSection }) {
           {/* Highlighted Quote Block with Orange Accent Border */}
           <div
             ref={quoteRef}
-            className="border-l-2 border-[#FF9800] pl-5 py-1 mb-8 sm:mb-10 max-w-xl bg-gradient-to-r from-[#FF9800]/5 to-transparent rounded-r-lg"
+            className="border-l-2 border-[#FF9800] pl-5 py-1 mb-8 sm:mb-10 max-w-xl bg-gradient-to-r from-[#FF9800]/10 to-transparent rounded-r-lg backdrop-blur-[2px]"
           >
-            <p className="text-sm sm:text-base italic text-white/95 leading-relaxed font-light">
+            <p className="text-sm sm:text-base italic text-white/95 leading-relaxed font-light drop-shadow-[0_1px_8px_rgba(0,0,0,0.85)]">
               “Photography taught me to notice the details. Technology taught me to build them. I bring both perspectives into everything I create.”
             </p>
           </div>

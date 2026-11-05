@@ -22,14 +22,14 @@ export default function Hero({ scrollToSection }) {
       id: 1,
       image: '/images/hero.png',
       alt: 'Srivathsan holding camera with telephoto lens during golden hour',
-      position: 'object-[90%_center] sm:object-[92%_center] lg:object-[94%_center]',
+      position: 'object-[54%_25%] sm:object-[82%_center] lg:object-[94%_center]',
       faceTonalOverlay: true,
     },
     {
       id: 2,
       image: '/images/Celebrities/1.webp',
       alt: 'Srivathsan concert photography spotlight',
-      position: 'object-[78%_center] lg:object-[82%_center]',
+      position: 'object-[65%_center] sm:object-[78%_center] lg:object-[82%_center]',
       faceTonalOverlay: false,
     },
     {
@@ -43,7 +43,7 @@ export default function Hero({ scrollToSection }) {
       id: 4,
       image: '/images/Celebrities/4.webp',
       alt: 'Srivathsan stage performance portrait',
-      position: 'object-[78%_center] lg:object-[82%_center]',
+      position: 'object-[65%_center] sm:object-[78%_center] lg:object-[82%_center]',
       faceTonalOverlay: false,
     },
     {
@@ -125,10 +125,10 @@ export default function Hero({ scrollToSection }) {
           className={`w-full h-full object-cover ${currentSlide.position} transform-gpu transition-all duration-700 ease-out`}
         />
 
-        {/* Soft, cinematic dark overlay creating subtle faded tonal treatment over face area without modifying original features */}
+        {/* Soft, cinematic dark overlay creating subtle faded tonal treatment over face area on desktop */}
         {currentSlide.faceTonalOverlay && (
           <div
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0 pointer-events-none hidden lg:block"
             style={{
               background:
                 'radial-gradient(ellipse at 74% 36%, rgba(8,8,8,0.26) 0%, rgba(8,8,8,0.12) 35%, transparent 65%)',
@@ -154,18 +154,18 @@ export default function Hero({ scrollToSection }) {
           }}
         />
 
-        {/* Mobile Gradient: Balanced vertical fade */}
+        {/* Mobile Gradient: Balanced vertical fade keeping photographer & sunset golden hour clearly visible */}
         <div
           className="absolute inset-0 pointer-events-none sm:hidden"
           style={{
             background:
-              'linear-gradient(180deg, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.82) 48%, rgba(8,8,8,0.3) 75%, rgba(8,8,8,0.9) 100%)',
+              'linear-gradient(180deg, rgba(8,8,8,0.74) 0%, rgba(8,8,8,0.48) 32%, rgba(8,8,8,0.25) 58%, rgba(8,8,8,0.85) 88%, #080808 100%)',
           }}
         />
 
         {/* Subtle top & bottom edge blending */}
         <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#080808]/90 to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#080808] to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-36 sm:h-44 bg-gradient-to-t from-[#080808] via-[#080808]/90 to-transparent pointer-events-none z-[5]" />
       </div>
 
       {/* =========================================================================
@@ -183,13 +183,13 @@ export default function Hero({ scrollToSection }) {
           </div>
 
           {/* Main Editorial Heading */}
-          <h1 className="font-oswald text-5xl sm:text-7xl lg:text-[76px] xl:text-[88px] font-bold leading-[0.95] tracking-tight uppercase mb-7 sm:mb-8 text-white">
+          <h1 className="font-oswald text-5xl sm:text-7xl lg:text-[76px] xl:text-[88px] font-bold leading-[0.95] tracking-tight uppercase mb-7 sm:mb-8 text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.85)]">
             <span ref={(el) => (headingLinesRef.current[0] = el)} className="block">
               I CAPTURE
             </span>
             <span
               ref={(el) => (headingLinesRef.current[1] = el)}
-              className="block text-[#FF9800] bg-gradient-to-r from-[#FF9800] via-[#FFB02E] to-[#FFA726] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(255,152,0,0.25)]"
+              className="block text-[#FF9800] bg-gradient-to-r from-[#FF9800] via-[#FFB02E] to-[#FFA726] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(255,152,0,0.35)]"
             >
               MOMENTS THAT
             </span>
@@ -201,7 +201,7 @@ export default function Hero({ scrollToSection }) {
           {/* Description Paragraph */}
           <p
             ref={textRef}
-            className="text-sm sm:text-base leading-relaxed text-[#A0A0A0] max-w-lg font-light mb-8 sm:mb-10"
+            className="text-sm sm:text-base leading-relaxed text-[#A0A0A0] max-w-lg font-light mb-8 sm:mb-10 drop-shadow-[0_1px_8px_rgba(0,0,0,0.85)]"
           >
             Photography for me is not just clicking, <br className="hidden sm:inline" />
             it's feeling, observing and preserving memories.
