@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mail, Send, X, CheckCircle2 } from 'lucide-react';
+import { Mail, Send, X, CheckCircle2, Copy, Check } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -9,6 +9,15 @@ export default function Contact() {
   const [formOpen, setFormOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyEmail = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText('vathsanphotography@gmail.com');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const sectionRef = useRef(null);
   const tagRef = useRef(null);
@@ -109,15 +118,34 @@ export default function Contact() {
 
             {/* Outlined Action Buttons */}
             <div ref={buttonsRef} className="flex flex-wrap items-center gap-4">
-              <a
-                href="https://mail.google.com/mail/?view=cm&fs=1&to=vathsanphotography@gmail.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl border border-white/15 bg-white/5 backdrop-blur-md text-xs font-semibold tracking-[0.2em] text-white/90 hover:text-white hover:border-[#D946EF] hover:bg-white/10 hover:shadow-[0_0_25px_rgba(217,70,239,0.3)] transition-all cursor-pointer group"
-              >
-                <Mail className="w-4 h-4 text-[#D946EF] group-hover:scale-110 transition-transform" />
-                <span>EMAIL ME</span>
-              </a>
+              <div className="inline-flex items-center rounded-2xl border border-white/15 bg-white/5 backdrop-blur-md hover:border-[#D946EF] hover:bg-white/10 hover:shadow-[0_0_25px_rgba(217,70,239,0.3)] transition-all group">
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=vathsanphotography@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 pl-5 sm:pl-6 pr-2.5 py-3.5 text-xs sm:text-sm font-semibold tracking-wider text-white/90 group-hover:text-white transition-colors cursor-pointer"
+                >
+                  <Mail className="w-4 h-4 text-[#D946EF] group-hover:scale-110 transition-transform shrink-0" />
+                  <span className="font-mono lowercase tracking-normal">vathsanphotography@gmail.com</span>
+                </a>
+
+                <button
+                  onClick={handleCopyEmail}
+                  type="button"
+                  title="Copy email address"
+                  aria-label="Copy email address"
+                  className="pr-4 pl-1.5 py-3.5 text-white/40 hover:text-[#D946EF] transition-colors cursor-pointer"
+                >
+                  {copied ? (
+                    <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-[#D946EF]">
+                      <Check className="w-3.5 h-3.5" />
+                      COPIED
+                    </span>
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </div>
 
               <a
                 href="https://www.instagram.com/visions_of_vathsan/"
