@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -9,23 +9,19 @@ import EmergingCard from './EmergingCard';
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Floating Studio Particles for depth and atmosphere
+ * Floating Studio Particles for atmospheric depth and lighting
  */
 function StudioParticles({ count = 100 }) {
   const pointsRef = useRef();
   const [positions] = useState(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 14;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 9;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 7;
+      pos[i * 3] = (Math.random() - 0.5) * 16;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 10;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 8;
     }
     return pos;
   });
-
-  useEffect(() => {
-    // Keep reference clean
-  }, []);
 
   return (
     <points ref={pointsRef}>
@@ -60,41 +56,49 @@ function SceneContent({
   reducedMotion,
 }) {
   const [hoveredIdx, setHoveredIdx] = useState(null);
+  const [activeCardClick, setActiveCardClick] = useState(null);
+  const [assemblyProgress, setAssemblyProgress] = useState(reducedMotion ? 1.0 : 0.0);
+  const [apertureOpen, setApertureOpen] = useState(reducedMotion ? 1.0 : 0.1);
   const [lensGlowIntensity, setLensGlowIntensity] = useState(2.0);
   const [hasEmerged, setHasEmerged] = useState(false);
 
-  // Dynamic Camera & Card layout coordinates based on breakpoint
-  const cameraPos = isMobile
-    ? [0, 1.55, 0]
-    : [0, 0, 0];
+  // Dynamic Camera & Card layout coordinates shifted gracefully towards right
+  const cameraPos = useMemo(() => (
+    isMobile
+      ? [0, 1.45, 0]
+      : isTablet
+      ? [0.45, 0, 0]
+      : [0.72, 0, 0]
+  ), [isMobile, isTablet]);
 
-  // Camera scaled up by ~38% as the prominent central focal point
+  // Camera scale: large, prominent centerpiece
   const cameraScale = isMobile ? 0.98 : isTablet ? 1.18 : 1.38;
 
   // Final 3D composition coordinates for the 4 collections around the camera
-  // Perfectly framing the enlarged DSLR without any overlapping or obscuring the lens
-  const targetCoordinates = isMobile
-    ? [
-        // Mobile 2x2 grid below the camera
-        { pos: [-1.08, -0.48, 0.35], rot: [0.05, 0.10, -0.02] },
-        { pos: [1.08, -0.48, 0.35], rot: [0.05, -0.10, 0.02] },
-        { pos: [-1.08, -2.15, 0.50], rot: [-0.04, 0.10, -0.02] },
-        { pos: [1.08, -2.15, 0.50], rot: [-0.04, -0.10, 0.02] },
-      ]
-    : isTablet
-    ? [
-        { pos: [-2.35, 1.25, 0.45], rot: [0.05, 0.20, -0.03] },
-        { pos: [-2.42, -1.25, 0.35], rot: [-0.04, 0.22, 0.03] },
-        { pos: [2.35, 1.20, 0.40], rot: [0.05, -0.20, 0.03] },
-        { pos: [2.40, -1.25, 0.45], rot: [-0.05, -0.20, -0.03] },
-      ]
-    : [
-        // Desktop balanced composition framing the central DSLR with generous negative space
-        { pos: [-2.68, 1.32, 0.50], rot: [0.05, 0.24, -0.03] },  // Top-Left: PORTRAITS
-        { pos: [-2.75, -1.35, 0.40], rot: [-0.04, 0.26, 0.03] }, // Bottom-Left: NATURE
-        { pos: [2.68, 1.30, 0.45], rot: [0.05, -0.24, 0.03] },   // Top-Right: ARCHITECTURE
-        { pos: [2.75, -1.35, 0.55], rot: [-0.05, -0.24, -0.03] }, // Bottom-Right: MOMENTS
-      ];
+  // Symmetrically framing the camera with generous negative space
+  const targetCoordinates = useMemo(() => (
+    isMobile
+      ? [
+          { pos: [-1.08, -0.48, 0.35], rot: [0.05, 0.10, -0.02] },
+          { pos: [1.08, -0.48, 0.35], rot: [0.05, -0.10, 0.02] },
+          { pos: [-1.08, -2.15, 0.50], rot: [-0.04, 0.10, -0.02] },
+          { pos: [1.08, -2.15, 0.50], rot: [-0.04, -0.10, 0.02] },
+        ]
+      : isTablet
+      ? [
+          { pos: [-1.95, 1.25, 0.45], rot: [0.05, 0.20, -0.03] },
+          { pos: [-2.02, -1.25, 0.35], rot: [-0.04, 0.22, 0.03] },
+          { pos: [2.85, 1.20, 0.40], rot: [0.05, -0.20, 0.03] },
+          { pos: [2.90, -1.25, 0.45], rot: [-0.05, -0.20, -0.03] },
+        ]
+      : [
+          // Desktop balanced composition framing the DSLR shifted to center-right
+          { pos: [-1.95, 1.32, 0.50], rot: [0.05, 0.24, -0.03] },  // Top-Left: PORTRAITS
+          { pos: [-2.05, -1.35, 0.40], rot: [-0.04, 0.26, 0.03] }, // Bottom-Left: NATURE
+          { pos: [3.45, 1.30, 0.45], rot: [0.05, -0.24, 0.03] },   // Top-Right: ARCHITECTURE
+          { pos: [3.55, -1.35, 0.55], rot: [-0.05, -0.24, -0.03] }, // Bottom-Right: MOMENTS
+        ]
+  ), [isMobile, isTablet]);
 
   // Animated positions of the 4 cards during the emergence timeline
   const [cardTransforms, setCardTransforms] = useState(() =>
@@ -105,39 +109,79 @@ function SceneContent({
     }))
   );
 
-  // GSAP Choreographed Emergence Timeline: Photographs emerge physically from lens!
+  // GSAP Choreographed Mechanical Assembly & Emergence Timeline
   useEffect(() => {
     if (reducedMotion) {
+      setAssemblyProgress(1.0);
+      setApertureOpen(1.0);
       setHasEmerged(true);
       return;
     }
 
-    // Origin point: The front center of the camera lens barrel
     const origin = [cameraPos[0], cameraPos[1], cameraPos[2] + 3.25];
     const triggerEl = document.getElementById('work');
 
     const tl = gsap.timeline({
       paused: Boolean(triggerEl),
-      delay: 0.25,
-      onStart: () => {
-        // Lens illuminates with bright warm amber projection flare
-        gsap.to({ val: 2.0 }, {
-          val: 6.0,
-          duration: 0.65,
-          ease: 'power2.out',
-          onUpdate: function () {
-            setLensGlowIntensity(this.targets()[0].val);
-          },
-          yoyo: true,
-          repeat: 1,
-        });
-      },
+      delay: 0.2,
       onComplete: () => {
         setHasEmerged(true);
       },
     });
 
-    // Staggered emergence of each photograph out of the lens
+    const animProxy = {
+      assembly: 0.0,
+      aperture: 0.1,
+      glow: 2.0,
+    };
+
+    // 1. Mechanical Assembly: Components slide together and lock with rotational precision
+    tl.to(
+      animProxy,
+      {
+        assembly: 1.0,
+        duration: 1.45,
+        ease: 'power3.inOut',
+        onUpdate: () => setAssemblyProgress(animProxy.assembly),
+      },
+      0
+    );
+
+    // 2. Aperture Iris Mechanical Opening
+    tl.to(
+      animProxy,
+      {
+        aperture: 1.0,
+        duration: 0.6,
+        ease: 'back.out(1.8)',
+        onUpdate: () => setApertureOpen(animProxy.aperture),
+      },
+      1.15
+    );
+
+    // 3. Warm Amber Light Flare Surge
+    tl.to(
+      animProxy,
+      {
+        glow: 6.5,
+        duration: 0.45,
+        ease: 'power2.out',
+        onUpdate: () => setLensGlowIntensity(animProxy.glow),
+      },
+      1.3
+    );
+    tl.to(
+      animProxy,
+      {
+        glow: 2.5,
+        duration: 0.65,
+        ease: 'power2.inOut',
+        onUpdate: () => setLensGlowIntensity(animProxy.glow),
+      },
+      1.75
+    );
+
+    // 4. Staggered emergence of photographs from the assembled lens
     collections.forEach((_, idx) => {
       const target = targetCoordinates[idx];
       const proxy = {
@@ -145,9 +189,6 @@ function SceneContent({
         y: origin[1],
         z: origin[2],
         scale: 0.001,
-        rotX: 0,
-        rotY: 0,
-        rotZ: 0,
       };
 
       tl.to(
@@ -157,9 +198,6 @@ function SceneContent({
           y: target.pos[1],
           z: target.pos[2],
           scale: 1.0,
-          rotX: target.rot[0],
-          rotY: target.rot[1],
-          rotZ: target.rot[2],
           duration: 1.35,
           ease: 'power3.out',
           onUpdate: () => {
@@ -174,7 +212,7 @@ function SceneContent({
             });
           },
         },
-        idx * 0.28 // Smooth organic stagger
+        1.65 + idx * 0.28
       );
     });
 
@@ -194,7 +232,17 @@ function SceneContent({
       st?.kill();
       tl.kill();
     };
-  }, [isMobile, isTablet, reducedMotion]);
+  }, [cameraPos, collections, reducedMotion, targetCoordinates]);
+
+  // Handle cinematic card selection transition into gallery
+  const handleCardClick = (categoryTitle, idx) => {
+    setActiveCardClick(idx);
+    // Smooth foreground zoom transition before activating modal
+    setTimeout(() => {
+      openGalleryModal(categoryTitle);
+      setTimeout(() => setActiveCardClick(null), 450);
+    }, 350);
+  };
 
   return (
     <>
@@ -254,12 +302,15 @@ function SceneContent({
       <StudioParticles count={isMobile ? 50 : 110} />
 
       {/* =========================================================================
-          CENTRAL REALISTIC 3D DSLR CAMERA
+          CENTRAL REALISTIC 3D DSLR CAMERA WITH ASSEMBLE ANIMATION & HAND
          ========================================================================= */}
       <group position={cameraPos} scale={cameraScale}>
         <RealisticDSLRCamera
+          assemblyProgress={assemblyProgress}
+          apertureOpen={apertureOpen}
           lensGlowIntensity={lensGlowIntensity}
           reducedMotion={reducedMotion}
+          showHand={true}
         />
       </group>
 
@@ -284,9 +335,11 @@ function SceneContent({
               targetPosition={activePos}
               targetRotation={target.rot}
               isOtherHovered={hoveredIdx !== null && hoveredIdx !== idx}
+              isSelected={activeCardClick === idx}
+              isOtherSelected={activeCardClick !== null && activeCardClick !== idx}
               onHover={(i) => setHoveredIdx(i)}
               onUnhover={() => setHoveredIdx(null)}
-              onClick={openGalleryModal}
+              onClick={() => handleCardClick(item.title, idx)}
               reducedMotion={reducedMotion}
             />
           </group>
@@ -321,7 +374,7 @@ export default function CameraScene({ collections, openGalleryModal }) {
   }, []);
 
   return (
-    <div className="relative w-full h-[620px] sm:h-[680px] lg:h-[740px] xl:h-[780px] select-none">
+    <div className="relative w-full h-[620px] sm:h-[680px] lg:h-[750px] xl:h-[790px] select-none">
       <Canvas
         camera={{
           position: [0, 0, isMobile ? 8.4 : isTablet ? 8.6 : 8.8],

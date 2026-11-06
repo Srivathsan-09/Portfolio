@@ -347,6 +347,8 @@ export default function Work() {
   const gridRef = useRef(null);
   const modalScrollRef = useRef(null);
   const lightboxImgRef = useRef(null);
+  const prevFilterRef = useRef(modalFilter);
+  const prevModalStateRef = useRef(activeCategoryModal);
 
   const workCards = [
     {
@@ -487,15 +489,20 @@ export default function Work() {
     );
   }, [selectedPhoto]);
 
-  // 1. STAGGERED IMAGE REVEAL & 4. CATEGORY FILTER TRANSITIONS
+  // 1. STAGGERED IMAGE REVEAL & 5. FILM-STRIP CATEGORY FILTER TRANSITIONS
   useEffect(() => {
-    if (!activeCategoryModal || !gridRef.current) return;
+    if (!activeCategoryModal || !gridRef.current) {
+      prevModalStateRef.current = activeCategoryModal;
+      return;
+    }
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const cards = gridRef.current.children;
     if (!cards || cards.length === 0) return;
 
     if (prefersReduced) {
-      gsap.set(cards, { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' });
+      gsap.set(cards, { opacity: 1, x: 0, y: 0, scale: 1, rotationZ: 0, rotateY: 0, filter: 'blur(0px)' });
+      prevFilterRef.current = modalFilter;
+      prevModalStateRef.current = activeCategoryModal;
       return;
     }
 
@@ -503,30 +510,64 @@ export default function Work() {
       modalScrollRef.current.scrollTop = 0;
     }
 
-    // Natural cascading staggered entrance with opacity, upward movement and blur-to-sharp
-    gsap.fromTo(
-      cards,
-      {
-        opacity: 0,
-        y: 28,
-        scale: 0.94,
-        filter: 'blur(8px)',
-      },
-      {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        filter: 'blur(0px)',
-        duration: 0.55,
-        ease: 'power3.out',
-        stagger: {
-          each: 0.035,
-          from: 'start',
-          grid: 'auto',
+    const isFilterChange = prevFilterRef.current !== modalFilter && prevModalStateRef.current === activeCategoryModal;
+    prevFilterRef.current = modalFilter;
+    prevModalStateRef.current = activeCategoryModal;
+
+    if (isFilterChange) {
+      // B. Film-strip transition: Sequential slide with controlled depth and 3D perspective
+      gsap.fromTo(
+        cards,
+        {
+          opacity: 0,
+          x: 45,
+          rotateY: -5,
+          scale: 0.94,
+          filter: 'blur(6px)',
         },
-        overwrite: 'auto',
-      }
-    );
+        {
+          opacity: 1,
+          x: 0,
+          rotateY: 0,
+          scale: 1,
+          filter: 'blur(0px)',
+          duration: 0.52,
+          ease: 'power3.out',
+          stagger: {
+            each: 0.032,
+            from: 'start',
+          },
+          overwrite: 'auto',
+        }
+      );
+    } else {
+      // A. Cascading staggered entrance with opacity, upward movement, scale and subtle rotation
+      gsap.fromTo(
+        cards,
+        {
+          opacity: 0,
+          y: 35,
+          scale: 0.92,
+          rotationZ: (i) => (i % 2 === 0 ? -1.5 : 1.5),
+          filter: 'blur(8px)',
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          rotationZ: 0,
+          filter: 'blur(0px)',
+          duration: 0.58,
+          ease: 'power3.out',
+          stagger: {
+            each: 0.038,
+            from: 'start',
+            grid: 'auto',
+          },
+          overwrite: 'auto',
+        }
+      );
+    }
   }, [activeCategoryModal, modalFilter]);
 
   // 6. SCROLL ANIMATIONS: Reveal gallery rows as they enter the viewport
@@ -610,7 +651,7 @@ export default function Work() {
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#080808] via-[#080808]/90 to-transparent pointer-events-none z-0" />
         <div className="absolute top-1/4 right-1/4 w-[450px] h-[450px] bg-[#FF9800]/8 rounded-full blur-[160px] pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full">
+        <div className="max-w-[1560px] mx-auto px-6 lg:px-12 xl:px-16 relative z-10 w-full">
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             

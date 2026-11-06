@@ -15,6 +15,8 @@ export default function EmergingCard({
   targetPosition,
   targetRotation,
   isOtherHovered,
+  isSelected = false,
+  isOtherSelected = false,
   onHover,
   onUnhover,
   onClick,
@@ -43,7 +45,7 @@ export default function EmergingCard({
     };
   }, [item.image, item.title]);
 
-  // Frame loop for floating idle physics and mouse hover smoothing
+  // Frame loop for floating idle physics, mouse hover smoothing, and cinematic card selection
   useFrame((state, delta) => {
     if (!cardGroupRef.current) return;
     const time = state.clock.getElapsedTime();
@@ -52,31 +54,31 @@ export default function EmergingCard({
     const floatY = reducedMotion ? 0 : Math.sin(time * 1.1 + index * 1.5) * 0.05;
     const floatRotZ = reducedMotion ? 0 : Math.sin(time * 0.8 + index * 1.5) * 0.015;
 
-    // Hover translation targets
-    const hoverZ = hovered ? 0.45 : isOtherHovered ? -0.2 : 0;
-    const hoverScale = hovered ? 1.1 : isOtherHovered ? 0.94 : 1.0;
+    // Hover & Selection translation targets
+    const targetZ = isSelected ? 1.6 : hovered ? 0.45 : isOtherSelected ? -1.2 : isOtherHovered ? -0.2 : 0;
+    const targetScale = isSelected ? 1.25 : hovered ? 1.1 : isOtherSelected ? 0.78 : isOtherHovered ? 0.94 : 1.0;
 
     // Smoothly damp position and scale
     cardGroupRef.current.position.y = THREE.MathUtils.damp(
       cardGroupRef.current.position.y,
-      targetPosition[1] + floatY,
+      targetPosition[1] + (isSelected ? 0 : floatY),
       4.0,
       delta
     );
     cardGroupRef.current.position.z = THREE.MathUtils.damp(
       cardGroupRef.current.position.z,
-      targetPosition[2] + hoverZ,
-      4.0,
+      targetPosition[2] + targetZ,
+      4.5,
       delta
     );
     cardGroupRef.current.scale.setScalar(
-      THREE.MathUtils.damp(cardGroupRef.current.scale.x, hoverScale, 5.0, delta)
+      THREE.MathUtils.damp(cardGroupRef.current.scale.x, targetScale, 5.0, delta)
     );
 
     // Damped tilt rotation
     cardGroupRef.current.rotation.z = THREE.MathUtils.damp(
       cardGroupRef.current.rotation.z,
-      targetRotation[2] + floatRotZ,
+      isSelected ? 0 : targetRotation[2] + floatRotZ,
       3.5,
       delta
     );
@@ -133,7 +135,7 @@ export default function EmergingCard({
           <meshBasicMaterial
             map={texture}
             transparent={true}
-            opacity={isOtherHovered ? 0.55 : 1.0}
+            opacity={isOtherSelected ? 0.15 : isOtherHovered ? 0.55 : 1.0}
           />
         ) : (
           <meshStandardMaterial color="#1a1a20" roughness={0.8} />
