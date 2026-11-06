@@ -103,6 +103,9 @@ export default function StoryStrip() {
           transformStyle: 'preserve-3d',
         });
 
+        // Ambient spotlights start fully invisible to eliminate harsh section lines
+        gsap.set([glowAmberRef.current, glowOrangeRef.current], { opacity: 0 });
+
         // 3D Character initial offsets
         storyCharRefs.current.forEach((charEl, idx) => {
           if (!charEl) return;
@@ -381,25 +384,30 @@ export default function StoryStrip() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative h-[140vh] my-0 overflow-visible select-none">
+    <section ref={sectionRef} className="relative h-[140vh] my-0 overflow-visible select-none bg-[#080808]">
       {/* 
         PINNED VIEWPORT CONTAINER (Sticky 100vh)
         Scroll controls 3D animation timeline via GSAP ScrollTrigger scrub
       */}
       <div
         ref={pinContainerRef}
-        className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden perspective-[1200px] pointer-events-auto transform-gpu"
+        className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden perspective-[1200px] pointer-events-auto transform-gpu bg-[#080808]"
         style={{ perspective: '1200px' }}
       >
+        {/* Seamless top blend with Work section (#080808) */}
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#080808] via-[#080808]/90 to-transparent pointer-events-none z-20" />
+        {/* Seamless bottom blend with Contact section (#080808) */}
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#080808] via-[#080808]/90 to-transparent pointer-events-none z-20" />
+
         {/* Layer 1: Background Depth Spotlights */}
         <div
           ref={glowAmberRef}
-          className="absolute top-1/2 left-1/3 -translate-y-1/2 w-[450px] h-[320px] bg-gradient-to-r from-[#FF9800]/25 via-[#FFB02E]/20 to-transparent rounded-full blur-[140px] pointer-events-none opacity-20 transform-gpu"
+          className="absolute top-1/2 left-1/3 -translate-y-1/2 w-[450px] h-[320px] bg-gradient-to-r from-[#FF9800]/25 via-[#FFB02E]/20 to-transparent rounded-full blur-[140px] pointer-events-none opacity-0 transform-gpu"
           style={{ transform: 'translateZ(-800px)' }}
         />
         <div
           ref={glowOrangeRef}
-          className="absolute top-1/2 right-1/3 -translate-y-1/2 w-[450px] h-[320px] bg-gradient-to-r from-[#FFB02E]/30 via-[#FF9800]/20 to-transparent rounded-full blur-[140px] pointer-events-none opacity-20 transform-gpu"
+          className="absolute top-1/2 right-1/3 -translate-y-1/2 w-[450px] h-[320px] bg-gradient-to-r from-[#FFB02E]/30 via-[#FF9800]/20 to-transparent rounded-full blur-[140px] pointer-events-none opacity-0 transform-gpu"
           style={{ transform: 'translateZ(-800px)' }}
         />
 

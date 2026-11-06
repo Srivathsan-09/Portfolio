@@ -89,7 +89,9 @@ export default function Contact() {
   };
 
   return (
-    <section ref={sectionRef} id="contact" className="relative py-24 lg:py-36 overflow-hidden">
+    <section ref={sectionRef} id="contact" className="relative py-24 lg:py-36 overflow-hidden bg-[#080808]">
+      {/* Seamless top blend from StoryStrip quote section */}
+      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#080808] via-[#080808]/90 to-transparent pointer-events-none z-0" />
       <div className="absolute top-1/2 right-10 w-[500px] h-[500px] bg-[#FF9800]/10 rounded-full blur-[160px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10">

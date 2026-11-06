@@ -73,12 +73,12 @@ function SceneContent({
     isMobile
       ? [0, 0, 0]
       : isTablet
-      ? [0.45, 0, 0]
-      : [0.72, 0, 0]
+      ? [0.35, 0, 0]
+      : [0.48, 0, 0]
   ), [isMobile, isTablet]);
 
   // Camera scale: large, prominent centerpiece
-  const cameraScale = isMobile ? 0.90 : isTablet ? 1.18 : 1.38;
+  const cameraScale = isMobile ? 0.90 : isTablet ? 1.15 : 1.30;
 
   // Lens emergence origin in world coordinates (front of DSLR lens barrel)
   const lensOrigin = useMemo(() => [
@@ -100,7 +100,7 @@ function SceneContent({
         const col = subIdx % 2; // 0 = left, 1 = right
         const row = Math.floor(subIdx / 2);
 
-        const x = col === 0 ? -1.16 : 1.16;
+        const x = col === 0 ? -1.08 : 1.08;
         const yBase = 1.62 + row * 1.55;
         const y = isTop ? yBase : -yBase;
         const z = 0.40;
@@ -117,7 +117,7 @@ function SceneContent({
         const isTop = idx < 2;
         return {
           pos: [
-            col === 0 ? -1.95 : 2.85,
+            col === 0 ? -1.85 : 2.30,
             isTop ? 1.25 : -1.25,
             0.42,
           ],
@@ -126,14 +126,15 @@ function SceneContent({
       }
 
       // Desktop layout: cards framing the central camera symmetrically
+      // Right-side cards brought inward to X=2.65 so full card is completely visible with ample margin
       const side = idx % 2 === 0 ? 'left' : 'right';
       const isTop = Math.floor(idx / 2) % 2 === 0;
       const rowOffset = Math.floor(idx / 4) * 0.4;
-      const x = side === 'left' ? -2.00 : 3.48;
+      const x = side === 'left' ? -1.95 : 2.65;
       const y = (isTop ? 1.32 : -1.35) + (isTop ? rowOffset : -rowOffset);
       const z = 0.48;
       const rotX = isTop ? 0.05 : -0.05;
-      const rotY = side === 'left' ? 0.24 : -0.24;
+      const rotY = side === 'left' ? 0.22 : -0.22;
       const rotZ = side === 'left' ? -0.03 : 0.03;
 
       return { pos: [x, y, z], rot: [rotX, rotY, rotZ] };

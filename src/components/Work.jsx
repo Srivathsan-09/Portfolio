@@ -669,6 +669,8 @@ export default function Work({ isMobile = false }) {
       >
         {/* Smooth top blend from #080808 for completely seamless transition from About section */}
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#080808] via-[#080808]/90 to-transparent pointer-events-none z-0" />
+        {/* Smooth bottom blend from #080808 for completely seamless transition into StoryStrip */}
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#080808] via-[#080808]/90 to-transparent pointer-events-none z-0" />
         <div className="absolute top-1/4 right-1/4 w-[450px] h-[450px] bg-[#FF9800]/8 rounded-full blur-[160px] pointer-events-none" />
 
         <div className="max-w-[1560px] mx-auto px-6 lg:px-12 xl:px-16 relative z-10 w-full">
