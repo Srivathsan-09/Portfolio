@@ -20,60 +20,65 @@ export default function RealisticDSLRCamera({
   const materials = useMemo(() => {
     return {
       body: new THREE.MeshStandardMaterial({
-        color: '#131316',
-        roughness: 0.75,
-        metalness: 0.25,
+        color: '#22242b',
+        roughness: 0.52,
+        metalness: 0.35,
       }),
       grip: new THREE.MeshStandardMaterial({
-        color: '#0b0b0e',
-        roughness: 0.95,
-        metalness: 0.05,
+        color: '#16171b',
+        roughness: 0.88,
+        metalness: 0.08,
       }),
       metal: new THREE.MeshStandardMaterial({
-        color: '#c8cbd0',
-        roughness: 0.18,
-        metalness: 0.92,
+        color: '#dce0e8',
+        roughness: 0.12,
+        metalness: 0.95,
       }),
       knurledDial: new THREE.MeshStandardMaterial({
-        color: '#222226',
-        roughness: 0.35,
+        color: '#2d3038',
+        roughness: 0.3,
         metalness: 0.85,
       }),
       luxuryRing: new THREE.MeshStandardMaterial({
         color: '#FF9800',
-        roughness: 0.25,
-        metalness: 0.5,
+        roughness: 0.2,
+        metalness: 0.6,
         emissive: '#FF9800',
-        emissiveIntensity: 0.6,
+        emissiveIntensity: 0.85,
       }),
       lensBarrel: new THREE.MeshStandardMaterial({
-        color: '#1a1a20',
-        roughness: 0.55,
-        metalness: 0.45,
+        color: '#262932',
+        roughness: 0.42,
+        metalness: 0.55,
       }),
       rubberRing: new THREE.MeshStandardMaterial({
-        color: '#0e0e12',
-        roughness: 0.92,
-        metalness: 0.1,
+        color: '#14151a',
+        roughness: 0.85,
+        metalness: 0.15,
       }),
       opticalGlass: new THREE.MeshPhysicalMaterial({
-        color: '#1c3044',
-        transmission: 0.82,
-        opacity: 0.9,
+        color: '#142538',
+        transmission: 0.78,
+        opacity: 0.94,
         transparent: true,
-        roughness: 0.03,
-        ior: 1.54,
+        roughness: 0.02,
+        ior: 1.62,
+        reflectivity: 1.0,
         clearcoat: 1.0,
-        clearcoatRoughness: 0.05,
-        reflectivity: 0.9,
+        clearcoatRoughness: 0.03,
+        sheen: 1.0,
+        sheenColor: new THREE.Color('#38bdf8'),
+        sheenRoughness: 0.1,
       }),
       innerGlass: new THREE.MeshPhysicalMaterial({
         color: '#FF9800',
-        transmission: 0.6,
-        opacity: 0.75,
+        transmission: 0.55,
+        opacity: 0.8,
         transparent: true,
-        roughness: 0.08,
-        ior: 1.48,
+        roughness: 0.05,
+        ior: 1.52,
+        emissive: '#FF9800',
+        emissiveIntensity: 0.35,
       }),
       emitter: new THREE.MeshBasicMaterial({
         color: '#FFA726',
@@ -164,6 +169,19 @@ export default function RealisticDSLRCamera({
       {/* Sloped Front Apex */}
       <mesh material={materials.body} position={[0, 1.02, 0.18]} rotation={[-0.45, 0, 0]}>
         <boxGeometry args={[0.9, 0.28, 0.4]} />
+      </mesh>
+      {/* Front Pentaprism Metal Brand Plate */}
+      <mesh material={materials.metal} position={[0, 1.02, 0.38]} rotation={[-0.45, 0, 0]}>
+        <boxGeometry args={[0.55, 0.08, 0.02]} />
+      </mesh>
+      {/* Subtle Orange Inset Line on Brand Plate */}
+      <mesh material={materials.luxuryRing} position={[0, 0.99, 0.38]} rotation={[-0.45, 0, 0]}>
+        <boxGeometry args={[0.45, 0.015, 0.022]} />
+      </mesh>
+
+      {/* Focus Assist / AF Illuminator Amber Lamp */}
+      <mesh material={materials.luxuryRing} position={[0.55, 0.45, 0.52]}>
+        <cylinderGeometry args={[0.07, 0.07, 0.04, 16]} />
       </mesh>
 
       {/* Flash Hot Shoe Rails */}
@@ -269,6 +287,16 @@ export default function RealisticDSLRCamera({
           <cylinderGeometry args={[0.58, 0.52, 0.2, 32]} />
         </mesh>
 
+        {/* Front Filter Thread Ring with Satin Metal Finish */}
+        <mesh material={materials.metal} position={[0, -1.96, 0]}>
+          <cylinderGeometry args={[0.68, 0.68, 0.04, 32]} />
+        </mesh>
+
+        {/* Front Elegant Orange Lens Rim Ring */}
+        <mesh material={materials.luxuryRing} position={[0, -1.98, 0]}>
+          <cylinderGeometry args={[0.672, 0.672, 0.02, 32]} />
+        </mesh>
+
         {/* =========================================================================
             5. OPTICAL GLASS ELEMENTS & PROJECTION EMITTER CORE
            ========================================================================= */}
@@ -310,6 +338,24 @@ export default function RealisticDSLRCamera({
           decay={1.8}
         />
       </group>
+
+      {/* Dedicated Warm Orange Rim Silhouette Light behind camera body */}
+      <pointLight
+        position={[0, 0.4, -1.3]}
+        color="#FF9800"
+        intensity={5.5}
+        distance={4.8}
+        decay={1.8}
+      />
+
+      {/* Warm Top Edge Contour Light */}
+      <pointLight
+        position={[0, 2.2, 0.2]}
+        color="#FFE0B2"
+        intensity={2.6}
+        distance={4.2}
+        decay={2.0}
+      />
     </group>
   );
 }

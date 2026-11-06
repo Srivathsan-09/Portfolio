@@ -65,39 +65,41 @@ function SceneContent({
 
   // Dynamic Camera & Card layout coordinates based on breakpoint
   const cameraPos = isMobile
-    ? [0, 1.45, 0]
+    ? [0, 1.55, 0]
     : [0, 0, 0];
 
-  const cameraScale = isMobile ? 0.72 : isTablet ? 0.85 : 1.0;
+  // Camera scaled up by ~38% as the prominent central focal point
+  const cameraScale = isMobile ? 0.98 : isTablet ? 1.18 : 1.38;
 
   // Final 3D composition coordinates for the 4 collections around the camera
+  // Perfectly framing the enlarged DSLR without any overlapping or obscuring the lens
   const targetCoordinates = isMobile
     ? [
         // Mobile 2x2 grid below the camera
-        { pos: [-1.12, -0.42, 0.4], rot: [0.06, 0.12, -0.02] },
-        { pos: [1.12, -0.42, 0.4], rot: [0.06, -0.12, 0.02] },
-        { pos: [-1.12, -2.18, 0.6], rot: [-0.04, 0.12, -0.02] },
-        { pos: [1.12, -2.18, 0.6], rot: [-0.04, -0.12, 0.02] },
+        { pos: [-1.08, -0.48, 0.35], rot: [0.05, 0.10, -0.02] },
+        { pos: [1.08, -0.48, 0.35], rot: [0.05, -0.10, 0.02] },
+        { pos: [-1.08, -2.15, 0.50], rot: [-0.04, 0.10, -0.02] },
+        { pos: [1.08, -2.15, 0.50], rot: [-0.04, -0.10, 0.02] },
       ]
     : isTablet
     ? [
-        { pos: [-1.95, 1.25, 0.7], rot: [0.06, 0.2, -0.04] },
-        { pos: [-2.05, -1.25, 0.5], rot: [-0.05, 0.22, 0.04] },
-        { pos: [1.95, 1.2, 0.5], rot: [0.05, -0.2, 0.03] },
-        { pos: [2.05, -1.25, 0.6], rot: [-0.06, -0.18, -0.04] },
+        { pos: [-2.35, 1.25, 0.45], rot: [0.05, 0.20, -0.03] },
+        { pos: [-2.42, -1.25, 0.35], rot: [-0.04, 0.22, 0.03] },
+        { pos: [2.35, 1.20, 0.40], rot: [0.05, -0.20, 0.03] },
+        { pos: [2.40, -1.25, 0.45], rot: [-0.05, -0.20, -0.03] },
       ]
     : [
-        // Desktop balanced composition framing the central DSLR
-        { pos: [-2.15, 1.25, 0.8], rot: [0.06, 0.22, -0.04] },  // Top-Left: PORTRAITS
-        { pos: [-2.25, -1.28, 0.65], rot: [-0.05, 0.25, 0.04] }, // Bottom-Left: NATURE
-        { pos: [2.15, 1.22, 0.6], rot: [0.05, -0.22, 0.03] },   // Top-Right: ARCHITECTURE
-        { pos: [2.22, -1.3, 0.75], rot: [-0.06, -0.18, -0.04] }, // Bottom-Right: MOMENTS
+        // Desktop balanced composition framing the central DSLR with generous negative space
+        { pos: [-2.68, 1.32, 0.50], rot: [0.05, 0.24, -0.03] },  // Top-Left: PORTRAITS
+        { pos: [-2.75, -1.35, 0.40], rot: [-0.04, 0.26, 0.03] }, // Bottom-Left: NATURE
+        { pos: [2.68, 1.30, 0.45], rot: [0.05, -0.24, 0.03] },   // Top-Right: ARCHITECTURE
+        { pos: [2.75, -1.35, 0.55], rot: [-0.05, -0.24, -0.03] }, // Bottom-Right: MOMENTS
       ];
 
   // Animated positions of the 4 cards during the emergence timeline
   const [cardTransforms, setCardTransforms] = useState(() =>
     collections.map(() => ({
-      pos: [cameraPos[0], cameraPos[1], cameraPos[2] + 2.35],
+      pos: [cameraPos[0], cameraPos[1], cameraPos[2] + 3.25],
       scale: 0.001,
       opacity: 0,
     }))
@@ -111,7 +113,7 @@ function SceneContent({
     }
 
     // Origin point: The front center of the camera lens barrel
-    const origin = [cameraPos[0], cameraPos[1], cameraPos[2] + 2.35];
+    const origin = [cameraPos[0], cameraPos[1], cameraPos[2] + 3.25];
     const triggerEl = document.getElementById('work');
 
     const tl = gsap.timeline({
@@ -200,37 +202,52 @@ function SceneContent({
           CINEMATIC STUDIO LIGHTING
          ========================================================================= */}
       {/* Ambient Fill */}
-      <ambientLight intensity={0.8} />
+      <ambientLight intensity={1.05} />
 
-      {/* Warm Front Key Light */}
+      {/* Primary Warm Front Key Light */}
       <directionalLight
         position={[-3, 4, 6]}
-        intensity={2.2}
-        color="#FFF6E8"
+        intensity={2.6}
+        color="#FFF5E5"
         castShadow
+      />
+
+      {/* Front-Right Camera Body Fill Light */}
+      <directionalLight
+        position={[3.5, 2.5, 5]}
+        intensity={1.9}
+        color="#FFECD2"
       />
 
       {/* Signature Amber / Orange Studio Rim Backlight */}
       <directionalLight
         position={[4, -2, -3]}
-        intensity={3.8}
+        intensity={4.5}
         color="#FF9800"
       />
 
       {/* Top Rim Specular Light */}
       <spotLight
-        position={[0, 6, 2]}
-        intensity={2.5}
-        angle={0.6}
-        penumbra={0.8}
-        color="#FFE0B2"
+        position={[0, 6, 2.5]}
+        intensity={3.2}
+        angle={0.65}
+        penumbra={0.7}
+        color="#FFE4B5"
+      />
+
+      {/* Front Optical Lens Specular Glint Light */}
+      <pointLight
+        position={[cameraPos[0], cameraPos[1] + 1.2, cameraPos[2] + 4.2]}
+        intensity={1.8}
+        distance={6}
+        color="#FFFFFF"
       />
 
       {/* Deep Blue Fill on Shadow Side */}
       <directionalLight
         position={[-5, -4, 2]}
-        intensity={0.6}
-        color="#152238"
+        intensity={0.8}
+        color="#202b3d"
       />
 
       {/* Floating Ambient Dust Particles */}
@@ -307,7 +324,7 @@ export default function CameraScene({ collections, openGalleryModal }) {
     <div className="relative w-full h-[620px] sm:h-[680px] lg:h-[740px] xl:h-[780px] select-none">
       <Canvas
         camera={{
-          position: [0, 0, isMobile ? 8.2 : isTablet ? 8.4 : 8.2],
+          position: [0, 0, isMobile ? 8.4 : isTablet ? 8.6 : 8.8],
           fov: isMobile ? 54 : isTablet ? 48 : 46,
         }}
         gl={{
