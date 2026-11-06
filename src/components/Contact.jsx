@@ -159,7 +159,7 @@ export default function Contact() {
 
               {/* Instagram Button */}
               <a
-                href="https://www.instagram.com/visions_of_vathsan/"
+                href="https://www.instagram.com/visionsof_vathsan/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3.5 px-6 py-3 rounded-2xl border border-white/15 bg-white/5 backdrop-blur-md text-white/90 hover:text-white hover:border-[#FF9800] hover:bg-white/10 hover:shadow-[0_0_25px_rgba(255,152,0,0.35)] transition-all cursor-pointer group"
@@ -172,7 +172,7 @@ export default function Contact() {
                     INSTAGRAM
                   </span>
                   <span className="text-xs font-sans text-[#A0A0A0] group-hover:text-white/90 transition-colors font-normal tracking-wide">
-                    @visions_of_vathsan
+                    @visionsof_vathsan
                   </span>
                 </div>
               </a>
