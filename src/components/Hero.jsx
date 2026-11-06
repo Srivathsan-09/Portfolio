@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -11,13 +11,11 @@ export default function Hero({ scrollToSection }) {
   const headingLinesRef = useRef([]);
   const textRef = useRef(null);
   const ctaRef = useRef(null);
-  const sliderRef = useRef(null);
   const bgWrapperRef = useRef(null);
   const lightSweepRef = useRef(null);
   const curtainPanelsRef = useRef([]);
 
-  // Functional slider state for the minimal slider interface
-  const [activeSlide, setActiveSlide] = useState(0);
+  const activeSlide = 0;
 
   const heroSlides = [
     {
@@ -72,8 +70,7 @@ export default function Hero({ scrollToSection }) {
           '-=0.4'
         )
         .fromTo(textRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, '-=0.5')
-        .fromTo(ctaRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, '-=0.5')
-        .fromTo(sliderRef.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.7 }, '-=0.4');
+        .fromTo(ctaRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, '-=0.5');
 
       if (!isReduced) {
         // Multi-Panel Curtain Reveal: 5 vertical panels unveil with power4.inOut
@@ -124,7 +121,6 @@ export default function Hero({ scrollToSection }) {
         ...headingLinesRef.current,
         textRef.current,
         ctaRef.current,
-        sliderRef.current,
       ].filter(Boolean);
 
       gsap.to(scrollTargets, {
@@ -289,7 +285,7 @@ export default function Hero({ scrollToSection }) {
           </p>
 
           {/* Action Button & Scroll Indicator */}
-          <div ref={ctaRef} className="flex flex-wrap items-center gap-6 sm:gap-8 mb-10 sm:mb-14">
+          <div ref={ctaRef} className="flex flex-wrap items-center gap-6 sm:gap-8">
             <button
               onClick={() => scrollToSection('work')}
               className="inline-flex items-center gap-3 px-7 py-3.5 rounded-lg border border-[#FF9800]/80 bg-transparent text-xs font-semibold tracking-[0.2em] text-white uppercase hover:bg-[#FF9800] hover:text-black hover:border-[#FF9800] hover:shadow-[0_0_25px_rgba(255,152,0,0.45)] transition-all cursor-pointer group"
@@ -311,37 +307,6 @@ export default function Hero({ scrollToSection }) {
             </button>
           </div>
 
-          {/* Minimal Functional Slider / Counter Indicator */}
-          <div
-            ref={sliderRef}
-            className="flex items-center gap-5 text-xs font-mono text-[#A0A0A0] select-none"
-          >
-            <span className="w-[2px] h-4 bg-[#FF9800]/70" />
-            <span className="tracking-widest text-white/90">
-              0{activeSlide + 1} / 0{heroSlides.length}
-            </span>
-            <div className="flex items-center gap-2">
-              {heroSlides.map((slide, index) => {
-                const isActive = activeSlide === index;
-                return (
-                  <button
-                    key={slide.id}
-                    onClick={() => setActiveSlide(index)}
-                    aria-label={`Go to slide 0${index + 1}`}
-                    className="py-2 cursor-pointer group transition-all"
-                  >
-                    <span
-                      className={`block h-[2px] rounded-full transition-all duration-300 ${
-                        isActive
-                          ? 'w-7 bg-[#FF9800] shadow-[0_0_8px_#FF9800]'
-                          : 'w-4 bg-white/20 group-hover:bg-white/40'
-                      }`}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
         </div>
       </div>

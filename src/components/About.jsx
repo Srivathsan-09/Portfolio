@@ -231,7 +231,7 @@ export default function About({ scrollToSection }) {
               I'm Srivathsan, a visual storyteller, photographer, and creator who loves turning ideas and moments into something people can experience.
             </p>
             <p>
-              From capturing authentic emotions and candid moments to building digital experiences and experimenting with technology, I'm driven by curiosity and creativity.
+              From fleeting expressions and candid moments to the little details people often miss, I'm driven by the beauty of seeing the world through my lens.
             </p>
           </div>
 
@@ -241,7 +241,7 @@ export default function About({ scrollToSection }) {
             className="border-l-2 border-[#FF9800] pl-5 py-1 mb-8 sm:mb-10 max-w-xl bg-gradient-to-r from-[#FF9800]/10 to-transparent rounded-r-lg backdrop-blur-[2px]"
           >
             <p className="text-sm sm:text-base italic text-white/95 leading-relaxed font-light drop-shadow-[0_1px_8px_rgba(0,0,0,0.85)]">
-              “Photography taught me to notice the details. Technology taught me to build them. I bring both perspectives into everything I create.”
+              “Photography taught me to slow down, observe the little things, and find stories in moments that might otherwise go unnoticed.”
             </p>
           </div>
 
