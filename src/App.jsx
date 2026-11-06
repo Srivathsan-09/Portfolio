@@ -7,6 +7,8 @@ import CinematicBackground from './components/CinematicBackground';
 import CustomCursor from './components/CustomCursor';
 import Navbar from './components/Navbar';
 import Page3DTransition from './components/Page3DTransition';
+import Hero from './components/Hero';
+import About from './components/About';
 import Work from './components/Work';
 import StoryStrip from './components/StoryStrip';
 import Contact from './components/Contact';
@@ -21,9 +23,23 @@ export default function App() {
     }
     return 'hero';
   });
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
+  });
   const [lenisRef, setLenisRef] = useState(null);
   const scrollProgressRef = useRef(null);
   const page3DTransitionRef = useRef(null);
+
+  // Track responsive screen size (mobile vs desktop)
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Initialize Lenis Smooth Scrolling & GSAP ScrollTrigger ticker integration
   useEffect(() => {
@@ -77,6 +93,20 @@ export default function App() {
     const handleScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
+          if (isMobile) {
+            const sections = ['contact', 'work', 'about', 'hero'];
+            const scrollPos = window.scrollY + window.innerHeight / 3;
+            for (const sectionId of sections) {
+              const el = document.getElementById(sectionId);
+              if (el && scrollPos >= el.offsetTop - 80) {
+                setActiveSection(sectionId);
+                break;
+              }
+            }
+            ticking = false;
+            return;
+          }
+
           if (window.scrollY < 120) {
             const isAbout = page3DTransitionRef.current?.currentView === 'about';
             setActiveSection(isAbout ? 'about' : 'hero');
@@ -104,7 +134,7 @@ export default function App() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isMobile]);
 
   // Synchronize hash navigation with active section
   useEffect(() => {
@@ -130,6 +160,23 @@ export default function App() {
    * Coordinates 3D transitions for Home <-> About and smooth scroll for other sections
    */
   const handleNavigation = (id) => {
+    if (isMobile) {
+      const targetId = id === 'hero' ? 'hero' : id;
+      const el = document.getElementById(targetId);
+      if (el) {
+        if (lenisRef) {
+          lenisRef.scrollTo(el, { offset: -60 });
+        } else {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        if (lenisRef) lenisRef.scrollTo(0, { offset: 0 });
+        else window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      setActiveSection(id);
+      return;
+    }
+
     if (id === 'hero') {
       if (page3DTransitionRef.current?.currentView === 'about') {
         page3DTransitionRef.current.transitionToHome();
@@ -185,18 +232,32 @@ export default function App() {
       {/* Fixed Sticky Header Navbar */}
       <Navbar activeSection={activeSection} scrollToSection={handleNavigation} />
 
-      {/* Main Page Content with Physical 3D Home-to-About Transition */}
+      {/* Main Page Content: Desktop Unified Transitions vs Clean Mobile Native Scroll */}
       <main className="relative z-10">
-        <Page3DTransition
-          ref={page3DTransitionRef}
-          onNavigate={handleNavigation}
-          onViewChange={(view) => setActiveSection(view === 'home' ? 'hero' : 'about')}
-          activeSection={activeSection}
-          lenisRef={lenisRef}
-        />
-        <Work />
-        <StoryStrip />
-        <Contact />
+        {isMobile ? (
+          <>
+            <section id="hero">
+              <Hero scrollToSection={handleNavigation} />
+            </section>
+            <About scrollToSection={handleNavigation} isMobile={true} />
+            <Work isMobile={true} />
+            <StoryStrip />
+            <Contact />
+          </>
+        ) : (
+          <>
+            <Page3DTransition
+              ref={page3DTransitionRef}
+              onNavigate={handleNavigation}
+              onViewChange={(view) => setActiveSection(view === 'home' ? 'hero' : 'about')}
+              activeSection={activeSection}
+              lenisRef={lenisRef}
+            />
+            <Work isMobile={false} />
+            <StoryStrip />
+            <Contact />
+          </>
+        )}
       </main>
 
       {/* Minimal Footer */}

@@ -9,7 +9,7 @@ import AboutDisintegration from './AboutDisintegration';
  * - Coordinates content refs for stagger animations
  * - Delegates to AboutDisintegration for the interactive scroll-linked 3D tile shatter
  */
-const About = forwardRef(function About({ scrollToSection, isLayer = false }, ref) {
+const About = forwardRef(function About({ scrollToSection, isLayer = false, isMobile = false }, ref) {
   const tagRef = useRef(null);
   const headingRef = useRef(null);
   const textRef = useRef(null);
@@ -66,6 +66,7 @@ const About = forwardRef(function About({ scrollToSection, isLayer = false }, re
       ref={ref}
       scrollToSection={scrollToSection}
       isLayer={isLayer}
+      isMobile={isMobile}
       tagRef={tagRef}
       headingRef={headingRef}
       textRef={textRef}

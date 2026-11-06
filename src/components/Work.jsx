@@ -351,7 +351,7 @@ const getCoverImage = (catTitle, defaultFallback) => {
   return item ? item.src : defaultFallback;
 };
 
-export default function Work() {
+export default function Work({ isMobile = false }) {
   const [activeCategoryModal, setActiveCategoryModal] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [modalFilter, setModalFilter] = useState('ALL');
@@ -652,29 +652,10 @@ export default function Work() {
   }, [activeCategoryModal, modalFilter]);
 
   useEffect(() => {
-    const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (isReducedMotion) return;
-
-    const ctx = gsap.context(() => {
-      // Header Reveal
-      gsap.fromTo(
-        [tagRef.current, titleRef.current, subtextRef.current],
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          stagger: 0.1,
-          duration: 0.8,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-          },
-        }
-      );
-    }, sectionRef);
-
-    return () => ctx.revert();
+    // Keep header content immediately visible without redundant scroll-lock entrance delays
+    if (tagRef.current) tagRef.current.style.opacity = '1';
+    if (titleRef.current) titleRef.current.style.opacity = '1';
+    if (subtextRef.current) subtextRef.current.style.opacity = '1';
   }, []);
 
   return (
@@ -682,7 +663,9 @@ export default function Work() {
       <section
         ref={sectionRef}
         id="work"
-        className="relative py-20 lg:py-28 overflow-hidden bg-[#080808] z-10"
+        className={`relative py-20 lg:py-28 overflow-hidden bg-[#080808] z-10 ${
+          isMobile ? 'mt-0' : 'md:-mt-[100vh]'
+        }`}
       >
         {/* Smooth top blend from #080808 for completely seamless transition from About section */}
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#080808] via-[#080808]/90 to-transparent pointer-events-none z-0" />
