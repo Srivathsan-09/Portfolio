@@ -6,8 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import CinematicBackground from './components/CinematicBackground';
 import CustomCursor from './components/CustomCursor';
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import About from './components/About';
+import Page3DTransition from './components/Page3DTransition';
 import Work from './components/Work';
 import StoryStrip from './components/StoryStrip';
 import Contact from './components/Contact';
@@ -16,9 +15,15 @@ import Footer from './components/Footer';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function App() {
-  const [activeSection, setActiveSection] = useState('hero');
+  const [activeSection, setActiveSection] = useState(() => {
+    if (typeof window !== 'undefined' && window.location.hash === '#about') {
+      return 'about';
+    }
+    return 'hero';
+  });
   const [lenisRef, setLenisRef] = useState(null);
   const scrollProgressRef = useRef(null);
+  const page3DTransitionRef = useRef(null);
 
   // Initialize Lenis Smooth Scrolling & GSAP ScrollTrigger ticker integration
   useEffect(() => {
@@ -66,12 +71,19 @@ export default function App() {
 
   // Throttled Active section observer on scroll
   useEffect(() => {
-    const sections = ['hero', 'about', 'work', 'contact'];
+    const sections = ['work', 'contact'];
     let ticking = false;
 
     const handleScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
+          if (window.scrollY < 120) {
+            const isAbout = page3DTransitionRef.current?.currentView === 'about';
+            setActiveSection(isAbout ? 'about' : 'hero');
+            ticking = false;
+            return;
+          }
+
           const scrollPosition = window.scrollY + window.innerHeight / 3;
           for (const sectionId of sections) {
             const el = document.getElementById(sectionId);
@@ -94,13 +106,60 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToSection = (id) => {
-    const el = document.getElementById(id);
-    if (el) {
-      if (lenisRef) {
-        lenisRef.scrollTo(el, { offset: -60 });
+  /**
+   * Unified Navigation Orchestrator
+   * Coordinates 3D transitions for Home <-> About and smooth scroll for other sections
+   */
+  const handleNavigation = (id) => {
+    if (id === 'hero') {
+      if (page3DTransitionRef.current?.currentView === 'about') {
+        page3DTransitionRef.current.transitionToHome();
+        setActiveSection('hero');
       } else {
-        el.scrollIntoView({ behavior: 'smooth' });
+        if (lenisRef) {
+          lenisRef.scrollTo(0, { offset: 0 });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        setActiveSection('hero');
+      }
+    } else if (id === 'about') {
+      if (page3DTransitionRef.current?.currentView === 'home') {
+        page3DTransitionRef.current.transitionToAbout();
+        setActiveSection('about');
+      } else {
+        const el = document.getElementById('about');
+        if (el) {
+          if (lenisRef) {
+            lenisRef.scrollTo(el, { offset: -60 });
+          } else {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+        setActiveSection('about');
+      }
+    } else {
+      // id === 'work' or 'contact'
+      if (page3DTransitionRef.current?.currentView === 'home') {
+        page3DTransitionRef.current.transitionToAbout(() => {
+          const el = document.getElementById(id);
+          if (el) {
+            if (lenisRef) {
+              lenisRef.scrollTo(el, { offset: -60 });
+            } else {
+              el.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+        });
+      } else {
+        const el = document.getElementById(id);
+        if (el) {
+          if (lenisRef) {
+            lenisRef.scrollTo(el, { offset: -60 });
+          } else {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
       }
     }
   };
@@ -120,19 +179,23 @@ export default function App() {
       <CustomCursor />
 
       {/* Fixed Sticky Header Navbar */}
-      <Navbar activeSection={activeSection} scrollToSection={scrollToSection} />
+      <Navbar activeSection={activeSection} scrollToSection={handleNavigation} />
 
-      {/* Main Scroll-Driven Page Sections */}
+      {/* Main Page Content with Physical 3D Home-to-About Transition */}
       <main className="relative z-10">
-        <Hero scrollToSection={scrollToSection} />
-        <About scrollToSection={scrollToSection} />
+        <Page3DTransition
+          ref={page3DTransitionRef}
+          onNavigate={handleNavigation}
+          activeSection={activeSection}
+          lenisRef={lenisRef}
+        />
         <Work />
         <StoryStrip />
         <Contact />
       </main>
 
       {/* Minimal Footer */}
-      <Footer scrollToSection={scrollToSection} />
+      <Footer scrollToSection={handleNavigation} />
     </div>
   );
 }

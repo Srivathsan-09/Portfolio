@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -7,7 +7,7 @@ import aboutMobile from '../assets/about-mobile.jpg';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function About({ scrollToSection }) {
+const About = forwardRef(function About({ scrollToSection, isLayer = false }, ref) {
   const sectionRef = useRef(null);
   const tagRef = useRef(null);
   const headingRef = useRef(null);
@@ -18,7 +18,99 @@ export default function About({ scrollToSection }) {
   const lightSweepRef = useRef(null);
   const curtainPanelsRef = useRef([]);
 
+  /**
+   * Programmatic Staggered Content Reveal
+   * Invoked when revealed via the 3D page transition or direct navigation
+   */
+  const playReveal = () => {
+    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (isReduced) {
+      gsap.set(
+        [
+          tagRef.current,
+          headingRef.current,
+          textRef.current,
+          quoteRef.current,
+          ctaRef.current,
+        ].filter(Boolean),
+        { opacity: 1, x: 0, y: 0 }
+      );
+      const validPanels = curtainPanelsRef.current.filter(Boolean);
+      if (validPanels.length > 0) {
+        gsap.set(validPanels, { scaleY: 0 });
+      }
+      return;
+    }
+
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    // 1. Tag, Heading, Text, Quote, CTA Staggered Entrance
+    tl.fromTo(tagRef.current, { x: -28, opacity: 0 }, { x: 0, opacity: 1, duration: 0.65 }, 0.05)
+      .fromTo(headingRef.current, { y: 42, opacity: 0 }, { y: 0, opacity: 1, duration: 0.85 }, 0.18)
+      .fromTo(
+        bgWrapperRef.current,
+        { scale: 1.05 },
+        { scale: 1.0, duration: 1.45, ease: 'expo.out' },
+        0.2
+      )
+      .fromTo(textRef.current, { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 0.75 }, 0.32)
+      .fromTo(quoteRef.current, { x: -22, opacity: 0 }, { x: 0, opacity: 1, duration: 0.75 }, 0.42)
+      .fromTo(ctaRef.current, { y: 22, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65 }, 0.52);
+
+    // 2. Multi-Panel Curtain Reveal on Portrait
+    const validPanels = curtainPanelsRef.current.filter(Boolean);
+    if (validPanels.length > 0) {
+      gsap.set(validPanels, { scaleY: 1 });
+      tl.to(
+        validPanels,
+        {
+          scaleY: 0,
+          transformOrigin: 'top',
+          duration: 1.15,
+          stagger: 0.07,
+          ease: 'power4.inOut',
+        },
+        0.18
+      );
+    }
+
+    // 3. Warm amber light sweep across the portrait
+    if (lightSweepRef.current) {
+      tl.fromTo(
+        lightSweepRef.current,
+        { x: '-100%', opacity: 0 },
+        { x: '220%', opacity: 1, duration: 1.35, ease: 'power2.inOut' },
+        0.3
+      );
+    }
+  };
+
+  const resetReveal = () => {
+    gsap.set(
+      [
+        tagRef.current,
+        headingRef.current,
+        textRef.current,
+        quoteRef.current,
+        ctaRef.current,
+      ].filter(Boolean),
+      { opacity: 0 }
+    );
+    const validPanels = curtainPanelsRef.current.filter(Boolean);
+    if (validPanels.length > 0) {
+      gsap.set(validPanels, { scaleY: 1 });
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    playReveal,
+    resetReveal,
+  }));
+
   useEffect(() => {
+    // If running in layered 3D mode, the 3D transition coordinates the initial reveal
+    if (isLayer) return;
+
     const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const ctx = gsap.context(() => {
@@ -48,7 +140,6 @@ export default function About({ scrollToSection }) {
           },
         });
 
-        // Restrained scale transition from 1.04 to 1.0
         revealTl.fromTo(
           bgWrapperRef.current,
           { scale: 1.04 },
@@ -56,7 +147,6 @@ export default function About({ scrollToSection }) {
           0
         );
 
-        // 5-Panel Curtain Reveal with power4.inOut
         const validPanels = curtainPanelsRef.current.filter(Boolean);
         if (validPanels.length > 0) {
           revealTl.to(
@@ -72,7 +162,6 @@ export default function About({ scrollToSection }) {
           );
         }
 
-        // Warm light sweep across the portrait
         if (lightSweepRef.current) {
           revealTl.fromTo(
             lightSweepRef.current,
@@ -105,7 +194,7 @@ export default function About({ scrollToSection }) {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [isLayer]);
 
   // Micro-interaction on mouse move for subtle image movement on desktop
   const handleMouseMove = (e) => {
@@ -171,7 +260,7 @@ export default function About({ scrollToSection }) {
           </div>
         </div>
 
-        {/* Desktop Gradient: Deep cinematic black on left for text readability -> Transparent on right keeping photographer naturally illuminated */}
+        {/* Desktop Gradient: Deep cinematic black on left for text readability -> Transparent on right */}
         <div
           className="absolute inset-0 pointer-events-none hidden lg:block"
           style={{
@@ -189,7 +278,7 @@ export default function About({ scrollToSection }) {
           }}
         />
 
-        {/* Mobile Gradient: Clear text readability while keeping smiling portrait and camera bright and recognizable */}
+        {/* Mobile Gradient */}
         <div
           className="absolute inset-0 pointer-events-none sm:hidden"
           style={{
@@ -198,13 +287,13 @@ export default function About({ scrollToSection }) {
           }}
         />
 
-        {/* Deep top & bottom edge blending into #080808 so transition between sections is seamless */}
+        {/* Top & bottom edge blending */}
         <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#080808] via-[#080808]/80 to-transparent pointer-events-none z-[5]" />
         <div className="absolute inset-x-0 bottom-0 h-44 sm:h-64 bg-gradient-to-t from-[#080808] via-[#080808]/95 via-45% to-transparent pointer-events-none z-[5]" />
       </div>
 
       {/* =========================================================================
-          ABOUT TEXT & NARRATIVE (Layered Directly Over the Full-Bleed Photograph)
+          ABOUT TEXT & NARRATIVE
          ========================================================================= */}
       <div className="relative z-10 w-full max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 xl:px-20 py-12 lg:py-24 flex lg:justify-start">
         <div className="max-w-xl xl:max-w-xl flex flex-col justify-center lg:mr-auto lg:ml-2 xl:ml-6">
@@ -264,4 +353,6 @@ export default function About({ scrollToSection }) {
       </div>
     </section>
   );
-}
+});
+
+export default About;
