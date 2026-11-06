@@ -190,6 +190,7 @@ export default function App() {
         <Page3DTransition
           ref={page3DTransitionRef}
           onNavigate={handleNavigation}
+          onViewChange={(view) => setActiveSection(view === 'home' ? 'hero' : 'about')}
           activeSection={activeSection}
           lenisRef={lenisRef}
         />

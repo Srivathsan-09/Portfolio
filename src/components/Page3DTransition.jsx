@@ -20,7 +20,7 @@ import About from './About';
  * - Demand-driven rendering and instant accessibility fallback
  */
 const Page3DTransition = forwardRef(function Page3DTransition(
-  { onNavigate, lenisRef },
+  { onNavigate, onViewChange, lenisRef },
   ref
 ) {
   const stageRef = useRef(null);
@@ -37,6 +37,21 @@ const Page3DTransition = forwardRef(function Page3DTransition(
     return 'home';
   });
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Synchronized refs to prevent stale closure access during continuous scroll gestures
+  const currentViewRef = useRef(currentView);
+  const isTransitioningRef = useRef(isTransitioning);
+  const lastTransitionEndTime = useRef(0);
+  const arrivedAtTopTime = useRef(0);
+  const wasScrolledDown = useRef(false);
+
+  useEffect(() => {
+    currentViewRef.current = currentView;
+  }, [currentView]);
+
+  useEffect(() => {
+    isTransitioningRef.current = isTransitioning;
+  }, [isTransitioning]);
 
   // Initial layout configuration on mount
   useEffect(() => {
@@ -92,18 +107,21 @@ const Page3DTransition = forwardRef(function Page3DTransition(
    */
   const transitionToAbout = useCallback(
     (callback) => {
-      if (isTransitioning || currentView === 'about') {
+      if (isTransitioningRef.current || currentViewRef.current === 'about') {
         if (callback) callback();
         return;
       }
 
       setIsTransitioning(true);
+      isTransitioningRef.current = true;
+      onViewChange?.('about');
 
       if (homeLayerRef.current) {
         homeLayerRef.current.style.pointerEvents = 'none';
         homeLayerRef.current.style.willChange = 'transform, opacity';
       }
       if (aboutLayerRef.current) {
+        aboutLayerRef.current.style.display = 'block';
         aboutLayerRef.current.style.willChange = 'transform, opacity';
       }
 
@@ -137,7 +155,10 @@ const Page3DTransition = forwardRef(function Page3DTransition(
               shadowOverlayRef.current.style.display = 'none';
             }
             setCurrentView('about');
+            currentViewRef.current = 'about';
             setIsTransitioning(false);
+            isTransitioningRef.current = false;
+            lastTransitionEndTime.current = Date.now();
             window.history.pushState(null, '', '#about');
             aboutComponentRef.current?.playReveal?.();
             if (callback) callback();
@@ -164,7 +185,10 @@ const Page3DTransition = forwardRef(function Page3DTransition(
             shadowOverlayRef.current.style.display = 'none';
           }
           setCurrentView('about');
+          currentViewRef.current = 'about';
           setIsTransitioning(false);
+          isTransitioningRef.current = false;
+          lastTransitionEndTime.current = Date.now();
           window.history.pushState(null, '', '#about');
           lenisRef?.start();
           if (callback) callback();
@@ -257,7 +281,7 @@ const Page3DTransition = forwardRef(function Page3DTransition(
         aboutComponentRef.current?.playReveal?.();
       }, 0.28);
     },
-    [currentView, isTransitioning, lenisRef]
+    [lenisRef, onViewChange]
   );
 
   /**
@@ -265,12 +289,14 @@ const Page3DTransition = forwardRef(function Page3DTransition(
    */
   const transitionToHome = useCallback(
     (callback) => {
-      if (isTransitioning || currentView === 'home') {
+      if (isTransitioningRef.current || currentViewRef.current === 'home') {
         if (callback) callback();
         return;
       }
 
       setIsTransitioning(true);
+      isTransitioningRef.current = true;
+      onViewChange?.('home');
 
       if (homeLayerRef.current) {
         homeLayerRef.current.style.display = 'block';
@@ -313,7 +339,10 @@ const Page3DTransition = forwardRef(function Page3DTransition(
                 aboutLayerRef.current.style.willChange = 'auto';
               }
               setCurrentView('home');
+              currentViewRef.current = 'home';
               setIsTransitioning(false);
+              isTransitioningRef.current = false;
+              lastTransitionEndTime.current = Date.now();
               window.history.pushState(null, '', '#hero');
               if (callback) callback();
             },
@@ -351,7 +380,10 @@ const Page3DTransition = forwardRef(function Page3DTransition(
             aboutLayerRef.current.style.willChange = 'auto';
           }
           setCurrentView('home');
+          currentViewRef.current = 'home';
           setIsTransitioning(false);
+          isTransitioningRef.current = false;
+          lastTransitionEndTime.current = Date.now();
           window.history.pushState(null, '', '#hero');
           lenisRef?.start();
           if (callback) callback();
@@ -427,7 +459,7 @@ const Page3DTransition = forwardRef(function Page3DTransition(
         );
       }
     },
-    [currentView, isTransitioning, lenisRef]
+    [lenisRef, onViewChange]
   );
 
   // Expose transition controls to parent (App)
@@ -436,22 +468,26 @@ const Page3DTransition = forwardRef(function Page3DTransition(
     () => ({
       transitionToAbout,
       transitionToHome,
-      currentView,
-      isTransitioning,
+      get currentView() {
+        return currentViewRef.current;
+      },
+      get isTransitioning() {
+        return isTransitioningRef.current;
+      },
     }),
-    [currentView, isTransitioning, transitionToAbout, transitionToHome]
+    [transitionToAbout, transitionToHome]
   );
 
   // Browser Back / Forward navigation handling (popstate / hashchange)
   useEffect(() => {
     const handleLocationChange = () => {
       const hash = window.location.hash;
-      if (hash === '#about' && currentView === 'home' && !isTransitioning) {
+      if (hash === '#about' && currentViewRef.current === 'home' && !isTransitioningRef.current) {
         transitionToAbout();
       } else if (
         (hash === '#hero' || hash === '' || hash === '#') &&
-        currentView === 'about' &&
-        !isTransitioning
+        currentViewRef.current === 'about' &&
+        !isTransitioningRef.current
       ) {
         transitionToHome();
       }
@@ -463,7 +499,124 @@ const Page3DTransition = forwardRef(function Page3DTransition(
       window.removeEventListener('popstate', handleLocationChange);
       window.removeEventListener('hashchange', handleLocationChange);
     };
-  }, [currentView, isTransitioning, transitionToAbout, transitionToHome]);
+  }, [transitionToAbout, transitionToHome]);
+
+  // Bidirectional Scroll & Touch Gestures: Home <-> About
+  useEffect(() => {
+    // Track when user was scrolled down into Work/Contact so scrolling back up to top doesn't accidentally trigger Home prematurely
+    const handleScrollCheck = () => {
+      const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+      if (scrollY > 60) {
+        wasScrolledDown.current = true;
+      } else if (scrollY <= 10 && wasScrolledDown.current) {
+        wasScrolledDown.current = false;
+        arrivedAtTopTime.current = Date.now();
+      }
+    };
+
+    window.addEventListener('scroll', handleScrollCheck, { passive: true });
+
+    // Wheel event handler (mouse-wheel and trackpad)
+    const handleWheel = (e) => {
+      const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+
+      // During active transition, absorb wheel ticks at top of page
+      if (isTransitioningRef.current) {
+        if (scrollY <= 15) {
+          e.preventDefault?.();
+        }
+        return;
+      }
+
+      // Transition cooldown (prevent inertial bounce / trackpad overrun)
+      if (Date.now() - lastTransitionEndTime.current < 450) {
+        if (scrollY <= 15) {
+          e.preventDefault?.();
+        }
+        return;
+      }
+
+      // 1. Home -> About: Scrolling DOWN while on Home
+      if (currentViewRef.current === 'home' && scrollY <= 15 && e.deltaY > 15) {
+        e.preventDefault?.();
+        transitionToAbout();
+        return;
+      }
+
+      // 2. About -> Home: Scrolling UP while at the top of About
+      if (currentViewRef.current === 'about' && scrollY <= 15 && e.deltaY < -15) {
+        // If user just scrolled up from below (Work/Contact), ignore the tail end of that gesture
+        if (Date.now() - arrivedAtTopTime.current < 350) {
+          return;
+        }
+        e.preventDefault?.();
+        transitionToHome();
+        return;
+      }
+    };
+
+    // Touch event handlers (mobile & tablet swipe gestures)
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let isTrackingTouch = false;
+
+    const handleTouchStart = (e) => {
+      if (e.touches.length !== 1) return;
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+      isTrackingTouch = true;
+    };
+
+    const handleTouchMove = (e) => {
+      if (!isTrackingTouch || e.touches.length !== 1) return;
+      if (isTransitioningRef.current) return;
+      if (Date.now() - lastTransitionEndTime.current < 450) return;
+
+      const currentY = e.touches[0].clientY;
+      const currentX = e.touches[0].clientX;
+      const diffY = touchStartY - currentY; // positive = swiping up (scrolling down)
+      const diffX = touchStartX - currentX;
+
+      // Ignore predominantly horizontal swipes
+      if (Math.abs(diffX) > Math.abs(diffY)) return;
+
+      const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+
+      // 1. Home -> About: Swipe up (scroll down) from Home
+      if (currentViewRef.current === 'home' && scrollY <= 15 && diffY > 35) {
+        isTrackingTouch = false;
+        transitionToAbout();
+        return;
+      }
+
+      // 2. About -> Home: Swipe down (scroll up) while at top of About
+      if (currentViewRef.current === 'about' && scrollY <= 15 && diffY < -35) {
+        if (Date.now() - arrivedAtTopTime.current < 350) {
+          return;
+        }
+        isTrackingTouch = false;
+        transitionToHome();
+        return;
+      }
+    };
+
+    const handleTouchEnd = () => {
+      isTrackingTouch = false;
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScrollCheck);
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [transitionToAbout, transitionToHome]);
 
   return (
     <div
