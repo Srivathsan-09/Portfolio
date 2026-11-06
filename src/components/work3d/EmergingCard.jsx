@@ -12,7 +12,6 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 export default function EmergingCard({
   item,
   index,
-  targetPosition,
   targetRotation,
   isOtherHovered,
   isSelected = false,
@@ -21,6 +20,7 @@ export default function EmergingCard({
   onUnhover,
   onClick,
   reducedMotion = false,
+  isEmerged = false,
 }) {
   const cardGroupRef = useRef();
   const [texture, setTexture] = useState(null);
@@ -53,24 +53,24 @@ export default function EmergingCard({
     if (!cardGroupRef.current) return;
     const time = state.clock.getElapsedTime();
 
-    // Idle organic vertical float after emergence
-    const floatY = reducedMotion ? 0 : Math.sin(time * 1.1 + index * 1.5) * 0.05;
-    const floatRotZ = reducedMotion ? 0 : Math.sin(time * 0.8 + index * 1.5) * 0.015;
+    // Idle organic vertical float only after emergence
+    const floatY = (reducedMotion || !isEmerged) ? 0 : Math.sin(time * 1.1 + index * 1.5) * 0.05;
+    const floatRotZ = (reducedMotion || !isEmerged) ? 0 : Math.sin(time * 0.8 + index * 1.5) * 0.015;
 
     // Hover & Selection translation targets
-    const targetZ = isSelected ? 1.6 : hovered ? 0.45 : isOtherSelected ? -1.2 : isOtherHovered ? -0.2 : 0;
-    const targetScale = isSelected ? 1.25 : hovered ? 1.1 : isOtherSelected ? 0.78 : isOtherHovered ? 0.94 : 1.0;
+    const targetZ = (!isEmerged) ? 0 : isSelected ? 1.6 : hovered ? 0.45 : isOtherSelected ? -1.2 : isOtherHovered ? -0.2 : 0;
+    const targetScale = (!isEmerged) ? 1.0 : isSelected ? 1.25 : hovered ? 1.1 : isOtherSelected ? 0.78 : isOtherHovered ? 0.94 : 1.0;
 
-    // Smoothly damp position and scale
+    // Smoothly damp local position and scale
     cardGroupRef.current.position.y = THREE.MathUtils.damp(
       cardGroupRef.current.position.y,
-      targetPosition[1] + (isSelected ? 0 : floatY),
+      isSelected ? 0 : floatY,
       4.0,
       delta
     );
     cardGroupRef.current.position.z = THREE.MathUtils.damp(
       cardGroupRef.current.position.z,
-      targetPosition[2] + targetZ,
+      targetZ,
       4.5,
       delta
     );
@@ -81,7 +81,7 @@ export default function EmergingCard({
     // Damped tilt rotation
     cardGroupRef.current.rotation.z = THREE.MathUtils.damp(
       cardGroupRef.current.rotation.z,
-      isSelected ? 0 : targetRotation[2] + floatRotZ,
+      isSelected ? 0 : floatRotZ,
       3.5,
       delta
     );
@@ -90,9 +90,10 @@ export default function EmergingCard({
   return (
     <group
       ref={cardGroupRef}
-      position={[targetPosition[0], targetPosition[1], targetPosition[2]]}
+      position={[0, 0, 0]}
       rotation={[targetRotation[0], targetRotation[1], targetRotation[2]]}
       onPointerOver={(e) => {
+        if (!isEmerged) return;
         e.stopPropagation();
         setHovered(true);
         document.body.style.cursor = 'pointer';
@@ -105,6 +106,7 @@ export default function EmergingCard({
         if (onUnhover) onUnhover();
       }}
       onClick={(e) => {
+        if (!isEmerged) return;
         e.stopPropagation();
         if (onClick) onClick(item.title);
       }}
@@ -161,7 +163,9 @@ export default function EmergingCard({
         transform
         distanceFactor={3.6}
         position={[0, 0, 0.025]}
-        className="pointer-events-none select-none w-[218px] h-[294px] flex flex-col justify-between p-3.5"
+        className={`pointer-events-none select-none w-[218px] h-[294px] flex flex-col justify-between p-3.5 transition-opacity duration-300 ${
+          !isEmerged ? 'opacity-0' : 'opacity-100'
+        }`}
         style={{
           transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         }}

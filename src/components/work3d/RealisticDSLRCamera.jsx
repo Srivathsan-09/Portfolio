@@ -20,6 +20,7 @@ export default function RealisticDSLRCamera({
   lensGlowIntensity = 2.5,
   reducedMotion = false,
   showHand = true,
+  cameraAnimRef,
 }) {
   const cameraGroupRef = useRef();
   const innerModelRef = useRef();
@@ -199,8 +200,13 @@ export default function RealisticDSLRCamera({
       );
     }
 
+    // Read continuous animated properties (from ref if provided, otherwise props)
+    const currentAssembly = cameraAnimRef?.current ? cameraAnimRef.current.assembly : assemblyProgress;
+    const currentAperture = cameraAnimRef?.current ? cameraAnimRef.current.aperture : apertureOpen;
+    const currentGlow = cameraAnimRef?.current ? cameraAnimRef.current.glow : lensGlowIntensity;
+
     // Mechanical Lens Component Assembly / Disassembly Animation along optical axis (+X)
-    const sep = Math.max(0, 1 - assemblyProgress);
+    const sep = Math.max(0, 1 - currentAssembly);
 
     if (lens.mount && lensBase.mount) {
       lens.mount.position.x = lensBase.mount.pos.x + sep * 0.45;
@@ -229,7 +235,7 @@ export default function RealisticDSLRCamera({
 
     // Animate mechanical iris blades based on apertureOpen
     if (irisBladesRef.current.length > 0) {
-      const bladeAngle = THREE.MathUtils.lerp(0.12, 0.48, apertureOpen);
+      const bladeAngle = THREE.MathUtils.lerp(0.12, 0.48, currentAperture);
       irisBladesRef.current.forEach((blade, i) => {
         if (blade) {
           blade.rotation.z = bladeAngle + (i * Math.PI) / 4;
@@ -239,7 +245,7 @@ export default function RealisticDSLRCamera({
 
     // Dynamic lens core light pulse
     if (coreLightRef.current) {
-      coreLightRef.current.intensity = lensGlowIntensity * 2.4;
+      coreLightRef.current.intensity = currentGlow * 2.4;
     }
   });
 

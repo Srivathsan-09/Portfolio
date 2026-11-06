@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useMemo, Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -50,6 +50,11 @@ function StudioParticles({ count = 75, isMobile = false }) {
 
 /**
  * Interactive 3D Camera & Emerging Photograph Cards Scene Content
+ * Scroll-scrubbed emergence:
+ * - Scrolling DOWN: lens mechanically assembles, aperture opens with amber flare,
+ *   and photographs emerge from the lens glass out to the 4 floating corners.
+ * - Scrolling UP: photographs reverse trajectory back into the camera lens and shrink to 0.
+ * - 100% direct Three.js scene-graph updates via useFrame and refs for 60/120 FPS performance.
  */
 function SceneContent({
   collections,
@@ -60,10 +65,8 @@ function SceneContent({
 }) {
   const [hoveredIdx, setHoveredIdx] = useState(null);
   const [activeCardClick, setActiveCardClick] = useState(null);
-  const [assemblyProgress, setAssemblyProgress] = useState(reducedMotion ? 1.0 : 0.0);
-  const [apertureOpen, setApertureOpen] = useState(reducedMotion ? 1.0 : 0.1);
-  const [lensGlowIntensity, setLensGlowIntensity] = useState(2.0);
-  const [hasEmerged, setHasEmerged] = useState(false);
+  const [isEmerged, setIsEmerged] = useState(reducedMotion);
+  const isEmergedRef = useRef(reducedMotion);
 
   // Dynamic Camera & Card layout coordinates shifted gracefully towards right
   const cameraPos = useMemo(() => (
@@ -77,7 +80,7 @@ function SceneContent({
   // Camera scale: large, prominent centerpiece
   const cameraScale = isMobile ? 0.98 : isTablet ? 1.18 : 1.38;
 
-  // Lens emergence origin in world coordinates (calculated at front of DSLR lens)
+  // Lens emergence origin in world coordinates (front of DSLR lens barrel)
   const lensOrigin = useMemo(() => [
     cameraPos[0] + 0.22,
     cameraPos[1] - 0.35,
@@ -108,118 +111,142 @@ function SceneContent({
         ]
   ), [isMobile, isTablet]);
 
-  // Animated positions of the 4 cards during the emergence timeline
-  const [cardTransforms, setCardTransforms] = useState(() =>
-    collections.map(() => ({
-      pos: lensOrigin,
-      scale: 0.001,
-      opacity: 0,
+  // Direct animation refs for camera assembly and aperture
+  const cameraAnimRef = useRef({
+    assembly: reducedMotion ? 1.0 : 0.0,
+    aperture: reducedMotion ? 1.0 : 0.1,
+    glow: 2.5,
+  });
+
+  // Direct animation refs for the 4 floating cards (emergence position & scale)
+  const cardsAnimRef = useRef(
+    collections.map((_, idx) => ({
+      x: reducedMotion ? (targetCoordinates[idx]?.pos[0] ?? lensOrigin[0]) : lensOrigin[0],
+      y: reducedMotion ? (targetCoordinates[idx]?.pos[1] ?? lensOrigin[1]) : lensOrigin[1],
+      z: reducedMotion ? (targetCoordinates[idx]?.pos[2] ?? lensOrigin[2]) : lensOrigin[2],
+      scale: reducedMotion ? 1.0 : 0.001,
     }))
   );
 
-  // GSAP Choreographed Mechanical Assembly & Emergence Timeline (Optimized timings)
+  // References to the outer Three.js groups for direct scene-graph updates
+  const cardOuterGroupRefs = useRef([]);
+
+  // Direct 60/120 FPS Three.js transform updates without triggering React re-renders
+  useFrame(() => {
+    for (let i = 0; i < collections.length; i++) {
+      const group = cardOuterGroupRefs.current[i];
+      const anim = cardsAnimRef.current[i];
+      if (group && anim) {
+        group.position.set(anim.x, anim.y, anim.z);
+        group.scale.setScalar(anim.scale);
+        group.visible = anim.scale > 0.008;
+      }
+    }
+  });
+
+  // ScrollTrigger Bidirectional Scroll Scrubbing Timeline
   useEffect(() => {
     if (reducedMotion) {
-      setAssemblyProgress(1.0);
-      setApertureOpen(1.0);
-      setHasEmerged(true);
+      cameraAnimRef.current = { assembly: 1.0, aperture: 1.0, glow: 2.5 };
+      collections.forEach((_, idx) => {
+        const target = targetCoordinates[idx];
+        if (cardsAnimRef.current[idx] && target) {
+          cardsAnimRef.current[idx].x = target.pos[0];
+          cardsAnimRef.current[idx].y = target.pos[1];
+          cardsAnimRef.current[idx].z = target.pos[2];
+          cardsAnimRef.current[idx].scale = 1.0;
+        }
+      });
+      setIsEmerged(true);
+      isEmergedRef.current = true;
       return;
     }
 
     const triggerEl = document.getElementById('work');
 
     const tl = gsap.timeline({
-      paused: Boolean(triggerEl),
-      delay: 0.1,
-      onComplete: () => {
-        setHasEmerged(true);
+      paused: true,
+      onUpdate: () => {
+        // Toggle isEmerged only when state boundary is crossed to avoid re-renders
+        const emerged = cardsAnimRef.current.some((c) => c && c.scale > 0.85);
+        if (emerged !== isEmergedRef.current) {
+          isEmergedRef.current = emerged;
+          setIsEmerged(emerged);
+        }
       },
     });
 
-    const animProxy = {
-      assembly: 0.0,
-      aperture: 0.1,
-      glow: 2.0,
-    };
+    // Reset initial values at progress 0
+    cameraAnimRef.current.assembly = 0.0;
+    cameraAnimRef.current.aperture = 0.1;
+    cameraAnimRef.current.glow = 2.0;
 
-    // 1. Mechanical Assembly: Components slide together smoothly
+    // 1. Mechanical Assembly of Camera Lens
     tl.to(
-      animProxy,
+      cameraAnimRef.current,
       {
         assembly: 1.0,
-        duration: 1.1,
-        ease: 'power3.inOut',
-        onUpdate: () => setAssemblyProgress(animProxy.assembly),
+        duration: 0.75,
+        ease: 'power2.out',
       },
       0
     );
 
     // 2. Aperture Iris Mechanical Opening
     tl.to(
-      animProxy,
+      cameraAnimRef.current,
       {
         aperture: 1.0,
-        duration: 0.45,
+        duration: 0.5,
         ease: 'power2.out',
-        onUpdate: () => setApertureOpen(animProxy.aperture),
       },
-      0.85
+      0.35
     );
 
-    // 3. Warm Amber Light Flare Surge
+    // 3. Warm Optical Flare Flash Surge
     tl.to(
-      animProxy,
+      cameraAnimRef.current,
       {
         glow: 5.5,
-        duration: 0.35,
-        ease: 'power2.out',
-        onUpdate: () => setLensGlowIntensity(animProxy.glow),
+        duration: 0.28,
+        ease: 'power1.out',
       },
-      0.95
+      0.4
     );
     tl.to(
-      animProxy,
+      cameraAnimRef.current,
       {
         glow: 2.5,
-        duration: 0.45,
+        duration: 0.42,
         ease: 'power2.inOut',
-        onUpdate: () => setLensGlowIntensity(animProxy.glow),
       },
-      1.3
+      0.68
     );
 
-    // 4. Staggered emergence of photographs from the assembled lens
+    // 4. Staggered Emergence of Photos from the Lens Origin to Floating Positions
     collections.forEach((_, idx) => {
       const target = targetCoordinates[idx];
-      const proxy = {
-        x: lensOrigin[0],
-        y: lensOrigin[1],
-        z: lensOrigin[2],
-        scale: 0.001,
-      };
+      const anim = cardsAnimRef.current[idx];
+      if (!anim || !target) return;
+
+      anim.x = lensOrigin[0];
+      anim.y = lensOrigin[1];
+      anim.z = lensOrigin[2];
+      anim.scale = 0.001;
+
+      const startTime = 0.5 + idx * 0.15;
 
       tl.to(
-        proxy,
+        anim,
         {
           x: target.pos[0],
           y: target.pos[1],
           z: target.pos[2],
           scale: 1.0,
-          duration: 1.05,
+          duration: 0.85,
           ease: 'power3.out',
-          onUpdate: () => {
-            setCardTransforms((prev) => {
-              const next = [...prev];
-              next[idx] = {
-                pos: [proxy.x, proxy.y, proxy.z],
-                scale: proxy.scale,
-                opacity: 1,
-              };
-              return next;
-            });
-          },
         },
-        1.15 + idx * 0.18
+        startTime
       );
     });
 
@@ -227,13 +254,18 @@ function SceneContent({
     if (triggerEl) {
       st = ScrollTrigger.create({
         trigger: triggerEl,
-        start: 'top 75%',
-        once: true,
-        onEnter: () => tl.play(),
+        start: 'top 80%',
+        end: 'center 45%',
+        scrub: 0.8,
+        animation: tl,
+        invalidateOnRefresh: true,
       });
     } else {
       tl.play();
     }
+
+    // Refresh ScrollTrigger to calculate exact DOM positions
+    ScrollTrigger.refresh();
 
     return () => {
       st?.kill();
@@ -241,7 +273,7 @@ function SceneContent({
     };
   }, [cameraPos, collections, lensOrigin, reducedMotion, targetCoordinates]);
 
-  // Handle cinematic card selection transition into gallery
+  // Handle cinematic card selection transition into gallery modal
   const handleCardClick = (categoryTitle, idx) => {
     setActiveCardClick(idx);
     setTimeout(() => {
@@ -273,37 +305,32 @@ function SceneContent({
         color="#FF9800"
       />
 
-      {/* Optimized Ambient Dust Particles */}
+      {/* Atmospheric Studio Dust Particles */}
       <StudioParticles isMobile={isMobile} />
 
       {/* Central DSLR Camera */}
       <group position={cameraPos} scale={cameraScale}>
         <RealisticDSLRCamera
-          assemblyProgress={assemblyProgress}
-          apertureOpen={apertureOpen}
-          lensGlowIntensity={lensGlowIntensity}
           reducedMotion={reducedMotion}
           showHand={true}
+          cameraAnimRef={cameraAnimRef}
         />
       </group>
 
       {/* Four Photography Collections Floating Cards */}
       {collections.map((item, idx) => {
         const target = targetCoordinates[idx];
-        const currentTransform = cardTransforms[idx] || {
-          pos: target.pos,
-          scale: 1.0,
-        };
-
-        const activePos = hasEmerged ? target.pos : currentTransform.pos;
-        const activeScale = hasEmerged ? 1.0 : currentTransform.scale;
-
         return (
-          <group key={item.id} scale={activeScale}>
+          <group
+            key={item.id}
+            ref={(el) => (cardOuterGroupRefs.current[idx] = el)}
+            position={lensOrigin}
+            scale={reducedMotion ? 1.0 : 0.001}
+            visible={reducedMotion}
+          >
             <EmergingCard
               item={item}
               index={idx}
-              targetPosition={activePos}
               targetRotation={target.rot}
               isOtherHovered={hoveredIdx !== null && hoveredIdx !== idx}
               isSelected={activeCardClick === idx}
@@ -312,6 +339,7 @@ function SceneContent({
               onUnhover={() => setHoveredIdx(null)}
               onClick={() => handleCardClick(item.title, idx)}
               reducedMotion={reducedMotion}
+              isEmerged={isEmerged}
             />
           </group>
         );
@@ -356,7 +384,7 @@ export default function CameraScene({ collections, openGalleryModal }) {
       ([entry]) => {
         setIsSectionInView(entry.isIntersecting);
       },
-      { threshold: 0.05, rootMargin: '100px 0px' }
+      { threshold: 0.05, rootMargin: '300px 0px' }
     );
 
     observer.observe(el);
