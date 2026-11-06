@@ -734,7 +734,7 @@ export default function Work({ isMobile = false }) {
             {/* RIGHT COLUMN: 3D Camera & Emerging Photographs Canvas */}
             <div
               ref={canvasContainerRef}
-              className="lg:col-span-8 flex items-center justify-center relative min-h-[580px] sm:min-h-[640px] lg:min-h-[720px] w-full"
+              className="lg:col-span-8 flex items-center justify-center relative min-h-[740px] sm:min-h-[760px] lg:min-h-[720px] w-full"
             >
               {shouldMount3D ? (
                 <React.Suspense fallback={<CameraSceneSkeleton />}>

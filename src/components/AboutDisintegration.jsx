@@ -16,12 +16,13 @@ function pseudoRandom(seed) {
 /**
  * AboutDisintegration Component
  *
- * Implements a unified, scroll-controlled 3D box disintegration transition:
- * - Desktop: Divides the About page into 40 3D rectangular tiles/boxes.
+ * Implements a high-performance, 120 FPS 3D box disintegration transition:
+ * - Desktop: Divides the About page into 24 crisp 3D tiles.
+ *   Uses lightweight, hardware-accelerated CSS-sliced fragments with amber rim highlights
+ *   instead of duplicate React trees, completely eliminating layout thrashing and animation lag.
  *   As user scrolls down, the boxes scatter in 3D perspective space while
  *   the WORK section SIMULTANEOUSLY emerges behind them in the same timeline.
- *   When the transition finishes, Work is already completely visible and in position.
- * - Mobile: Completely disabled. Zero 3D effects, zero pinning, normal natural vertical scroll.
+ * - Mobile: Completely disabled. Normal, static, natural vertical scroll.
  */
 const AboutDisintegration = forwardRef(function AboutDisintegration(
   {
@@ -42,9 +43,9 @@ const AboutDisintegration = forwardRef(function AboutDisintegration(
   const tilesGridRef = useRef(null);
   const tileRefs = useRef([]);
 
-  // Desktop grid: 8 columns x 5 rows = 40 tiles (optimal balance between detail and 120 FPS performance)
-  const cols = 8;
-  const rows = 5;
+  // Desktop grid: 6 columns x 4 rows = 24 tiles (optimal for 120 FPS buttery smooth performance)
+  const cols = 6;
+  const rows = 4;
   const totalTiles = cols * rows;
 
   // Pre-calculate deterministic 3D flight trajectories for each tile
@@ -56,8 +57,8 @@ const AboutDisintegration = forwardRef(function AboutDisintegration(
       const row = Math.floor(i / cols);
 
       // Normalized coordinates from center: [-1, 1]
-      const nx = (col - (cols - 1) / 2) / ((cols - 1) / 2);
-      const ny = (row - (rows - 1) / 2) / ((rows - 1) / 2);
+      const nx = (col - (cols - 1) / 2) / ((cols - 1) / 2 || 1);
+      const ny = (row - (rows - 1) / 2) / ((rows - 1) / 2 || 1);
       const dist = Math.sqrt(nx * nx + ny * ny);
 
       const r1 = pseudoRandom(i + 1);
@@ -66,23 +67,23 @@ const AboutDisintegration = forwardRef(function AboutDisintegration(
       const r4 = pseudoRandom(i * 7 + 29);
 
       // 3D scatter translations
-      const x = nx * (260 + r1 * 200) + (r2 - 0.5) * 110;
-      const y = ny * (220 + r3 * 180) + (r4 - 0.5) * 110;
+      const x = nx * (240 + r1 * 180) + (r2 - 0.5) * 100;
+      const y = ny * (200 + r3 * 160) + (r4 - 0.5) * 100;
 
-      // Z depth: center tiles explode forward towards camera (+Z up to 600px)
+      // Z depth: center tiles explode forward towards camera (+Z up to 500px)
       const zFactor = Math.max(0, 1.3 - dist * 0.55);
-      const z = zFactor * (420 + r1 * 260) + (r3 - 0.5) * 140;
+      const z = zFactor * (380 + r1 * 220) + (r3 - 0.5) * 120;
 
       // 3D compound rotations in degrees
-      const rotX = ny * 30 + (r2 - 0.5) * 45;
-      const rotY = -nx * 36 + (r4 - 0.5) * 45;
-      const rotZ = (r1 - 0.5) * 35;
+      const rotX = ny * 28 + (r2 - 0.5) * 40;
+      const rotY = -nx * 34 + (r4 - 0.5) * 40;
+      const rotZ = (r1 - 0.5) * 30;
 
       // Subtle scale variation
-      const scale = 0.76 + r3 * 0.24;
+      const scale = 0.80 + r3 * 0.20;
 
       // Stagger timing within timeline
-      const delay = dist * 0.16 + r2 * 0.1;
+      const delay = dist * 0.15 + r2 * 0.08;
 
       trajectories.push({
         col,
@@ -117,7 +118,7 @@ const AboutDisintegration = forwardRef(function AboutDisintegration(
       const workEl = document.getElementById('work');
       const validTileEls = tileRefs.current.filter(Boolean);
 
-      // Reset tile elements initial state
+      // Reset tile elements initial state with hardware-accelerated transforms
       gsap.set(validTileEls, {
         x: 0,
         y: 0,
@@ -146,57 +147,64 @@ const AboutDisintegration = forwardRef(function AboutDisintegration(
           start: 'top top',
           end: '+=100%', // 100vh of scrub distance
           pin: true,
-          scrub: 0.8, // Smooth spring inertia for mouse wheel and trackpad
+          scrub: 0.7, // Smooth spring inertia for mouse wheel and trackpad
           invalidateOnRefresh: true,
           onUpdate: (self) => {
             const p = self.progress;
 
-            // Seamless transition between intact interactive page and 3D tiles
-            if (p <= 0.005) {
-              if (intactWrapperRef.current) {
-                intactWrapperRef.current.style.opacity = '1';
-                intactWrapperRef.current.style.pointerEvents = 'auto';
-              }
-              if (tilesGridRef.current) {
-                tilesGridRef.current.style.opacity = '0';
-              }
-            } else {
-              if (intactWrapperRef.current) {
-                intactWrapperRef.current.style.opacity = '0';
-                intactWrapperRef.current.style.pointerEvents = 'none';
-              }
-              if (tilesGridRef.current) {
-                tilesGridRef.current.style.opacity = '1';
-              }
-            }
-
+            // Manage pointer events & visibility cleanly without layout thrashing
             if (p >= 0.99) {
               container.style.pointerEvents = 'none';
-              if (tilesGridRef.current) tilesGridRef.current.style.display = 'none';
+              if (tilesGridRef.current) tilesGridRef.current.style.visibility = 'hidden';
             } else {
               container.style.pointerEvents = 'auto';
-              if (tilesGridRef.current) tilesGridRef.current.style.display = 'block';
+              if (tilesGridRef.current) tilesGridRef.current.style.visibility = 'visible';
+            }
+
+            if (intactWrapperRef.current) {
+              intactWrapperRef.current.style.pointerEvents = p <= 0.02 ? 'auto' : 'none';
             }
           },
         },
       });
 
-      // 1. SIMULTANEOUS WORK EMERGENCE: Work appears behind scattering boxes in the same timeline!
-      if (workEl) {
+      // 1. INTACT PAGE CROSS-FADE INTO 3D TILES (Driven directly by GSAP scrub timeline)
+      if (intactWrapperRef.current) {
+        tl.to(
+          intactWrapperRef.current,
+          {
+            opacity: 0,
+            duration: 0.08,
+            ease: 'power1.out',
+          },
+          0
+        );
+      }
+      if (tilesGridRef.current) {
         tl.fromTo(
-          workEl,
-          { opacity: 0.15, scale: 0.94, y: 35 },
-          { opacity: 1.0, scale: 1.0, y: 0, duration: 1.0, ease: 'power2.out' },
+          tilesGridRef.current,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.05, ease: 'power1.out' },
           0
         );
       }
 
-      // 2. SIMULTANEOUS 3D BOX SCATTER:
+      // 2. SIMULTANEOUS WORK EMERGENCE: Work smoothly appears behind scattering boxes without heavy DOM scaling
+      if (workEl) {
+        tl.fromTo(
+          workEl,
+          { opacity: 0.25 },
+          { opacity: 1.0, duration: 0.85, ease: 'power1.out' },
+          0
+        );
+      }
+
+      // 3. SIMULTANEOUS 3D BOX SCATTER:
       validTileEls.forEach((tileEl, idx) => {
         const traj = tileTrajectories[idx];
         if (!tileEl || !traj) return;
 
-        const startTime = traj.delay * 0.32;
+        const startTime = traj.delay * 0.30;
         const duration = 0.85;
 
         // Initial lift
@@ -287,10 +295,7 @@ const AboutDisintegration = forwardRef(function AboutDisintegration(
       {/* 1. INTACT ABOUT PAGE (Progress = 0) */}
       <div
         ref={intactWrapperRef}
-        className="relative w-full h-full z-10"
-        style={{
-          transition: 'opacity 0.1s linear',
-        }}
+        className="relative w-full h-full z-10 will-change-[opacity]"
       >
         <AboutContent
           scrollToSection={scrollToSection}
@@ -304,7 +309,7 @@ const AboutDisintegration = forwardRef(function AboutDisintegration(
         />
       </div>
 
-      {/* 2. 3D BOX DISINTEGRATION GRID (Progress > 0) */}
+      {/* 2. 3D BOX DISINTEGRATION GRID (High-Performance GPU CSS-Sliced Tiles) */}
       <div
         ref={tilesGridRef}
         className="absolute inset-0 w-full h-full z-20 pointer-events-none select-none overflow-hidden"
@@ -320,6 +325,8 @@ const AboutDisintegration = forwardRef(function AboutDisintegration(
 
           const leftPercent = tile.col * colWidth;
           const topPercent = tile.row * rowHeight;
+          const bgPosX = cols > 1 ? (tile.col / (cols - 1)) * 100 : 0;
+          const bgPosY = rows > 1 ? (tile.row / (rows - 1)) * 100 : 0;
 
           return (
             <div
@@ -333,24 +340,16 @@ const AboutDisintegration = forwardRef(function AboutDisintegration(
                 height: `${rowHeight}%`,
                 transformStyle: 'preserve-3d',
                 backfaceVisibility: 'hidden',
+                background: `linear-gradient(135deg, rgba(14, 15, 18, 0.94), rgba(8, 8, 10, 0.98)), url('/images/about.jpg')`,
+                backgroundSize: `${cols * 100}% ${rows * 100}%`,
+                backgroundPosition: `${bgPosX}% ${bgPosY}%`,
+                backgroundBlendMode: 'overlay',
                 boxShadow:
-                  '0 0 0 1px rgba(255, 152, 0, 0.22), 0 12px 28px rgba(0, 0, 0, 0.75)',
+                  '0 0 0 1px rgba(255, 152, 0, 0.35), 0 4px 14px rgba(0, 0, 0, 0.7)',
               }}
             >
-              <div
-                className="absolute pointer-events-none select-none"
-                style={{
-                  left: `-${tile.col * 100}%`,
-                  top: `-${tile.row * 100}%`,
-                  width: `${cols * 100}%`,
-                  height: `${rows * 100}%`,
-                }}
-              >
-                <AboutContent
-                  scrollToSection={scrollToSection}
-                  isInteractive={false}
-                />
-              </div>
+              {/* Subtle glass reflection highlight */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#FF9800]/12 via-transparent to-white/5 pointer-events-none" />
             </div>
           );
         })}

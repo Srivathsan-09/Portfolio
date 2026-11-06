@@ -11,17 +11,18 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>,
 );
 
-// Register Service Worker for caching images
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', () => {
+// Register Service Worker for aggressive offline caching of 3D models, images, and app shell
+if ('serviceWorker' in navigator) {
+  const registerSW = () => {
     navigator.serviceWorker.register('/sw.js').catch((err) => {
       console.warn('SW registration failed:', err);
     });
-  });
-} else if ('serviceWorker' in navigator) {
-  // Also register in dev mode if supported for local testing
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
-  });
+  };
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', registerSW);
+  } else {
+    registerSW();
+  }
 }
 

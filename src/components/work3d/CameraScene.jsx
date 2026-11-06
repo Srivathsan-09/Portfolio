@@ -68,17 +68,17 @@ function SceneContent({
   const [isEmerged, setIsEmerged] = useState(reducedMotion);
   const isEmergedRef = useRef(reducedMotion);
 
-  // Dynamic Camera & Card layout coordinates shifted gracefully towards right
+  // Dynamic Camera & Card layout coordinates: centered on mobile, right-aligned on desktop
   const cameraPos = useMemo(() => (
     isMobile
-      ? [0, 1.45, 0]
+      ? [0, 0, 0]
       : isTablet
       ? [0.45, 0, 0]
       : [0.72, 0, 0]
   ), [isMobile, isTablet]);
 
   // Camera scale: large, prominent centerpiece
-  const cameraScale = isMobile ? 0.98 : isTablet ? 1.18 : 1.38;
+  const cameraScale = isMobile ? 0.90 : isTablet ? 1.18 : 1.38;
 
   // Lens emergence origin in world coordinates (front of DSLR lens barrel)
   const lensOrigin = useMemo(() => [
@@ -87,29 +87,58 @@ function SceneContent({
     cameraPos[2] + 1.35,
   ], [cameraPos]);
 
-  // Final 3D composition coordinates for the 4 collections around the camera
-  const targetCoordinates = useMemo(() => (
-    isMobile
-      ? [
-          { pos: [-1.08, -0.48, 0.35], rot: [0.05, 0.10, -0.02] },
-          { pos: [1.08, -0.48, 0.35], rot: [0.05, -0.10, 0.02] },
-          { pos: [-1.08, -2.15, 0.50], rot: [-0.04, 0.10, -0.02] },
-          { pos: [1.08, -2.15, 0.50], rot: [-0.04, -0.10, 0.02] },
-        ]
-      : isTablet
-      ? [
-          { pos: [-1.95, 1.25, 0.45], rot: [0.05, 0.20, -0.03] },
-          { pos: [-2.02, -1.25, 0.35], rot: [-0.04, 0.22, 0.03] },
-          { pos: [2.85, 1.20, 0.40], rot: [0.05, -0.20, 0.03] },
-          { pos: [2.90, -1.25, 0.45], rot: [-0.05, -0.20, -0.03] },
-        ]
-      : [
-          { pos: [-1.95, 1.32, 0.50], rot: [0.05, 0.24, -0.03] },  // Top-Left: PORTRAITS
-          { pos: [-2.05, -1.35, 0.40], rot: [-0.04, 0.26, 0.03] }, // Bottom-Left: NATURE
-          { pos: [3.45, 1.30, 0.45], rot: [0.05, -0.24, 0.03] },   // Top-Right: ARCHITECTURE
-          { pos: [3.55, -1.35, 0.55], rot: [-0.05, -0.24, -0.03] }, // Bottom-Right: MOMENTS
-        ]
-  ), [isMobile, isTablet]);
+  // Scalable, neat 3D composition coordinates for any number of collections around the camera
+  const targetCoordinates = useMemo(() => {
+    const total = collections.length;
+    return collections.map((_, idx) => {
+      if (isMobile) {
+        // Mobile layout: Top 2 cards above camera, Bottom 2 cards below camera.
+        // Scalable for any number of cards: distributes evenly into top and bottom pairs.
+        const half = Math.ceil(total / 2);
+        const isTop = idx < half;
+        const subIdx = isTop ? idx : idx - half;
+        const col = subIdx % 2; // 0 = left, 1 = right
+        const row = Math.floor(subIdx / 2);
+
+        const x = col === 0 ? -1.16 : 1.16;
+        const yBase = 1.62 + row * 1.55;
+        const y = isTop ? yBase : -yBase;
+        const z = 0.40;
+
+        const rotX = isTop ? 0.06 : -0.05;
+        const rotY = col === 0 ? 0.13 : -0.13;
+        const rotZ = col === 0 ? -0.02 : 0.02;
+
+        return { pos: [x, y, z], rot: [rotX, rotY, rotZ] };
+      }
+
+      if (isTablet) {
+        const col = idx % 2;
+        const isTop = idx < 2;
+        return {
+          pos: [
+            col === 0 ? -1.95 : 2.85,
+            isTop ? 1.25 : -1.25,
+            0.42,
+          ],
+          rot: [isTop ? 0.05 : -0.04, col === 0 ? 0.20 : -0.20, col === 0 ? -0.03 : 0.03],
+        };
+      }
+
+      // Desktop layout: cards framing the central camera symmetrically
+      const side = idx % 2 === 0 ? 'left' : 'right';
+      const isTop = Math.floor(idx / 2) % 2 === 0;
+      const rowOffset = Math.floor(idx / 4) * 0.4;
+      const x = side === 'left' ? -2.00 : 3.48;
+      const y = (isTop ? 1.32 : -1.35) + (isTop ? rowOffset : -rowOffset);
+      const z = 0.48;
+      const rotX = isTop ? 0.05 : -0.05;
+      const rotY = side === 'left' ? 0.24 : -0.24;
+      const rotZ = side === 'left' ? -0.03 : 0.03;
+
+      return { pos: [x, y, z], rot: [rotX, rotY, rotZ] };
+    });
+  }, [collections, isMobile, isTablet]);
 
   // Direct animation refs for camera assembly and aperture
   const cameraAnimRef = useRef({
@@ -312,7 +341,7 @@ function SceneContent({
       <group position={cameraPos} scale={cameraScale}>
         <RealisticDSLRCamera
           reducedMotion={reducedMotion}
-          showHand={true}
+          showHand={false}
           cameraAnimRef={cameraAnimRef}
         />
       </group>
@@ -394,12 +423,12 @@ export default function CameraScene({ collections, openGalleryModal }) {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[620px] sm:h-[680px] lg:h-[750px] xl:h-[790px] select-none"
+      className="relative w-full h-[740px] sm:h-[760px] lg:h-[750px] xl:h-[790px] select-none"
     >
       <Canvas
         frameloop={isSectionInView ? 'always' : 'demand'}
         camera={{
-          position: [0, 0, isMobile ? 8.4 : isTablet ? 8.6 : 8.8],
+          position: [0, 0, isMobile ? 8.9 : isTablet ? 8.6 : 8.8],
           fov: isMobile ? 54 : isTablet ? 48 : 46,
         }}
         gl={{

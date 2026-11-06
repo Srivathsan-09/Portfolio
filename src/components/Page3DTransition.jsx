@@ -7,6 +7,7 @@ import React, {
   forwardRef,
 } from 'react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Hero from './Hero';
 import About from './About';
 
@@ -208,6 +209,7 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           lastTransitionEndTime.current = Date.now();
           window.history.pushState(null, '', '#about');
           lenisRef?.start();
+          ScrollTrigger.refresh();
           if (callback) callback();
         },
       });
@@ -408,6 +410,7 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           lastTransitionEndTime.current = Date.now();
           window.history.pushState(null, '', '#hero');
           lenisRef?.start();
+          ScrollTrigger.refresh();
           if (callback) callback();
         },
       });
