@@ -250,7 +250,7 @@ export default function RealisticDSLRCamera({
   });
 
   return (
-    <group ref={cameraGroupRef}>
+    <group ref={cameraGroupRef} rotation={[0.06, -Math.PI / 2 + 0.32, -0.03]}>
       {/* 
         Centering offset: bounding box center of dslr_camera.glb is [1.11, 0.02, 0].
         Applying [-1.11, -0.02, 0] centers the camera rotation axis perfectly.
