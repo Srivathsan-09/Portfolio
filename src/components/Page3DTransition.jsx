@@ -47,14 +47,15 @@ const Page3DTransition = forwardRef(function Page3DTransition(
         homeLayerRef.current.style.pointerEvents = 'none';
       }
       if (aboutLayerRef.current) {
-        gsap.set(aboutLayerRef.current, { z: 0, scale: 1.0, opacity: 1 });
+        aboutLayerRef.current.style.display = 'block';
+        aboutLayerRef.current.style.pointerEvents = 'auto';
+        gsap.set(aboutLayerRef.current, { z: 0, scale: 1.0, opacity: 1, transform: 'none' });
       }
       if (shadowOverlayRef.current) {
+        shadowOverlayRef.current.style.display = 'none';
         gsap.set(shadowOverlayRef.current, { opacity: 0 });
       }
-      setTimeout(() => {
-        aboutComponentRef.current?.playReveal?.();
-      }, 50);
+      aboutComponentRef.current?.playReveal?.();
     } else {
       if (homeLayerRef.current) {
         homeLayerRef.current.style.display = 'block';
@@ -67,15 +68,19 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           rotationY: 0,
           rotationZ: 0,
           opacity: 1,
+          transform: 'none',
         });
       }
       if (homeShadowRef.current) {
         gsap.set(homeShadowRef.current, { opacity: 0 });
       }
       if (aboutLayerRef.current) {
-        gsap.set(aboutLayerRef.current, { z: -80, scale: 0.96, opacity: 0.7 });
+        aboutLayerRef.current.style.display = 'block';
+        aboutLayerRef.current.style.pointerEvents = 'none';
+        gsap.set(aboutLayerRef.current, { z: -80, scale: 0.96, opacity: 0.5 });
       }
       if (shadowOverlayRef.current) {
+        shadowOverlayRef.current.style.display = 'block';
         gsap.set(shadowOverlayRef.current, { opacity: 0.65 });
       }
     }
@@ -125,6 +130,11 @@ const Page3DTransition = forwardRef(function Page3DTransition(
             }
             if (aboutLayerRef.current) {
               aboutLayerRef.current.style.willChange = 'auto';
+              aboutLayerRef.current.style.pointerEvents = 'auto';
+              gsap.set(aboutLayerRef.current, { transform: 'none', opacity: 1 });
+            }
+            if (shadowOverlayRef.current) {
+              shadowOverlayRef.current.style.display = 'none';
             }
             setCurrentView('about');
             setIsTransitioning(false);
@@ -147,6 +157,11 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           }
           if (aboutLayerRef.current) {
             aboutLayerRef.current.style.willChange = 'auto';
+            aboutLayerRef.current.style.pointerEvents = 'auto';
+            gsap.set(aboutLayerRef.current, { transform: 'none', opacity: 1 });
+          }
+          if (shadowOverlayRef.current) {
+            shadowOverlayRef.current.style.display = 'none';
           }
           setCurrentView('about');
           setIsTransitioning(false);
@@ -265,6 +280,9 @@ const Page3DTransition = forwardRef(function Page3DTransition(
       if (aboutLayerRef.current) {
         aboutLayerRef.current.style.willChange = 'transform, opacity';
       }
+      if (shadowOverlayRef.current) {
+        shadowOverlayRef.current.style.display = 'block';
+      }
 
       if (window.scrollY > 0) {
         if (lenisRef) {
@@ -288,8 +306,10 @@ const Page3DTransition = forwardRef(function Page3DTransition(
               if (homeLayerRef.current) {
                 homeLayerRef.current.style.pointerEvents = 'auto';
                 homeLayerRef.current.style.willChange = 'auto';
+                gsap.set(homeLayerRef.current, { transform: 'none', opacity: 1 });
               }
               if (aboutLayerRef.current) {
+                aboutLayerRef.current.style.pointerEvents = 'none';
                 aboutLayerRef.current.style.willChange = 'auto';
               }
               setCurrentView('home');
@@ -306,12 +326,12 @@ const Page3DTransition = forwardRef(function Page3DTransition(
 
       // Position Home at offscreen diagonal flight position
       gsap.set(homeLayerRef.current, {
-        x: '125vw',
-        y: '-50vh',
-        z: 320,
-        rotationX: 22,
-        rotationY: -30,
-        rotationZ: 9,
+        x: '120vw',
+        y: '-45vh',
+        z: 280,
+        rotationX: 20,
+        rotationY: -28,
+        rotationZ: 8,
         opacity: 0,
       });
 
@@ -324,8 +344,10 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           if (homeLayerRef.current) {
             homeLayerRef.current.style.pointerEvents = 'auto';
             homeLayerRef.current.style.willChange = 'auto';
+            gsap.set(homeLayerRef.current, { transform: 'none', opacity: 1 });
           }
           if (aboutLayerRef.current) {
+            aboutLayerRef.current.style.pointerEvents = 'none';
             aboutLayerRef.current.style.willChange = 'auto';
           }
           setCurrentView('home');
@@ -342,8 +364,8 @@ const Page3DTransition = forwardRef(function Page3DTransition(
         {
           z: -80,
           scale: 0.96,
-          opacity: 0.7,
-          duration: 0.62,
+          opacity: 0.5,
+          duration: 0.58,
           ease: 'power2.inOut',
         },
         0
@@ -354,7 +376,7 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           shadowOverlayRef.current,
           {
             opacity: 0.65,
-            duration: 0.55,
+            duration: 0.50,
             ease: 'power2.inOut',
           },
           0
@@ -443,44 +465,10 @@ const Page3DTransition = forwardRef(function Page3DTransition(
     };
   }, [currentView, isTransitioning, transitionToAbout, transitionToHome]);
 
-  // Scroll down / touch swipe gesture on Home to trigger physical 3D departure
-  useEffect(() => {
-    let touchStartY = 0;
-
-    const handleWheel = (e) => {
-      if (currentView === 'home' && !isTransitioning && e.deltaY > 30 && window.scrollY <= 10) {
-        transitionToAbout();
-      }
-    };
-
-    const handleTouchStart = (e) => {
-      touchStartY = e.touches[0].clientY;
-    };
-
-    const handleTouchMove = (e) => {
-      if (currentView === 'home' && !isTransitioning && window.scrollY <= 10) {
-        const touchCurrentY = e.touches[0].clientY;
-        if (touchStartY - touchCurrentY > 45) {
-          transitionToAbout();
-        }
-      }
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: true });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-    };
-  }, [currentView, isTransitioning, transitionToAbout]);
-
   return (
     <div
       ref={stageRef}
-      className="relative w-full overflow-hidden select-none"
+      className="relative w-full overflow-hidden"
       style={{
         perspective: '1400px',
         perspectiveOrigin: '50% 40%',
@@ -508,7 +496,7 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           {/* Ambient shadow overlay representing depth underneath Home layer */}
           <div
             ref={shadowOverlayRef}
-            className="absolute inset-0 bg-[#080808] pointer-events-none z-30 transition-opacity duration-300"
+            className="absolute inset-0 bg-[#080808] pointer-events-none z-30"
           />
         </div>
 

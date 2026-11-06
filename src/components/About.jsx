@@ -15,8 +15,6 @@ const About = forwardRef(function About({ scrollToSection, isLayer = false }, re
   const quoteRef = useRef(null);
   const ctaRef = useRef(null);
   const bgWrapperRef = useRef(null);
-  const lightSweepRef = useRef(null);
-  const curtainPanelsRef = useRef([]);
 
   /**
    * Programmatic Staggered Content Reveal
@@ -24,82 +22,33 @@ const About = forwardRef(function About({ scrollToSection, isLayer = false }, re
    */
   const playReveal = () => {
     const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (isReduced) {
-      gsap.set(
-        [
-          tagRef.current,
-          headingRef.current,
-          textRef.current,
-          quoteRef.current,
-          ctaRef.current,
-        ].filter(Boolean),
-        { opacity: 1, x: 0, y: 0 }
-      );
-      const validPanels = curtainPanelsRef.current.filter(Boolean);
-      if (validPanels.length > 0) {
-        gsap.set(validPanels, { scaleY: 0 });
-      }
-      return;
-    }
+    if (isReduced) return;
 
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    const targets = [
+      tagRef.current,
+      headingRef.current,
+      textRef.current,
+      quoteRef.current,
+      ctaRef.current,
+    ].filter(Boolean);
 
-    // 1. Tag, Heading, Text, Quote, CTA Staggered Entrance
-    tl.fromTo(tagRef.current, { x: -28, opacity: 0 }, { x: 0, opacity: 1, duration: 0.65 }, 0.05)
-      .fromTo(headingRef.current, { y: 42, opacity: 0 }, { y: 0, opacity: 1, duration: 0.85 }, 0.18)
-      .fromTo(
-        bgWrapperRef.current,
-        { scale: 1.05 },
-        { scale: 1.0, duration: 1.45, ease: 'expo.out' },
-        0.2
-      )
-      .fromTo(textRef.current, { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 0.75 }, 0.32)
-      .fromTo(quoteRef.current, { x: -22, opacity: 0 }, { x: 0, opacity: 1, duration: 0.75 }, 0.42)
-      .fromTo(ctaRef.current, { y: 22, opacity: 0 }, { y: 0, opacity: 1, duration: 0.65 }, 0.52);
-
-    // 2. Multi-Panel Curtain Reveal on Portrait
-    const validPanels = curtainPanelsRef.current.filter(Boolean);
-    if (validPanels.length > 0) {
-      gsap.set(validPanels, { scaleY: 1 });
-      tl.to(
-        validPanels,
-        {
-          scaleY: 0,
-          transformOrigin: 'top',
-          duration: 1.15,
-          stagger: 0.07,
-          ease: 'power4.inOut',
-        },
-        0.18
-      );
-    }
-
-    // 3. Warm amber light sweep across the portrait
-    if (lightSweepRef.current) {
-      tl.fromTo(
-        lightSweepRef.current,
-        { x: '-100%', opacity: 0 },
-        { x: '220%', opacity: 1, duration: 1.35, ease: 'power2.inOut' },
-        0.3
-      );
-    }
+    gsap.fromTo(
+      targets,
+      { y: 20, opacity: 0.4 },
+      { y: 0, opacity: 1, duration: 0.55, stagger: 0.08, ease: 'power2.out' }
+    );
   };
 
   const resetReveal = () => {
-    gsap.set(
-      [
-        tagRef.current,
-        headingRef.current,
-        textRef.current,
-        quoteRef.current,
-        ctaRef.current,
-      ].filter(Boolean),
-      { opacity: 0 }
-    );
-    const validPanels = curtainPanelsRef.current.filter(Boolean);
-    if (validPanels.length > 0) {
-      gsap.set(validPanels, { scaleY: 1 });
-    }
+    // Keep elements fully visible to avoid blank screens
+    const targets = [
+      tagRef.current,
+      headingRef.current,
+      textRef.current,
+      quoteRef.current,
+      ctaRef.current,
+    ].filter(Boolean);
+    gsap.set(targets, { opacity: 1, y: 0, x: 0 });
   };
 
   useImperativeHandle(ref, () => ({
@@ -111,73 +60,8 @@ const About = forwardRef(function About({ scrollToSection, isLayer = false }, re
     // If running in layered 3D mode, the 3D transition coordinates the initial reveal
     if (isLayer) return;
 
-    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
     const ctx = gsap.context(() => {
-      // 1. Staggered text & elements entrance on scroll enter
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 75%',
-          toggleActions: 'play none none reverse',
-        },
-        defaults: { ease: 'power3.out', duration: 0.8 },
-      });
-
-      tl.fromTo(tagRef.current, { x: -25, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6 })
-        .fromTo(headingRef.current, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9 }, '-=0.3')
-        .fromTo(textRef.current, { y: 25, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, '-=0.5')
-        .fromTo(quoteRef.current, { x: -20, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7 }, '-=0.4')
-        .fromTo(ctaRef.current, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, '-=0.4');
-
-      // 2. Multi-Panel Curtain Reveal on Scroll Entry (Once only)
-      if (!isReduced) {
-        const revealTl = gsap.timeline({
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 75%',
-            once: true,
-          },
-        });
-
-        revealTl.fromTo(
-          bgWrapperRef.current,
-          { scale: 1.04 },
-          { scale: 1.0, duration: 1.5, ease: 'expo.out' },
-          0
-        );
-
-        const validPanels = curtainPanelsRef.current.filter(Boolean);
-        if (validPanels.length > 0) {
-          revealTl.to(
-            validPanels,
-            {
-              scaleY: 0,
-              transformOrigin: 'top',
-              duration: 1.2,
-              stagger: 0.08,
-              ease: 'power4.inOut',
-            },
-            0.1
-          );
-        }
-
-        if (lightSweepRef.current) {
-          revealTl.fromTo(
-            lightSweepRef.current,
-            { x: '-100%', opacity: 0 },
-            { x: '220%', opacity: 1, duration: 1.35, ease: 'power2.inOut' },
-            0.25
-          );
-        }
-      } else {
-        const validPanels = curtainPanelsRef.current.filter(Boolean);
-        if (validPanels.length > 0) {
-          gsap.set(validPanels, { scaleY: 0 });
-        }
-      }
-
-      // 3. Subtle Parallax Scrub on Image Container
+      // 1. Subtle parallax scrub on image container
       gsap.fromTo(
         bgWrapperRef.current,
         { y: -16 },
@@ -232,32 +116,12 @@ const About = forwardRef(function About({ scrollToSection, isLayer = false }, re
             <img
               src={aboutPortrait}
               alt="Srivathsan photographer portrait in blue denim shirt holding Canon camera with white telephoto lens"
-              loading="lazy"
+              loading="eager"
+              fetchPriority="high"
               decoding="async"
               className="w-full h-full object-cover object-[center_top] sm:object-[72%_25%] lg:object-[72%_center] xl:object-[75%_center]"
             />
           </picture>
-
-          {/* Warm Light Sweep Layer */}
-          <div
-            ref={lightSweepRef}
-            className="absolute inset-0 pointer-events-none z-10 opacity-0 transform-gpu will-change-transform"
-            style={{
-              background:
-                'linear-gradient(105deg, transparent 20%, rgba(255, 152, 0, 0.12) 42%, rgba(255, 176, 46, 0.28) 50%, rgba(255, 152, 0, 0.12) 58%, transparent 80%)',
-            }}
-          />
-
-          {/* Multi-Panel Curtain Reveal: 5 Seamless Vertical Panels */}
-          <div className="absolute inset-0 flex pointer-events-none z-20 overflow-hidden">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                ref={(el) => (curtainPanelsRef.current[i] = el)}
-                className="flex-1 h-full bg-[#080808] -mr-[1px] origin-top will-change-transform"
-              />
-            ))}
-          </div>
         </div>
 
         {/* Desktop Gradient: Deep cinematic black on left for text readability -> Transparent on right */}

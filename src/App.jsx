@@ -106,6 +106,25 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Synchronize hash navigation with active section
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash;
+      if (hash === '#about') {
+        setActiveSection('about');
+      } else if (hash === '#hero' || hash === '' || hash === '#') {
+        setActiveSection('hero');
+      } else if (hash === '#work') {
+        setActiveSection('work');
+      } else if (hash === '#contact') {
+        setActiveSection('contact');
+      }
+    };
+
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
   /**
    * Unified Navigation Orchestrator
    * Coordinates 3D transitions for Home <-> About and smooth scroll for other sections
@@ -128,39 +147,24 @@ export default function App() {
         page3DTransitionRef.current.transitionToAbout();
         setActiveSection('about');
       } else {
-        const el = document.getElementById('about');
-        if (el) {
-          if (lenisRef) {
-            lenisRef.scrollTo(el, { offset: -60 });
-          } else {
-            el.scrollIntoView({ behavior: 'smooth' });
-          }
+        if (lenisRef) {
+          lenisRef.scrollTo(0, { offset: 0 });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         setActiveSection('about');
       }
     } else {
       // id === 'work' or 'contact'
-      if (page3DTransitionRef.current?.currentView === 'home') {
-        page3DTransitionRef.current.transitionToAbout(() => {
-          const el = document.getElementById(id);
-          if (el) {
-            if (lenisRef) {
-              lenisRef.scrollTo(el, { offset: -60 });
-            } else {
-              el.scrollIntoView({ behavior: 'smooth' });
-            }
-          }
-        });
-      } else {
-        const el = document.getElementById(id);
-        if (el) {
-          if (lenisRef) {
-            lenisRef.scrollTo(el, { offset: -60 });
-          } else {
-            el.scrollIntoView({ behavior: 'smooth' });
-          }
+      const el = document.getElementById(id);
+      if (el) {
+        if (lenisRef) {
+          lenisRef.scrollTo(el, { offset: -60 });
+        } else {
+          el.scrollIntoView({ behavior: 'smooth' });
         }
       }
+      setActiveSection(id);
     }
   };
 
