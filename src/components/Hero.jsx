@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import heroMobile from '../assets/hero-mobile.jpg';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -181,15 +182,18 @@ export default function Hero({ scrollToSection }) {
               : 'left-0 w-full'
           }`}
         >
-          {/* Pristine Original Photograph */}
-          <img
-            src={currentSlide.image}
-            alt={currentSlide.alt}
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-            className={`w-full h-full object-cover ${currentSlide.position}`}
-          />
+          {/* Pristine Original Photograph: Mobile portrait crop & Desktop widescreen */}
+          <picture className="block w-full h-full">
+            <source media="(max-width: 639px)" srcSet={heroMobile} />
+            <img
+              src={currentSlide.image}
+              alt={currentSlide.alt}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              className={`w-full h-full object-cover object-[center_top] sm:${currentSlide.position}`}
+            />
+          </picture>
 
           {/* Warm Light Sweep Layer */}
           <div

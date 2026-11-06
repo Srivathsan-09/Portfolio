@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import aboutPortrait from '../assets/about-portrait.jpg';
+import aboutMobile from '../assets/about-mobile.jpg';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -136,14 +137,17 @@ export default function About({ scrollToSection }) {
          ========================================================================= */}
       <div className="absolute inset-0 w-full h-full z-0 select-none pointer-events-none overflow-hidden">
         <div ref={bgWrapperRef} className="absolute inset-0 w-full h-full will-change-transform">
-          {/* Pristine Original Portrait */}
-          <img
-            src={aboutPortrait}
-            alt="Srivathsan photographer portrait in blue denim shirt holding Canon camera with white telephoto lens"
-            loading="lazy"
-            decoding="async"
-            className="w-full h-full object-cover object-[72%_18%] sm:object-[72%_25%] lg:object-[72%_center] xl:object-[75%_center]"
-          />
+          {/* Pristine Original Portrait: Mobile centered crop & Desktop wide */}
+          <picture className="block w-full h-full">
+            <source media="(max-width: 639px)" srcSet={aboutMobile} />
+            <img
+              src={aboutPortrait}
+              alt="Srivathsan photographer portrait in blue denim shirt holding Canon camera with white telephoto lens"
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover object-[center_top] sm:object-[72%_25%] lg:object-[72%_center] xl:object-[75%_center]"
+            />
+          </picture>
 
           {/* Warm Light Sweep Layer */}
           <div
