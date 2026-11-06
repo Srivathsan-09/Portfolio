@@ -3,7 +3,23 @@ import { createPortal } from 'react-dom';
 import { ArrowRight, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import CameraScene from './work3d/CameraScene';
+const CameraScene = React.lazy(() => import('./work3d/CameraScene'));
+
+function CameraSceneSkeleton() {
+  return (
+    <div className="relative w-full h-[580px] sm:h-[640px] lg:h-[720px] flex items-center justify-center rounded-2xl overflow-hidden select-none">
+      <div className="absolute w-72 h-72 rounded-full bg-[#FF9800]/8 blur-[120px] animate-pulse pointer-events-none" />
+      <div className="relative flex flex-col items-center gap-3 text-white/40">
+        <div className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full border border-[#FF9800]/50 animate-ping opacity-35" />
+        </div>
+        <span className="text-[10px] font-mono tracking-[0.25em] text-[#FF9800]/80 uppercase">
+          INITIALIZING 3D STUDIO...
+        </span>
+      </div>
+    </div>
+  );
+}
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -339,8 +355,10 @@ export default function Work() {
   const [activeCategoryModal, setActiveCategoryModal] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [modalFilter, setModalFilter] = useState('ALL');
+  const [shouldMount3D, setShouldMount3D] = useState(false);
 
   const sectionRef = useRef(null);
+  const canvasContainerRef = useRef(null);
   const tagRef = useRef(null);
   const titleRef = useRef(null);
   const subtextRef = useRef(null);
@@ -349,6 +367,25 @@ export default function Work() {
   const lightboxImgRef = useRef(null);
   const prevFilterRef = useRef(modalFilter);
   const prevModalStateRef = useRef(activeCategoryModal);
+
+  // Progressive 3D Loading: Mount heavy Three.js scene only when approaching viewport
+  useEffect(() => {
+    const el = canvasContainerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldMount3D(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '450px 0px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const workCards = [
     {
@@ -712,11 +749,20 @@ export default function Work() {
             </div>
 
             {/* RIGHT COLUMN: 3D Camera & Emerging Photographs Canvas */}
-            <div className="lg:col-span-8 flex items-center justify-center relative min-h-[580px] sm:min-h-[640px] lg:min-h-[720px] w-full">
-              <CameraScene
-                collections={workCards}
-                openGalleryModal={openGalleryModal}
-              />
+            <div
+              ref={canvasContainerRef}
+              className="lg:col-span-8 flex items-center justify-center relative min-h-[580px] sm:min-h-[640px] lg:min-h-[720px] w-full"
+            >
+              {shouldMount3D ? (
+                <React.Suspense fallback={<CameraSceneSkeleton />}>
+                  <CameraScene
+                    collections={workCards}
+                    openGalleryModal={openGalleryModal}
+                  />
+                </React.Suspense>
+              ) : (
+                <CameraSceneSkeleton />
+              )}
             </div>
 
           </div>

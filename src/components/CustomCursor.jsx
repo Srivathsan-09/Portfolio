@@ -1,13 +1,17 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function CustomCursor() {
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const ringRef = useRef(null);
   const dotRef = useRef(null);
   const viewBadgeRef = useRef(null);
 
   useEffect(() => {
     // Disable custom cursor on touch devices
-    if (window.matchMedia('(pointer: coarse)').matches) return;
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      setIsTouchDevice(true);
+      return;
+    }
 
     let targetX = -100;
     let targetY = -100;
@@ -114,6 +118,8 @@ export default function CustomCursor() {
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
+
+  if (isTouchDevice) return null;
 
   return (
     <>

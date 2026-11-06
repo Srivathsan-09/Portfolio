@@ -11,14 +11,13 @@ import Hero from './Hero';
 import About from './About';
 
 /**
- * Cinematic 3D Page Transition Component
+ * Optimized Cinematic 3D Page Transition Component
  *
- * Orchestrates physical 3D layer movement between Home and About:
- * - Home behaves as a physical 3D surface sitting over About
- * - When transitioning to About: Home lifts, tilts on X and Y, and flies diagonally out in perspective
- * - About is revealed smoothly underneath with depth elevation and staggered content unveiling
- * - Seamless reverse physics when navigating back to Home
- * - Full support for browser back/forward history and reduced motion accessibility
+ * Performance-tuned physical 3D layer movement between Home and About:
+ * - Ultra-responsive transition times (0.82s departure, 0.72s return)
+ * - GPU-composited shadow opacity instead of expensive dynamic blur filters
+ * - Dynamic willChange allocation that frees GPU memory on completion
+ * - Demand-driven rendering and instant accessibility fallback
  */
 const Page3DTransition = forwardRef(function Page3DTransition(
   { onNavigate, lenisRef },
@@ -26,6 +25,7 @@ const Page3DTransition = forwardRef(function Page3DTransition(
 ) {
   const stageRef = useRef(null);
   const homeLayerRef = useRef(null);
+  const homeShadowRef = useRef(null);
   const aboutLayerRef = useRef(null);
   const shadowOverlayRef = useRef(null);
   const aboutComponentRef = useRef(null);
@@ -54,7 +54,7 @@ const Page3DTransition = forwardRef(function Page3DTransition(
       }
       setTimeout(() => {
         aboutComponentRef.current?.playReveal?.();
-      }, 100);
+      }, 50);
     } else {
       if (homeLayerRef.current) {
         homeLayerRef.current.style.display = 'block';
@@ -67,8 +67,10 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           rotationY: 0,
           rotationZ: 0,
           opacity: 1,
-          boxShadow: 'none',
         });
+      }
+      if (homeShadowRef.current) {
+        gsap.set(homeShadowRef.current, { opacity: 0 });
       }
       if (aboutLayerRef.current) {
         gsap.set(aboutLayerRef.current, { z: -80, scale: 0.96, opacity: 0.7 });
@@ -81,7 +83,7 @@ const Page3DTransition = forwardRef(function Page3DTransition(
   }, []);
 
   /**
-   * Cinematic 3D Home Exit Transition -> Reveal About
+   * High-Performance Cinematic 3D Home Exit Transition -> Reveal About (0.82s)
    */
   const transitionToAbout = useCallback(
     (callback) => {
@@ -92,9 +94,12 @@ const Page3DTransition = forwardRef(function Page3DTransition(
 
       setIsTransitioning(true);
 
-      // Disable interaction with outgoing Home layer
       if (homeLayerRef.current) {
         homeLayerRef.current.style.pointerEvents = 'none';
+        homeLayerRef.current.style.willChange = 'transform, opacity';
+      }
+      if (aboutLayerRef.current) {
+        aboutLayerRef.current.style.willChange = 'transform, opacity';
       }
 
       // Scroll to top cleanly before initiating 3D perspective animation
@@ -111,11 +116,15 @@ const Page3DTransition = forwardRef(function Page3DTransition(
       if (isReduced) {
         gsap.to(homeLayerRef.current, {
           opacity: 0,
-          duration: 0.35,
+          duration: 0.25,
           ease: 'power2.out',
           onComplete: () => {
             if (homeLayerRef.current) {
               homeLayerRef.current.style.display = 'none';
+              homeLayerRef.current.style.willChange = 'auto';
+            }
+            if (aboutLayerRef.current) {
+              aboutLayerRef.current.style.willChange = 'auto';
             }
             setCurrentView('about');
             setIsTransitioning(false);
@@ -127,13 +136,17 @@ const Page3DTransition = forwardRef(function Page3DTransition(
         return;
       }
 
-      // Pause Lenis smooth scroll during physical 3D flight to eliminate any scroll jump
+      // Pause Lenis smooth scroll during physical 3D flight to prevent stutter
       lenisRef?.stop();
 
       const tl = gsap.timeline({
         onComplete: () => {
           if (homeLayerRef.current) {
             homeLayerRef.current.style.display = 'none';
+            homeLayerRef.current.style.willChange = 'auto';
+          }
+          if (aboutLayerRef.current) {
+            aboutLayerRef.current.style.willChange = 'auto';
           }
           setCurrentView('about');
           setIsTransitioning(false);
@@ -143,60 +156,72 @@ const Page3DTransition = forwardRef(function Page3DTransition(
         },
       });
 
-      // 1. HOME EXIT: Phase 1 — Physical 3D Lift & Initial Tilt (0.0s - 0.38s)
+      // 1. HOME EXIT: Phase 1 — Physical 3D Lift & Initial Tilt (0.0s - 0.24s)
       tl.to(
         homeLayerRef.current,
         {
-          z: 90,
-          y: -20,
-          rotationX: 7.5,
-          rotationY: -10.5,
-          rotationZ: 2.2,
-          boxShadow: '0 60px 140px -20px rgba(0, 0, 0, 0.95), 0 0 60px rgba(255, 152, 0, 0.22)',
-          duration: 0.38,
+          z: 85,
+          y: -16,
+          rotationX: 7,
+          rotationY: -10,
+          rotationZ: 2,
+          duration: 0.24,
           ease: 'power2.out',
         },
         0
       );
 
-      // 2. HOME EXIT: Phase 2 — Diagonal Acceleration & Flight Out (0.38s - 1.25s)
+      // Fast GPU shadow opacity reveal
+      if (homeShadowRef.current) {
+        tl.to(
+          homeShadowRef.current,
+          {
+            opacity: 1,
+            duration: 0.22,
+            ease: 'power2.out',
+          },
+          0
+        );
+      }
+
+      // 2. HOME EXIT: Phase 2 — Diagonal Acceleration & Clean Flight Out (0.24s - 0.82s)
       tl.to(
         homeLayerRef.current,
         {
           x: '125vw',
-          y: '-52vh',
-          z: 340,
-          rotationX: 24,
-          rotationY: -32,
-          rotationZ: 9.5,
-          duration: 0.88,
+          y: '-50vh',
+          z: 320,
+          rotationX: 22,
+          rotationY: -30,
+          rotationZ: 9,
+          duration: 0.58,
           ease: 'power3.in',
         },
-        0.38
+        0.24
       );
 
-      // Smooth opacity fade towards the final leg of flight
+      // Opacity fade during final leg of flight
       tl.to(
         homeLayerRef.current,
         {
           opacity: 0,
-          duration: 0.42,
+          duration: 0.28,
           ease: 'power1.out',
         },
-        0.82
+        0.54
       );
 
-      // 3. ABOUT ENTRANCE: Rises from 3D depth smoothly (0.30s - 1.15s)
+      // 3. ABOUT ENTRANCE: Rises from 3D depth smoothly (0.20s - 0.80s)
       tl.to(
         aboutLayerRef.current,
         {
           z: 0,
           scale: 1.0,
           opacity: 1.0,
-          duration: 0.88,
+          duration: 0.62,
           ease: 'power3.out',
         },
-        0.3
+        0.20
       );
 
       // Dissolve ambient shadow overlay
@@ -205,23 +230,23 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           shadowOverlayRef.current,
           {
             opacity: 0,
-            duration: 0.65,
+            duration: 0.48,
             ease: 'power2.out',
           },
-          0.28
+          0.18
         );
       }
 
-      // 4. ABOUT CONTENT: Staggered reveal of section tag, heading, portrait, text, quote, CTA
+      // 4. ABOUT CONTENT: Staggered reveal triggered promptly at 0.28s
       tl.add(() => {
         aboutComponentRef.current?.playReveal?.();
-      }, 0.48);
+      }, 0.28);
     },
     [currentView, isTransitioning, lenisRef]
   );
 
   /**
-   * Cinematic 3D Home Return Transition (About -> Home)
+   * High-Performance Cinematic 3D Home Return Transition (About -> Home) (0.72s)
    */
   const transitionToHome = useCallback(
     (callback) => {
@@ -232,13 +257,15 @@ const Page3DTransition = forwardRef(function Page3DTransition(
 
       setIsTransitioning(true);
 
-      // Make home layer visible again offscreen
       if (homeLayerRef.current) {
         homeLayerRef.current.style.display = 'block';
         homeLayerRef.current.style.pointerEvents = 'none';
+        homeLayerRef.current.style.willChange = 'transform, opacity';
+      }
+      if (aboutLayerRef.current) {
+        aboutLayerRef.current.style.willChange = 'transform, opacity';
       }
 
-      // Scroll to top cleanly
       if (window.scrollY > 0) {
         if (lenisRef) {
           lenisRef.scrollTo(0, { immediate: true });
@@ -255,11 +282,15 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           { opacity: 0 },
           {
             opacity: 1,
-            duration: 0.35,
+            duration: 0.25,
             ease: 'power2.out',
             onComplete: () => {
               if (homeLayerRef.current) {
                 homeLayerRef.current.style.pointerEvents = 'auto';
+                homeLayerRef.current.style.willChange = 'auto';
+              }
+              if (aboutLayerRef.current) {
+                aboutLayerRef.current.style.willChange = 'auto';
               }
               setCurrentView('home');
               setIsTransitioning(false);
@@ -276,19 +307,26 @@ const Page3DTransition = forwardRef(function Page3DTransition(
       // Position Home at offscreen diagonal flight position
       gsap.set(homeLayerRef.current, {
         x: '125vw',
-        y: '-52vh',
-        z: 340,
-        rotationX: 24,
-        rotationY: -32,
-        rotationZ: 9.5,
+        y: '-50vh',
+        z: 320,
+        rotationX: 22,
+        rotationY: -30,
+        rotationZ: 9,
         opacity: 0,
-        boxShadow: '0 60px 140px -20px rgba(0, 0, 0, 0.95), 0 0 60px rgba(255, 152, 0, 0.22)',
       });
+
+      if (homeShadowRef.current) {
+        gsap.set(homeShadowRef.current, { opacity: 1 });
+      }
 
       const tl = gsap.timeline({
         onComplete: () => {
           if (homeLayerRef.current) {
             homeLayerRef.current.style.pointerEvents = 'auto';
+            homeLayerRef.current.style.willChange = 'auto';
+          }
+          if (aboutLayerRef.current) {
+            aboutLayerRef.current.style.willChange = 'auto';
           }
           setCurrentView('home');
           setIsTransitioning(false);
@@ -298,50 +336,49 @@ const Page3DTransition = forwardRef(function Page3DTransition(
         },
       });
 
-      // About recedes back into 3D depth
+      // About recedes into 3D depth
       tl.to(
         aboutLayerRef.current,
         {
           z: -80,
           scale: 0.96,
           opacity: 0.7,
-          duration: 0.85,
+          duration: 0.62,
           ease: 'power2.inOut',
         },
         0
       );
 
-      // Shadow overlay fades back over About
       if (shadowOverlayRef.current) {
         tl.to(
           shadowOverlayRef.current,
           {
             opacity: 0.65,
-            duration: 0.75,
+            duration: 0.55,
             ease: 'power2.inOut',
           },
           0
         );
       }
 
-      // Home flies back into viewport with reverse perspective
+      // Home flies back into viewport
       tl.to(
         homeLayerRef.current,
         {
           x: 0,
-          y: -20,
-          z: 90,
-          rotationX: 7.5,
-          rotationY: -10.5,
-          rotationZ: 2.2,
+          y: -16,
+          z: 85,
+          rotationX: 7,
+          rotationY: -10,
+          rotationZ: 2,
           opacity: 1,
-          duration: 0.84,
+          duration: 0.52,
           ease: 'power3.out',
         },
-        0.08
+        0.05
       );
 
-      // Home gently settles down onto surface and shadow tightens
+      // Home settles down onto surface
       tl.to(
         homeLayerRef.current,
         {
@@ -350,12 +387,23 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           rotationX: 0,
           rotationY: 0,
           rotationZ: 0,
-          boxShadow: 'none',
-          duration: 0.42,
+          duration: 0.28,
           ease: 'power2.inOut',
         },
-        0.88
+        0.50
       );
+
+      if (homeShadowRef.current) {
+        tl.to(
+          homeShadowRef.current,
+          {
+            opacity: 0,
+            duration: 0.24,
+            ease: 'power2.inOut',
+          },
+          0.52
+        );
+      }
     },
     [currentView, isTransitioning, lenisRef]
   );
@@ -449,7 +497,6 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           className="col-start-1 row-start-1 w-full relative"
           style={{
             transformStyle: 'preserve-3d',
-            willChange: 'transform, opacity',
           }}
         >
           <About
@@ -472,11 +519,16 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           style={{
             transformStyle: 'preserve-3d',
             transformOrigin: '35% 65%',
-            willChange: 'transform, opacity, box-shadow',
             backfaceVisibility: 'hidden',
           }}
         >
           <Hero scrollToSection={onNavigate} />
+
+          {/* GPU-composited drop shadow layer during 3D lift */}
+          <div
+            ref={homeShadowRef}
+            className="absolute inset-0 pointer-events-none opacity-0 shadow-[0_50px_120px_-20px_rgba(0,0,0,0.95),0_0_50px_rgba(255,152,0,0.2)] rounded-3xl"
+          />
         </div>
       </div>
     </div>

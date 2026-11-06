@@ -26,8 +26,9 @@ export default function EmergingCard({
   const [texture, setTexture] = useState(null);
   const [hovered, setHovered] = useState(false);
 
-  // Load high-resolution photograph texture with sRGB color space
+  // Load high-resolution photograph texture with sRGB color space & cleanup
   useEffect(() => {
+    let activeTex = null;
     const loader = new THREE.TextureLoader();
     loader.load(
       item.image,
@@ -35,6 +36,7 @@ export default function EmergingCard({
         loadedTex.colorSpace = THREE.SRGBColorSpace;
         loadedTex.generateMipmaps = true;
         loadedTex.minFilter = THREE.LinearMipmapLinearFilter;
+        activeTex = loadedTex;
         setTexture(loadedTex);
       },
       undefined,
@@ -42,6 +44,7 @@ export default function EmergingCard({
     );
     return () => {
       document.body.style.cursor = 'auto';
+      if (activeTex) activeTex.dispose();
     };
   }, [item.image, item.title]);
 

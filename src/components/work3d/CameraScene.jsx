@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect, useMemo, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -10,26 +9,29 @@ import EmergingCard from './EmergingCard';
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Floating Studio Particles for atmospheric depth and lighting
+ * Optimized Floating Studio Particles for atmospheric depth
+ * Scales count dynamically for mobile devices to reduce vertex buffer overhead
  */
-function StudioParticles({ count = 100 }) {
+function StudioParticles({ count = 75, isMobile = false }) {
   const pointsRef = useRef();
-  const [positions] = useState(() => {
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
+  const actualCount = isMobile ? 24 : count;
+
+  const positions = useMemo(() => {
+    const pos = new Float32Array(actualCount * 3);
+    for (let i = 0; i < actualCount; i++) {
       pos[i * 3] = (Math.random() - 0.5) * 16;
       pos[i * 3 + 1] = (Math.random() - 0.5) * 10;
       pos[i * 3 + 2] = (Math.random() - 0.5) * 8;
     }
     return pos;
-  });
+  }, [actualCount]);
 
   return (
     <points ref={pointsRef}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={count}
+          count={actualCount}
           array={positions}
           itemSize={3}
         />
@@ -38,7 +40,7 @@ function StudioParticles({ count = 100 }) {
         size={0.035}
         color="#FFB02E"
         transparent
-        opacity={0.55}
+        opacity={0.5}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
       />
@@ -83,7 +85,6 @@ function SceneContent({
   ], [cameraPos]);
 
   // Final 3D composition coordinates for the 4 collections around the camera
-  // Symmetrically framing the camera with generous negative space
   const targetCoordinates = useMemo(() => (
     isMobile
       ? [
@@ -100,7 +101,6 @@ function SceneContent({
           { pos: [2.90, -1.25, 0.45], rot: [-0.05, -0.20, -0.03] },
         ]
       : [
-          // Desktop balanced composition framing the DSLR shifted to center-right
           { pos: [-1.95, 1.32, 0.50], rot: [0.05, 0.24, -0.03] },  // Top-Left: PORTRAITS
           { pos: [-2.05, -1.35, 0.40], rot: [-0.04, 0.26, 0.03] }, // Bottom-Left: NATURE
           { pos: [3.45, 1.30, 0.45], rot: [0.05, -0.24, 0.03] },   // Top-Right: ARCHITECTURE
@@ -117,7 +117,7 @@ function SceneContent({
     }))
   );
 
-  // GSAP Choreographed Mechanical Assembly & Emergence Timeline
+  // GSAP Choreographed Mechanical Assembly & Emergence Timeline (Optimized timings)
   useEffect(() => {
     if (reducedMotion) {
       setAssemblyProgress(1.0);
@@ -130,7 +130,7 @@ function SceneContent({
 
     const tl = gsap.timeline({
       paused: Boolean(triggerEl),
-      delay: 0.2,
+      delay: 0.1,
       onComplete: () => {
         setHasEmerged(true);
       },
@@ -142,12 +142,12 @@ function SceneContent({
       glow: 2.0,
     };
 
-    // 1. Mechanical Assembly: Components slide together and lock with rotational precision
+    // 1. Mechanical Assembly: Components slide together smoothly
     tl.to(
       animProxy,
       {
         assembly: 1.0,
-        duration: 1.45,
+        duration: 1.1,
         ease: 'power3.inOut',
         onUpdate: () => setAssemblyProgress(animProxy.assembly),
       },
@@ -159,33 +159,33 @@ function SceneContent({
       animProxy,
       {
         aperture: 1.0,
-        duration: 0.6,
-        ease: 'back.out(1.8)',
+        duration: 0.45,
+        ease: 'power2.out',
         onUpdate: () => setApertureOpen(animProxy.aperture),
       },
-      1.15
+      0.85
     );
 
     // 3. Warm Amber Light Flare Surge
     tl.to(
       animProxy,
       {
-        glow: 6.5,
-        duration: 0.45,
+        glow: 5.5,
+        duration: 0.35,
         ease: 'power2.out',
         onUpdate: () => setLensGlowIntensity(animProxy.glow),
       },
-      1.3
+      0.95
     );
     tl.to(
       animProxy,
       {
         glow: 2.5,
-        duration: 0.65,
+        duration: 0.45,
         ease: 'power2.inOut',
         onUpdate: () => setLensGlowIntensity(animProxy.glow),
       },
-      1.75
+      1.3
     );
 
     // 4. Staggered emergence of photographs from the assembled lens
@@ -205,7 +205,7 @@ function SceneContent({
           y: target.pos[1],
           z: target.pos[2],
           scale: 1.0,
-          duration: 1.35,
+          duration: 1.05,
           ease: 'power3.out',
           onUpdate: () => {
             setCardTransforms((prev) => {
@@ -219,7 +219,7 @@ function SceneContent({
             });
           },
         },
-        1.65 + idx * 0.28
+        1.15 + idx * 0.18
       );
     });
 
@@ -244,73 +244,39 @@ function SceneContent({
   // Handle cinematic card selection transition into gallery
   const handleCardClick = (categoryTitle, idx) => {
     setActiveCardClick(idx);
-    // Smooth foreground zoom transition before activating modal
     setTimeout(() => {
       openGalleryModal(categoryTitle);
-      setTimeout(() => setActiveCardClick(null), 450);
-    }, 350);
+      setTimeout(() => setActiveCardClick(null), 300);
+    }, 250);
   };
 
   return (
     <>
-      {/* =========================================================================
-          CINEMATIC STUDIO LIGHTING
-         ========================================================================= */}
-      {/* Ambient Fill */}
-      <ambientLight intensity={1.15} />
+      {/* Cinematic Studio Lighting */}
+      <ambientLight intensity={1.1} />
 
-      {/* Primary Warm Front Key Light */}
       <directionalLight
         position={[-3, 4, 6]}
-        intensity={2.8}
+        intensity={2.6}
         color="#FFF5E5"
-        castShadow
       />
 
-      {/* Front-Right Camera Body Fill Light */}
       <directionalLight
         position={[3.5, 2.5, 5]}
-        intensity={2.0}
+        intensity={1.8}
         color="#FFECD2"
       />
 
-      {/* Signature Amber / Orange Studio Rim Backlight */}
       <directionalLight
         position={[4, -2, -3]}
-        intensity={4.8}
+        intensity={4.5}
         color="#FF9800"
       />
 
-      {/* Top Rim Specular Light */}
-      <spotLight
-        position={[0, 6, 2.5]}
-        intensity={3.4}
-        angle={0.65}
-        penumbra={0.7}
-        color="#FFE4B5"
-      />
+      {/* Optimized Ambient Dust Particles */}
+      <StudioParticles isMobile={isMobile} />
 
-      {/* Front Optical Lens Specular Glint Light */}
-      <pointLight
-        position={[cameraPos[0], cameraPos[1] + 1.2, cameraPos[2] + 4.2]}
-        intensity={1.8}
-        distance={6}
-        color="#FFFFFF"
-      />
-
-      {/* Deep Blue Fill on Shadow Side */}
-      <directionalLight
-        position={[-5, -4, 2]}
-        intensity={0.8}
-        color="#202b3d"
-      />
-
-      {/* Floating Ambient Dust Particles */}
-      <StudioParticles count={isMobile ? 50 : 110} />
-
-      {/* =========================================================================
-          CENTRAL REALISTIC 3D DSLR CAMERA WITH ASSEMBLE ANIMATION & HAND
-         ========================================================================= */}
+      {/* Central DSLR Camera */}
       <group position={cameraPos} scale={cameraScale}>
         <RealisticDSLRCamera
           assemblyProgress={assemblyProgress}
@@ -321,9 +287,7 @@ function SceneContent({
         />
       </group>
 
-      {/* =========================================================================
-          FOUR PHOTOGRAPHY COLLECTIONS EMERGING & FLOATING AROUND THE CAMERA
-         ========================================================================= */}
+      {/* Four Photography Collections Floating Cards */}
       {collections.map((item, idx) => {
         const target = targetCoordinates[idx];
         const currentTransform = cardTransforms[idx] || {
@@ -358,11 +322,14 @@ function SceneContent({
 
 /**
  * Main 3D Canvas Container
+ * Uses demand-based rendering when off-screen to preserve 100% GPU/CPU
  */
 export default function CameraScene({ collections, openGalleryModal }) {
+  const containerRef = useRef(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [isSectionInView, setIsSectionInView] = useState(false);
 
   useEffect(() => {
     const checkResponsive = () => {
@@ -372,7 +339,7 @@ export default function CameraScene({ collections, openGalleryModal }) {
     };
 
     checkResponsive();
-    window.addEventListener('resize', checkResponsive);
+    window.addEventListener('resize', checkResponsive, { passive: true });
 
     const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
     setReducedMotion(mql.matches);
@@ -380,19 +347,41 @@ export default function CameraScene({ collections, openGalleryModal }) {
     return () => window.removeEventListener('resize', checkResponsive);
   }, []);
 
+  // Demand-based rendering observer: Pauses Three.js render loop when offscreen
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsSectionInView(entry.isIntersecting);
+      },
+      { threshold: 0.05, rootMargin: '100px 0px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="relative w-full h-[620px] sm:h-[680px] lg:h-[750px] xl:h-[790px] select-none">
+    <div
+      ref={containerRef}
+      className="relative w-full h-[620px] sm:h-[680px] lg:h-[750px] xl:h-[790px] select-none"
+    >
       <Canvas
+        frameloop={isSectionInView ? 'always' : 'demand'}
         camera={{
           position: [0, 0, isMobile ? 8.4 : isTablet ? 8.6 : 8.8],
           fov: isMobile ? 54 : isTablet ? 48 : 46,
         }}
         gl={{
-          antialias: true,
+          antialias: !isMobile, // Disable expensive MSAA on mobile for 2x performance
           alpha: true,
           powerPreference: 'high-performance',
+          stencil: false,
+          depth: true,
         }}
-        dpr={[1, 1.75]}
+        dpr={[1, isMobile ? 1.2 : 1.5]}
         className="w-full h-full"
       >
         <Suspense fallback={null}>
@@ -408,6 +397,3 @@ export default function CameraScene({ collections, openGalleryModal }) {
     </div>
   );
 }
-
-useGLTF.preload('/dslr_camera.glb');
-useGLTF.preload('/r_hand.glb');

@@ -362,15 +362,16 @@ export default function StoryStrip() {
           qSoulShadow('0px 0px rgba(0,0,0,0)');
         };
 
+        const currentSection = sectionRef.current;
         window.addEventListener('mousemove', handleMouseMove, { passive: true });
-        if (sectionRef.current) {
-          sectionRef.current.addEventListener('mouseleave', handleMouseLeave, { passive: true });
+        if (currentSection) {
+          currentSection.addEventListener('mouseleave', handleMouseLeave, { passive: true });
         }
 
         return () => {
           window.removeEventListener('mousemove', handleMouseMove);
-          if (sectionRef.current) {
-            sectionRef.current.removeEventListener('mouseleave', handleMouseLeave);
+          if (currentSection) {
+            currentSection.removeEventListener('mouseleave', handleMouseLeave);
           }
         };
       }

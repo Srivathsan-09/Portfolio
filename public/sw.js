@@ -2,7 +2,7 @@ const CACHE_NAME = 'portfolio-images-v7';
 const IMAGE_REGEX = /\.(webp|jpg|jpeg|png|gif|svg)$/i;
 
 // Activate service worker immediately
-self.addEventListener('install', (event) => {
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
