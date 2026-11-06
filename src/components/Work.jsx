@@ -1,142 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowRight, X, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import CameraScene from './work3d/CameraScene';
 
 gsap.registerPlugin(ScrollTrigger);
-
-// 3D Interactive Tilt Card Component for Main Work Section
-function Interactive3DCard({ card, num, title, image, offsetY, onClick, innerRef }) {
-  const cardRef = useRef(null);
-  const imgRef = useRef(null);
-  const glareRef = useRef(null);
-  const contentRef = useRef(null);
-  const rafId = useRef(null);
-
-  const handleMouseMove = (e) => {
-    if (window.matchMedia('(pointer: coarse)').matches) return;
-    if (rafId.current) cancelAnimationFrame(rafId.current);
-
-    rafId.current = requestAnimationFrame(() => {
-      const cardEl = cardRef.current;
-      if (!cardEl) return;
-
-      const rect = cardEl.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      const rotateX = ((y - centerY) / centerY) * -14;
-      const rotateY = ((x - centerX) / centerX) * 14;
-
-      cardEl.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.04, 1.04, 1.04)`;
-
-      if (imgRef.current) {
-        const moveX = ((x - centerX) / centerX) * -18;
-        const moveY = ((y - centerY) / centerY) * -18;
-        imgRef.current.style.transform = `scale(1.15) translate3d(${moveX}px, ${moveY}px, 20px)`;
-      }
-
-      if (contentRef.current) {
-        const textX = ((x - centerX) / centerX) * 8;
-        const textY = ((y - centerY) / centerY) * 8;
-        contentRef.current.style.transform = `translate3d(${textX}px, ${textY}px, 40px)`;
-      }
-
-      if (glareRef.current) {
-        const percentX = (x / rect.width) * 100;
-        const percentY = (y / rect.height) * 100;
-        glareRef.current.style.background = `radial-gradient(circle at ${percentX}% ${percentY}%, rgba(217, 70, 239, 0.35), rgba(255, 154, 60, 0.15) 40%, transparent 70%)`;
-        glareRef.current.style.opacity = '1';
-      }
-    });
-  };
-
-  const handleMouseLeave = () => {
-    if (rafId.current) cancelAnimationFrame(rafId.current);
-
-    const cardEl = cardRef.current;
-    if (!cardEl) return;
-
-    cardEl.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
-    cardEl.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-
-    if (imgRef.current) {
-      imgRef.current.style.transform = 'scale(1.05) translate3d(0px, 0px, 0px)';
-      imgRef.current.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-    }
-
-    if (contentRef.current) {
-      contentRef.current.style.transform = 'translate3d(0px, 0px, 0px)';
-      contentRef.current.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-    }
-
-    if (glareRef.current) {
-      glareRef.current.style.opacity = '0';
-    }
-  };
-
-  const handleMouseEnter = () => {
-    if (cardRef.current) cardRef.current.style.transition = 'none';
-    if (imgRef.current) imgRef.current.style.transition = 'none';
-    if (contentRef.current) contentRef.current.style.transition = 'none';
-  };
-
-  return (
-    <div
-      ref={(el) => {
-        cardRef.current = el;
-        if (innerRef) innerRef(el);
-      }}
-      onClick={onClick}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className={`relative aspect-[3/4] rounded-3xl overflow-hidden card-border-glow cursor-pointer group shadow-[0_20px_50px_rgba(0,0,0,0.85)] ${offsetY} transform-gpu transition-all duration-300 preserve-3d`}
-      style={{ transformStyle: 'preserve-3d' }}
-    >
-      <img
-        ref={imgRef}
-        src={image}
-        alt={`Srivathsan ${title} photography`}
-        loading="lazy"
-        decoding="async"
-        className="w-full h-full object-cover object-center transform-gpu transition-transform duration-500 ease-out"
-      />
-
-      <div
-        ref={glareRef}
-        className="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-20 mix-blend-screen"
-      />
-
-      <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/30 to-transparent opacity-85 group-hover:opacity-70 transition-opacity pointer-events-none" />
-
-      <div className="absolute inset-0 rounded-3xl border border-white/10 group-hover:border-[#FF9800] group-hover:shadow-[0_0_30px_rgba(255,152,0,0.45)] transition-all pointer-events-none" />
-
-      <div
-        ref={contentRef}
-        className="absolute bottom-5 left-5 right-5 flex items-center justify-between z-30 pointer-events-none transform-gpu"
-        style={{ transformStyle: 'preserve-3d' }}
-      >
-        <div className="flex items-baseline gap-2">
-          <span className="text-xs font-mono text-[#FF9800] font-bold drop-shadow-[0_0_8px_#FF9800] group-hover:scale-110 transition-transform">
-            {num}
-          </span>
-          <h3 className="font-oswald text-xl sm:text-2xl font-bold text-white tracking-wide uppercase group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-[#FFB02E] transition-all">
-            {title}
-          </h3>
-        </div>
-
-        <div className="w-9 h-9 rounded-full border border-white/20 bg-black/50 backdrop-blur-md flex items-center justify-center text-white/80 group-hover:text-black group-hover:border-[#FF9800] group-hover:bg-[#FF9800] group-hover:shadow-[0_0_15px_#FF9800] group-hover:scale-110 transition-all">
-          <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // Optimized 3D Interactive Animated Card for Modal Gallery Grid with Multi-Panel Curtain Reveal
 function ModalGalleryCard({ item, index = 0, onClick }) {
@@ -353,331 +222,6 @@ function ModalGalleryCard({ item, index = 0, onClick }) {
   );
 }
 
-// Interactive Rotating Camera Aperture Wheel Component
-function ApertureWheel({ categories, activeIndex, onSelectCategory, openGalleryModal }) {
-  const wheelRef = useRef(null);
-  const [rotationAngle, setRotationAngle] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const startAngleRef = useRef(0);
-  const currentRotationRef = useRef(0);
-
-  // Smooth Device Orientation / Gyroscope Tilt rotation on mobile phones
-  useEffect(() => {
-    const handleOrientation = (e) => {
-      if (e.gamma !== null && e.gamma !== undefined) {
-        const tiltAngle = Math.min(Math.max(e.gamma, -45), 45) * 1.6;
-        setRotationAngle((prev) => prev + (tiltAngle - prev) * 0.15);
-      }
-    };
-
-    if (window.DeviceOrientationEvent) {
-      window.addEventListener('deviceorientation', handleOrientation);
-    }
-    return () => {
-      if (window.DeviceOrientationEvent) {
-        window.removeEventListener('deviceorientation', handleOrientation);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    currentRotationRef.current = rotationAngle;
-  }, [rotationAngle]);
-
-  // Pointer & Drag Physics
-  const getAngleFromEvent = (e) => {
-    if (!wheelRef.current) return 0;
-    const rect = wheelRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
-  };
-
-  const handlePointerDown = (e) => {
-    setIsDragging(true);
-    startAngleRef.current = getAngleFromEvent(e) - currentRotationRef.current;
-  };
-
-  const handlePointerMove = (e) => {
-    if (!isDragging) return;
-    const angle = getAngleFromEvent(e);
-    const newAngle = angle - startAngleRef.current;
-    setRotationAngle(newAngle);
-
-    const segmentAngle = 360 / categories.length; // 72deg
-    const normalized = ((-newAngle % 360) + 360) % 360;
-    const newIndex = Math.floor(((normalized + segmentAngle / 2) % 360) / segmentAngle) % categories.length;
-    onSelectCategory(newIndex);
-  };
-
-  const handlePointerUp = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    const segmentAngle = 360 / categories.length;
-    const snappedAngle = Math.round(rotationAngle / segmentAngle) * segmentAngle;
-    setRotationAngle(snappedAngle);
-
-    const normalized = ((-snappedAngle % 360) + 360) % 360;
-    const newIndex = Math.floor(((normalized + segmentAngle / 2) % 360) / segmentAngle) % categories.length;
-    onSelectCategory(newIndex);
-  };
-
-  const activeCategory = categories[activeIndex] || categories[0];
-
-  // Helper to draw SVG Sector Arc Path
-  const describeArc = (x, y, innerRadius, outerRadius, startAngle, endAngle) => {
-    const rad = (angle) => (angle - 90) * (Math.PI / 180);
-    const x1Outer = x + outerRadius * Math.cos(rad(startAngle));
-    const y1Outer = y + outerRadius * Math.sin(rad(startAngle));
-    const x2Outer = x + outerRadius * Math.cos(rad(endAngle));
-    const y2Outer = y + outerRadius * Math.sin(rad(endAngle));
-
-    const x1Inner = x + innerRadius * Math.cos(rad(endAngle));
-    const y1Inner = y + innerRadius * Math.sin(rad(endAngle));
-    const x2Inner = x + innerRadius * Math.cos(rad(startAngle));
-    const y2Inner = y + innerRadius * Math.sin(rad(startAngle));
-
-    const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
-
-    return [
-      `M ${x1Outer} ${y1Outer}`,
-      `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2Outer} ${y2Outer}`,
-      `L ${x1Inner} ${y1Inner}`,
-      `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x2Inner} ${y2Inner}`,
-      'Z',
-    ].join(' ');
-  };
-
-  // Helper to draw SVG Arc Line for Curved Text Path
-  const describeTextArc = (x, y, radius, startAngle, endAngle) => {
-    const rad = (angle) => (angle - 90) * (Math.PI / 180);
-    const x1 = x + radius * Math.cos(rad(startAngle));
-    const y1 = y + radius * Math.sin(rad(startAngle));
-    const x2 = x + radius * Math.cos(rad(endAngle));
-    const y2 = y + radius * Math.sin(rad(endAngle));
-
-    const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
-
-    return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
-  };
-
-  const lensStops = ['f/1.4', '35mm', 'f/2.8', '50mm', 'f/5.6', '85mm', 'f/11', '135mm', 'f/16', 'f/22'];
-
-  const numSectors = categories.length;
-  const segmentAngle = 360 / numSectors;
-
-  return (
-    <div className="relative flex flex-col items-center justify-center select-none w-full max-w-[540px] mx-auto py-2">
-      {/* Outer Radial Ambient Light Glow */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-[#FF9800]/25 via-[#FFB02E]/15 to-[#FFA726]/20 rounded-full blur-[120px] pointer-events-none transform scale-110" />
-
-      {/* Rotating Wheel Graphic Container */}
-      <div
-        ref={wheelRef}
-        onMouseDown={handlePointerDown}
-        onMouseMove={handlePointerMove}
-        onMouseUp={handlePointerUp}
-        onMouseLeave={handlePointerUp}
-        onTouchStart={handlePointerDown}
-        onTouchMove={handlePointerMove}
-        onTouchEnd={handlePointerUp}
-        className="relative w-[340px] h-[340px] sm:w-[410px] sm:h-[410px] lg:w-[470px] lg:h-[470px] xl:w-[510px] xl:h-[510px] rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing touch-none transition-transform duration-300 ease-out"
-        style={{ transform: `rotate(${rotationAngle}deg)` }}
-      >
-        {/* SVG Camera Lens Aperture Ring, Sector Arcs, Curved Text & Lens Markings */}
-        <svg viewBox="0 0 400 400" className="absolute inset-0 w-full h-full transform-gpu">
-          <defs>
-            <radialGradient id="activeSectorGradient" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#FF9800" stopOpacity="0.4" />
-              <stop offset="70%" stopColor="#FFB02E" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="#FFA726" stopOpacity="0.05" />
-            </radialGradient>
-            <radialGradient id="inactiveSectorGradient" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.04" />
-              <stop offset="100%" stopColor="#000000" stopOpacity="0.2" />
-            </radialGradient>
-
-            {/* Dynamic Sector Arc Paths for SVG Curved Text */}
-            {categories.map((_, idx) => {
-              const startAngle = idx * segmentAngle;
-              return (
-                <path
-                  key={`text-path-${idx}`}
-                  id={`sectorTextArc-${idx}`}
-                  d={describeTextArc(200, 200, 143, startAngle + 5, startAngle + segmentAngle - 5)}
-                />
-              );
-            })}
-          </defs>
-
-          {/* Dynamic Sector Background Arcs (Clickable) */}
-          {categories.map((_, idx) => {
-            const startAngle = idx * segmentAngle;
-            const isSelected = activeIndex === idx;
-            const pathData = describeArc(200, 200, 96, 190, startAngle, startAngle + segmentAngle);
-            return (
-              <path
-                key={idx}
-                d={pathData}
-                fill={isSelected ? 'url(#activeSectorGradient)' : 'url(#inactiveSectorGradient)'}
-                stroke={isSelected ? 'rgba(255, 152, 0, 0.95)' : 'rgba(255, 255, 255, 0.15)'}
-                strokeWidth={isSelected ? '2.5' : '1'}
-                className="transition-all duration-300 cursor-pointer pointer-events-auto"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectCategory(idx);
-                  setRotationAngle(-idx * segmentAngle);
-                }}
-              />
-            );
-          })}
-
-          {/* Curved Category Labels along Sector Arcs */}
-          {categories.map((cat, idx) => {
-            const isSelected = activeIndex === idx;
-            return (
-              <text
-                key={cat.id}
-                className="cursor-pointer pointer-events-auto select-none"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectCategory(idx);
-                  setRotationAngle(-idx * segmentAngle);
-                }}
-              >
-                <textPath
-                  href={`#sectorTextArc-${idx}`}
-                  xlinkHref={`#sectorTextArc-${idx}`}
-                  startOffset="50%"
-                  textAnchor="middle"
-                  className="font-oswald uppercase tracking-[0.16em] transition-all duration-300"
-                >
-                  <tspan
-                    fill={isSelected ? '#FFB02E' : '#FF9800'}
-                    fontSize={isSelected ? '12.5' : '11'}
-                    fontWeight="700"
-                    fontFamily="monospace"
-                  >
-                    {cat.num}{' '}
-                  </tspan>
-                  <tspan
-                    fill={isSelected ? '#FFFFFF' : 'rgba(255, 255, 255, 0.85)'}
-                    fontSize={isSelected ? '12.5' : '11'}
-                    fontWeight={isSelected ? '700' : '600'}
-                  >
-                    {cat.title}
-                  </tspan>
-                </textPath>
-              </text>
-            );
-          })}
-
-          {/* Outer Boundary Camera Lens Rim */}
-          <circle cx="200" cy="200" r="192" fill="none" stroke="rgba(255, 255, 255, 0.3)" strokeWidth="3" />
-          <circle cx="200" cy="200" r="185" fill="none" stroke="rgba(255, 152, 0, 0.4)" strokeWidth="1" strokeDasharray="4 4" />
-
-          {/* Lens Aperture Stop Ticks & Markings Around Rim */}
-          {lensStops.map((stop, i) => {
-            const angle = i * 36;
-            const rad = (angle - 90) * (Math.PI / 180);
-            const x1 = 200 + 185 * Math.cos(rad);
-            const y1 = 200 + 185 * Math.sin(rad);
-            const x2 = 200 + 192 * Math.cos(rad);
-            const y2 = 200 + 192 * Math.sin(rad);
-            return (
-              <g key={i}>
-                <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(255, 255, 255, 0.5)" strokeWidth="1.5" />
-              </g>
-            );
-          })}
-
-          {/* Inner Lens Hub Ring */}
-          <circle cx="200" cy="200" r="96" fill="none" stroke="rgba(255, 255, 255, 0.35)" strokeWidth="3" />
-          <circle cx="200" cy="200" r="90" fill="none" stroke="rgba(255, 176, 46, 0.5)" strokeWidth="1.5" />
-
-          {/* Spoke Partition Lines */}
-          {categories.map((_, idx) => {
-            const angle = idx * segmentAngle;
-            const rad = (angle - 90) * (Math.PI / 180);
-            const x1 = 200 + 96 * Math.cos(rad);
-            const y1 = 200 + 96 * Math.sin(rad);
-            const x2 = 200 + 192 * Math.cos(rad);
-            const y2 = 200 + 192 * Math.sin(rad);
-            return (
-              <line
-                key={idx}
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-                stroke="rgba(255, 255, 255, 0.35)"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            );
-          })}
-        </svg>
-
-        {/* Center Camera Viewfinder Iris */}
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            openGalleryModal(activeCategory.title);
-          }}
-          style={{ transform: `rotate(${-rotationAngle}deg)` }}
-          className="absolute w-[155px] h-[155px] sm:w-[190px] sm:h-[190px] lg:w-[225px] lg:h-[225px] xl:w-[245px] xl:h-[245px] rounded-full overflow-hidden border-2 border-white/30 shadow-[0_0_35px_rgba(255,152,0,0.45)] cursor-pointer group transition-transform duration-500 hover:scale-105 z-30"
-        >
-          {/* Active Image */}
-          <img
-            src={activeCategory.image}
-            alt={activeCategory.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-          />
-
-          {/* Aperture Shutter Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent group-hover:from-black/60 transition-colors" />
-
-          {/* Warm Light Sweep Layer on Hover */}
-          <div
-            className="absolute inset-0 pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-            style={{
-              background:
-                'linear-gradient(105deg, transparent 20%, rgba(255, 152, 0, 0.15) 45%, rgba(255, 176, 46, 0.3) 50%, rgba(255, 152, 0, 0.15) 55%, transparent 80%)',
-            }}
-          />
-
-          {/* Viewfinder Target Focus Reticle Corners */}
-          <div className="absolute top-2.5 left-2.5 w-3 h-3 border-t-2 border-l-2 border-[#FF9800]/80 pointer-events-none" />
-          <div className="absolute top-2.5 right-2.5 w-3 h-3 border-t-2 border-r-2 border-[#FF9800]/80 pointer-events-none" />
-          <div className="absolute bottom-2.5 left-2.5 w-3 h-3 border-b-2 border-l-2 border-[#FF9800]/80 pointer-events-none" />
-          <div className="absolute bottom-2.5 right-2.5 w-3 h-3 border-b-2 border-r-2 border-[#FF9800]/80 pointer-events-none" />
-
-          {/* Center Lens CTA Details */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center z-10">
-            <h4 className="font-oswald text-base sm:text-lg lg:text-xl font-bold text-white uppercase leading-tight my-0.5 drop-shadow-md">
-              {activeCategory.title}
-            </h4>
-            <div className="mt-1 px-3 py-1 rounded-full border border-[#FF9800]/60 bg-[#FF9800]/20 text-[#FF9800] text-[9px] font-bold tracking-widest uppercase inline-flex items-center gap-1.5 shadow-md group-hover:bg-[#FF9800] group-hover:text-black transition-all">
-              <span>EXPLORE</span>
-              <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Motion Guidance Subtext */}
-      <div className="mt-4 flex items-center gap-2 text-[11px] font-mono text-white/50 tracking-wider uppercase">
-        <Sparkles className="w-3.5 h-3.5 text-[#FF9800] animate-pulse" />
-        <span>SPIN WHEEL OR TILT PHONE TO ROTATE</span>
-      </div>
-
-    </div>
-  );
-}
-
 // Dynamically scan public/images/ on disk so added/deleted local files automatically update the gallery
 const imageModules = import.meta.glob('/public/images/**/*.{webp,jpg,jpeg,png,PNG,JPG,JPEG}', {
   eager: true,
@@ -795,7 +339,6 @@ export default function Work() {
   const [activeCategoryModal, setActiveCategoryModal] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [modalFilter, setModalFilter] = useState('ALL');
-  const [activeIndex, setActiveIndex] = useState(0);
 
   const sectionRef = useRef(null);
   const tagRef = useRef(null);
@@ -850,16 +393,8 @@ export default function Work() {
     setSelectedPhoto(null);
   };
 
-  const activeCategory = workCards[activeIndex] || workCards[0];
-  const photoCount = galleryItems.filter((i) => i.category === activeCategory.title).length;
 
-  const handleNextWheel = () => {
-    setActiveIndex((prev) => (prev + 1) % workCards.length);
-  };
 
-  const handlePrevWheel = () => {
-    setActiveIndex((prev) => (prev - 1 + workCards.length) % workCards.length);
-  };
 
   // Lightbox Previous & Next Navigation
   const handlePrevPhoto = useCallback((e) => {
@@ -1077,13 +612,13 @@ export default function Work() {
 
         <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10 w-full">
           
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
-            {/* LEFT COLUMN: Title & Active Category Info (Desktop Left / Mobile Top) */}
-            <div className="lg:col-span-5 flex flex-col justify-center">
+            {/* LEFT COLUMN: Title & Visual Identity (Desktop Left / Mobile Top) */}
+            <div className="lg:col-span-4 flex flex-col justify-center">
               
               {/* Section Header Tag */}
-              <div ref={tagRef} className="flex items-center gap-4 mb-3 sm:mb-4">
+              <div ref={tagRef} className="flex items-center gap-3 mb-4 sm:mb-5">
                 <span className="text-xs sm:text-sm font-mono text-[#FF9800] font-semibold tracking-wider">
                   02
                 </span>
@@ -1095,85 +630,54 @@ export default function Work() {
 
               {/* Main Heading */}
               <div ref={titleRef} className="mb-5 sm:mb-6">
-                <h2 className="font-oswald text-5xl sm:text-6xl lg:text-7xl font-bold leading-[0.95] uppercase text-white">
+                <h2 className="font-oswald text-5xl sm:text-6xl lg:text-7xl font-bold leading-[0.95] uppercase text-white tracking-tight">
                   EXPLORE <br />
-                  <span className="text-gradient-orange inline-block">
-                    MY WORK
+                  <span className="bg-gradient-to-r from-[#FF9800] via-[#FFB02E] to-[#FFA726] bg-clip-text text-transparent inline-block">
+                    MY WORLD
                   </span>
                 </h2>
               </div>
 
-              {/* Active Category Information Card (Compact on Mobile, Full Spacing on Desktop) */}
-              <div ref={subtextRef} className="bg-white/5 border border-white/10 rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-8 backdrop-blur-md relative overflow-hidden shadow-xl">
-                <div className="flex items-center justify-between text-xs font-mono text-[#FF9800] font-bold tracking-wider uppercase mb-1.5 lg:mb-3">
-                  <span>COLLECTION {activeCategory.num} / {String(workCards.length).padStart(2, '0')}</span>
-                </div>
+              {/* Supporting Text */}
+              <p ref={subtextRef} className="text-sm sm:text-base text-[#A0A0A0] leading-relaxed font-light mb-8 max-w-md">
+                Every photograph tells a story. Explore the moments, places and perspectives I've captured through my lens.
+              </p>
 
-                <h3 className="font-oswald text-2xl sm:text-3xl lg:text-4xl font-bold text-white uppercase mb-1.5 lg:mb-3">
-                  {activeCategory.title}
-                </h3>
+              {/* Minimal CTA */}
+              <div className="mb-8">
+                <button
+                  onClick={() => openGalleryModal('ALL')}
+                  className="inline-flex items-center gap-3 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full bg-gradient-to-r from-[#FF9800] via-[#FFB02E] to-[#FFA726] text-black font-bold text-xs sm:text-sm tracking-wider uppercase shadow-[0_0_20px_rgba(255,152,0,0.4)] hover:shadow-[0_0_30px_rgba(255,152,0,0.65)] hover:scale-[1.02] transition-all cursor-pointer group"
+                >
+                  <span>EXPLORE COLLECTIONS</span>
+                  <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
 
-                <p className="text-xs lg:text-sm text-[#A0A0A0] leading-relaxed font-light mb-3.5 lg:mb-6">
-                  Explore selected captures from {activeCategory.title.toLowerCase()} moments. Click the wheel center or button below to view the complete collection.
-                </p>
-
-                {/* Primary CTA Button & Wheel Spin Controls */}
-                <div className="flex items-center gap-3 lg:gap-4">
+              {/* Quick Collection Category Badges */}
+              <div className="flex flex-wrap gap-2 pt-6 border-t border-white/10 max-w-md">
+                {workCards.map((card) => (
                   <button
-                    onClick={() => openGalleryModal(activeCategory.title)}
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 lg:px-6 py-2.5 lg:py-3.5 rounded-full bg-gradient-to-r from-[#FF9800] via-[#FFB02E] to-[#FFA726] text-black font-bold text-xs lg:text-sm tracking-wider uppercase shadow-[0_0_20px_rgba(255,152,0,0.4)] hover:shadow-[0_0_30px_rgba(255,152,0,0.65)] hover:scale-[1.02] transition-all cursor-pointer group"
+                    key={card.id}
+                    onClick={() => openGalleryModal(card.title)}
+                    className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:border-[#FF9800]/60 hover:bg-[#FF9800]/10 text-white/80 hover:text-[#FF9800] text-xs font-mono tracking-wider uppercase transition-all cursor-pointer flex items-center gap-1.5 group"
                   >
-                    <span>EXPLORE {activeCategory.title}</span>
-                    <ArrowRight className="w-3.5 h-3.5 lg:w-4 lg:h-4 transform group-hover:translate-x-1 transition-transform" />
+                    <span className="text-[#FF9800] font-bold">{card.num}</span>
+                    <span className="font-medium">{card.title}</span>
                   </button>
-
-                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                    <button
-                      onClick={handlePrevWheel}
-                      aria-label="Previous Category"
-                      className="w-9 h-9 lg:w-11 lg:h-11 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9800] hover:bg-[#FF9800]/20 hover:text-[#FF9800] transition-all cursor-pointer"
-                    >
-                      <ChevronLeft className="w-4 h-4 lg:w-5 lg:h-5" />
-                    </button>
-                    <button
-                      onClick={handleNextWheel}
-                      aria-label="Next Category"
-                      className="w-9 h-9 lg:w-11 lg:h-11 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white hover:border-[#FF9800] hover:bg-[#FF9800]/20 hover:text-[#FF9800] transition-all cursor-pointer"
-                    >
-                      <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5" />
-                    </button>
-                  </div>
-                </div>
-
+                ))}
               </div>
 
             </div>
 
-            {/* RIGHT COLUMN: Larger Top-Aligned Aperture Wheel (Desktop Right / Mobile Bottom) */}
-            <div className="lg:col-span-7 flex items-center justify-center lg:pt-[44px]">
-              <ApertureWheel
-                categories={workCards}
-                activeIndex={activeIndex}
-                onSelectCategory={(idx) => setActiveIndex(idx)}
+            {/* RIGHT COLUMN: 3D Camera & Emerging Photographs Canvas */}
+            <div className="lg:col-span-8 flex items-center justify-center relative min-h-[580px] sm:min-h-[640px] lg:min-h-[720px] w-full">
+              <CameraScene
+                collections={workCards}
                 openGalleryModal={openGalleryModal}
               />
             </div>
 
-          </div>
-
-          {/* VIEW ALL WORK Footer Link */}
-          <div className="flex justify-center relative z-10 shrink-0 mt-10 sm:mt-14">
-            <button
-              onClick={() => openGalleryModal('ALL')}
-              className="inline-flex items-center gap-4 group cursor-pointer"
-            >
-              <span className="text-xs font-semibold tracking-[0.25em] text-white/90 group-hover:text-[#FF9800] transition-colors uppercase">
-                VIEW ALL WORK
-              </span>
-              <div className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white/80 group-hover:border-[#FF9800] group-hover:bg-[#FF9800]/20 group-hover:text-white group-hover:scale-110 transition-all">
-                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" />
-              </div>
-            </button>
           </div>
 
         </div>
