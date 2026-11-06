@@ -70,6 +70,10 @@ const Page3DTransition = forwardRef(function Page3DTransition(
         shadowOverlayRef.current.style.display = 'none';
         gsap.set(shadowOverlayRef.current, { opacity: 0 });
       }
+      if (stageRef.current) {
+        stageRef.current.style.perspective = 'none';
+        stageRef.current.style.transformStyle = 'flat';
+      }
       aboutComponentRef.current?.playReveal?.();
     } else {
       if (homeLayerRef.current) {
@@ -116,6 +120,11 @@ const Page3DTransition = forwardRef(function Page3DTransition(
       isTransitioningRef.current = true;
       onViewChange?.('about');
 
+      if (stageRef.current) {
+        stageRef.current.style.perspective = '1400px';
+        stageRef.current.style.transformStyle = 'preserve-3d';
+      }
+
       if (homeLayerRef.current) {
         homeLayerRef.current.style.pointerEvents = 'none';
         homeLayerRef.current.style.willChange = 'transform, opacity';
@@ -154,6 +163,10 @@ const Page3DTransition = forwardRef(function Page3DTransition(
             if (shadowOverlayRef.current) {
               shadowOverlayRef.current.style.display = 'none';
             }
+            if (stageRef.current) {
+              stageRef.current.style.perspective = 'none';
+              stageRef.current.style.transformStyle = 'flat';
+            }
             setCurrentView('about');
             currentViewRef.current = 'about';
             setIsTransitioning(false);
@@ -183,6 +196,10 @@ const Page3DTransition = forwardRef(function Page3DTransition(
           }
           if (shadowOverlayRef.current) {
             shadowOverlayRef.current.style.display = 'none';
+          }
+          if (stageRef.current) {
+            stageRef.current.style.perspective = 'none';
+            stageRef.current.style.transformStyle = 'flat';
           }
           setCurrentView('about');
           currentViewRef.current = 'about';
@@ -297,6 +314,11 @@ const Page3DTransition = forwardRef(function Page3DTransition(
       setIsTransitioning(true);
       isTransitioningRef.current = true;
       onViewChange?.('home');
+
+      if (stageRef.current) {
+        stageRef.current.style.perspective = '1400px';
+        stageRef.current.style.transformStyle = 'preserve-3d';
+      }
 
       if (homeLayerRef.current) {
         homeLayerRef.current.style.display = 'block';

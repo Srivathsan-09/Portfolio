@@ -682,7 +682,7 @@ export default function Work() {
       <section
         ref={sectionRef}
         id="work"
-        className="relative py-20 lg:py-28 overflow-hidden bg-[#080808]"
+        className="relative py-20 lg:py-28 overflow-hidden bg-[#080808] z-10"
       >
         {/* Smooth top blend from #080808 for completely seamless transition from About section */}
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#080808] via-[#080808]/90 to-transparent pointer-events-none z-0" />
