@@ -1,5 +1,6 @@
-import React, { useRef, useState, useEffect, useMemo } from 'react';
+import React, { useRef, useState, useEffect, useMemo, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
+import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -74,6 +75,13 @@ function SceneContent({
   // Camera scale: large, prominent centerpiece
   const cameraScale = isMobile ? 0.98 : isTablet ? 1.18 : 1.38;
 
+  // Lens emergence origin in world coordinates (calculated at front of DSLR lens)
+  const lensOrigin = useMemo(() => [
+    cameraPos[0] + 0.22,
+    cameraPos[1] - 0.35,
+    cameraPos[2] + 1.35,
+  ], [cameraPos]);
+
   // Final 3D composition coordinates for the 4 collections around the camera
   // Symmetrically framing the camera with generous negative space
   const targetCoordinates = useMemo(() => (
@@ -103,7 +111,7 @@ function SceneContent({
   // Animated positions of the 4 cards during the emergence timeline
   const [cardTransforms, setCardTransforms] = useState(() =>
     collections.map(() => ({
-      pos: [cameraPos[0], cameraPos[1], cameraPos[2] + 3.25],
+      pos: lensOrigin,
       scale: 0.001,
       opacity: 0,
     }))
@@ -118,7 +126,6 @@ function SceneContent({
       return;
     }
 
-    const origin = [cameraPos[0], cameraPos[1], cameraPos[2] + 3.25];
     const triggerEl = document.getElementById('work');
 
     const tl = gsap.timeline({
@@ -185,9 +192,9 @@ function SceneContent({
     collections.forEach((_, idx) => {
       const target = targetCoordinates[idx];
       const proxy = {
-        x: origin[0],
-        y: origin[1],
-        z: origin[2],
+        x: lensOrigin[0],
+        y: lensOrigin[1],
+        z: lensOrigin[2],
         scale: 0.001,
       };
 
@@ -232,7 +239,7 @@ function SceneContent({
       st?.kill();
       tl.kill();
     };
-  }, [cameraPos, collections, reducedMotion, targetCoordinates]);
+  }, [cameraPos, collections, lensOrigin, reducedMotion, targetCoordinates]);
 
   // Handle cinematic card selection transition into gallery
   const handleCardClick = (categoryTitle, idx) => {
@@ -250,12 +257,12 @@ function SceneContent({
           CINEMATIC STUDIO LIGHTING
          ========================================================================= */}
       {/* Ambient Fill */}
-      <ambientLight intensity={1.05} />
+      <ambientLight intensity={1.15} />
 
       {/* Primary Warm Front Key Light */}
       <directionalLight
         position={[-3, 4, 6]}
-        intensity={2.6}
+        intensity={2.8}
         color="#FFF5E5"
         castShadow
       />
@@ -263,21 +270,21 @@ function SceneContent({
       {/* Front-Right Camera Body Fill Light */}
       <directionalLight
         position={[3.5, 2.5, 5]}
-        intensity={1.9}
+        intensity={2.0}
         color="#FFECD2"
       />
 
       {/* Signature Amber / Orange Studio Rim Backlight */}
       <directionalLight
         position={[4, -2, -3]}
-        intensity={4.5}
+        intensity={4.8}
         color="#FF9800"
       />
 
       {/* Top Rim Specular Light */}
       <spotLight
         position={[0, 6, 2.5]}
-        intensity={3.2}
+        intensity={3.4}
         angle={0.65}
         penumbra={0.7}
         color="#FFE4B5"
@@ -388,14 +395,19 @@ export default function CameraScene({ collections, openGalleryModal }) {
         dpr={[1, 1.75]}
         className="w-full h-full"
       >
-        <SceneContent
-          collections={collections}
-          openGalleryModal={openGalleryModal}
-          isMobile={isMobile}
-          isTablet={isTablet}
-          reducedMotion={reducedMotion}
-        />
+        <Suspense fallback={null}>
+          <SceneContent
+            collections={collections}
+            openGalleryModal={openGalleryModal}
+            isMobile={isMobile}
+            isTablet={isTablet}
+            reducedMotion={reducedMotion}
+          />
+        </Suspense>
       </Canvas>
     </div>
   );
 }
+
+useGLTF.preload('/dslr_camera.glb');
+useGLTF.preload('/r_hand.glb');

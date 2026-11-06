@@ -60,3 +60,4 @@ export default function SupportingHand({
 }
 
 useGLTF.preload('/r_hand.glb');
+

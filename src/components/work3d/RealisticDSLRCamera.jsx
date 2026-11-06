@@ -1,13 +1,18 @@
 import React, { useRef, useMemo } from 'react';
+import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import SupportingHand from './SupportingHand';
 
 /**
- * High-fidelity 3D DSLR Camera with Modular Exploded Mechanical Assembly / Disassembly
- * Features realistic PBR materials, ergonomic body chassis, knurled controls,
- * articulated mechanical lens components that separate and assemble,
- * an authentic mechanical aperture iris, and a supporting 3D human hand.
+ * High-fidelity 3D DSLR Camera using authentic detailed GLB 3D model
+ * Features:
+ * - Real DSLR mesh: chassis, front cover, pentaprism, hot shoe, dials, viewfinder, shutter release
+ * - Separately accessible lens components for real mechanical assembly/disassembly
+ * - Articulated mechanical 8-blade aperture iris
+ * - Warm amber optical core glow and projection flare
+ * - Synchronized supporting 3D human hand cradling the camera underside
+ * - Smooth organic floating physics and responsive cursor tracking
  */
 export default function RealisticDSLRCamera({
   assemblyProgress = 1.0,
@@ -17,108 +22,162 @@ export default function RealisticDSLRCamera({
   showHand = true,
 }) {
   const cameraGroupRef = useRef();
-  const lensGlowRef = useRef();
-  const emitterMeshRef = useRef();
+  const innerModelRef = useRef();
   const irisBladesRef = useRef([]);
+  const coreLightRef = useRef();
 
-  // Create reusable PBR materials
-  const materials = useMemo(() => {
-    return {
-      body: new THREE.MeshStandardMaterial({
-        color: '#24272f',
-        roughness: 0.5,
-        metalness: 0.35,
-      }),
-      grip: new THREE.MeshStandardMaterial({
-        color: '#16171c',
-        roughness: 0.88,
-        metalness: 0.08,
-      }),
-      metal: new THREE.MeshStandardMaterial({
-        color: '#e2e6ee',
-        roughness: 0.12,
-        metalness: 0.95,
-      }),
-      knurledDial: new THREE.MeshStandardMaterial({
-        color: '#2c2f38',
-        roughness: 0.32,
-        metalness: 0.82,
-      }),
-      luxuryRing: new THREE.MeshStandardMaterial({
-        color: '#FF9800',
-        roughness: 0.2,
-        metalness: 0.65,
-        emissive: '#FF9800',
-        emissiveIntensity: 0.85,
-      }),
-      lensBarrel: new THREE.MeshStandardMaterial({
-        color: '#282b35',
-        roughness: 0.42,
-        metalness: 0.55,
-      }),
-      rubberRing: new THREE.MeshStandardMaterial({
-        color: '#14151a',
-        roughness: 0.85,
-        metalness: 0.15,
-      }),
-      bladeMetal: new THREE.MeshStandardMaterial({
-        color: '#181920',
-        roughness: 0.35,
-        metalness: 0.75,
-        side: THREE.DoubleSide,
-      }),
-      opticalGlass: new THREE.MeshPhysicalMaterial({
-        color: '#142538',
-        transmission: 0.82,
-        opacity: 0.94,
-        transparent: true,
-        roughness: 0.02,
-        ior: 1.62,
-        reflectivity: 1.0,
-        clearcoat: 1.0,
-        clearcoatRoughness: 0.03,
-        sheen: 1.0,
-        sheenColor: new THREE.Color('#38bdf8'),
-        sheenRoughness: 0.1,
-      }),
-      innerGlass: new THREE.MeshPhysicalMaterial({
-        color: '#FF9800',
-        transmission: 0.58,
-        opacity: 0.82,
-        transparent: true,
-        roughness: 0.05,
-        ior: 1.52,
-        emissive: '#FF9800',
-        emissiveIntensity: 0.35,
-      }),
-      emitter: new THREE.MeshBasicMaterial({
-        color: '#FFA726',
-        transparent: true,
-        opacity: 0.95,
-        side: THREE.DoubleSide,
-      }),
-      accentRed: new THREE.MeshBasicMaterial({
-        color: '#E53935',
-      }),
+  // Load the authentic DSLR camera GLB model
+  const { scene } = useGLTF('/dslr_camera.glb');
+
+  // Clone scene and configure node references and PBR materials
+  const { clonedScene, lens, lensBase } = useMemo(() => {
+    const clone = scene.clone(true);
+
+    // Individual lens components for mechanical assembly/disassembly
+    const lensObj = {
+      mount: clone.getObjectByName('mount_ring'),
+      presetAperture: clone.getObjectByName('preset_aperture_ring'),
+      focusing: clone.getObjectByName('focusing_ring'),
+      rubber: clone.getObjectByName('rubber_ring'),
+      front: clone.getObjectByName('front_ring'),
+      nameRing: clone.getObjectByName('name_ring'),
+      glass: clone.getObjectByName('lense'),
     };
+
+    // Store original resting coordinates for mathematically exact re-assembly
+    const base = {};
+    Object.entries(lensObj).forEach(([key, node]) => {
+      if (node) {
+        base[key] = {
+          pos: node.position.clone(),
+          rot: node.rotation.clone(),
+        };
+      }
+    });
+
+    // Premium PBR materials for photorealistic DSLR camera rendering
+    const chassisMat = new THREE.MeshStandardMaterial({
+      color: '#1b1d22',
+      roughness: 0.46,
+      metalness: 0.35,
+    });
+
+    const gripMat = new THREE.MeshStandardMaterial({
+      color: '#101216',
+      roughness: 0.88,
+      metalness: 0.08,
+    });
+
+    const brushedMetalMat = new THREE.MeshStandardMaterial({
+      color: '#d4d8de',
+      roughness: 0.16,
+      metalness: 0.94,
+    });
+
+    const blackMetalMat = new THREE.MeshStandardMaterial({
+      color: '#22252c',
+      roughness: 0.30,
+      metalness: 0.84,
+    });
+
+    // Signature luxury amber accent ring around the lens barrel
+    const amberAccentMat = new THREE.MeshStandardMaterial({
+      color: '#FF9800',
+      roughness: 0.22,
+      metalness: 0.75,
+      emissive: '#FF9800',
+      emissiveIntensity: 0.45,
+    });
+
+    // Multi-coated optical glass element with amber anti-reflective sheen
+    const opticalGlassMat = new THREE.MeshPhysicalMaterial({
+      color: '#0e1d2c',
+      transmission: 0.90,
+      opacity: 0.94,
+      transparent: true,
+      roughness: 0.02,
+      ior: 1.62,
+      reflectivity: 1.0,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.03,
+      sheen: 1.0,
+      sheenColor: new THREE.Color('#FF9800'),
+      sheenRoughness: 0.15,
+    });
+
+    // Traverse and assign materials and shadows
+    clone.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+
+        const name = child.name.toLowerCase();
+        const parentName = child.parent?.name?.toLowerCase() || '';
+
+        if (name.includes('lense') || parentName.includes('lense')) {
+          child.material = opticalGlassMat;
+        } else if (name.includes('name_ring') || parentName.includes('name_ring')) {
+          child.material = amberAccentMat;
+        } else if (name.includes('rubber') || parentName.includes('rubber')) {
+          child.material = gripMat;
+        } else if (
+          name.includes('shutter') ||
+          name.includes('shoe') ||
+          name.includes('mount') ||
+          parentName.includes('shutter') ||
+          parentName.includes('shoe') ||
+          parentName.includes('mount')
+        ) {
+          child.material = brushedMetalMat;
+        } else if (
+          name.includes('focusing') ||
+          name.includes('preset') ||
+          parentName.includes('focusing') ||
+          parentName.includes('preset')
+        ) {
+          child.material = blackMetalMat;
+        } else {
+          child.material = chassisMat;
+        }
+      }
+    });
+
+    return { clonedScene: clone, lens: lensObj, lensBase: base };
+  }, [scene]);
+
+  // Articulated 8-blade mechanical aperture iris blades
+  const apertureBlades = useMemo(() => {
+    const blades = [];
+    const bladeGeometry = new THREE.PlaneGeometry(0.32, 0.65);
+    const bladeMaterial = new THREE.MeshStandardMaterial({
+      color: '#121316',
+      roughness: 0.35,
+      metalness: 0.85,
+      side: THREE.DoubleSide,
+    });
+
+    for (let i = 0; i < 8; i++) {
+      const angle = (i * Math.PI) / 4;
+      blades.push({ id: i, angle, geometry: bladeGeometry, material: bladeMaterial });
+    }
+    return blades;
   }, []);
 
-  // Calculate dynamic component separation offsets based on assemblyProgress (0 = exploded, 1 = assembled)
-  const sep = Math.max(0, 1 - assemblyProgress);
-
-  // Continuous floating, vertical axis rotation, and mouse tracking
+  // Frame loop for floating physics, cursor tracking, and mechanical lens animation
   useFrame((state, delta) => {
     if (!cameraGroupRef.current) return;
     const time = state.clock.getElapsedTime();
 
     if (!reducedMotion) {
-      // Subtle organic breathing float
-      cameraGroupRef.current.position.y = Math.sin(time * 0.9) * 0.06;
+      // Gentle cinematic floating oscillation
+      cameraGroupRef.current.position.y = Math.sin(time * 0.95) * 0.055;
 
-      // Slow vertical rotation and responsive cursor tracking
-      const targetRotX = (state.pointer.y * -0.1) + Math.sin(time * 0.7) * 0.02;
-      const targetRotY = (state.pointer.x * 0.16) + Math.sin(time * 0.5) * 0.035;
-      const targetRotZ = Math.sin(time * 0.6) * 0.012;
+      // Hero 3/4 camera orientation facing towards the viewer with smooth cursor parallax
+      // Lens native +X points to +Z when rotated by -Math.PI / 2
+      const baseRotY = -Math.PI / 2 + 0.32;
+      const targetRotX = 0.06 + state.pointer.y * -0.12;
+      const targetRotY = baseRotY + state.pointer.x * 0.18 + Math.sin(time * 0.5) * 0.02;
+      const targetRotZ = -0.03 + Math.sin(time * 0.7) * 0.015;
 
       cameraGroupRef.current.rotation.x = THREE.MathUtils.damp(
         cameraGroupRef.current.rotation.x,
@@ -138,309 +197,131 @@ export default function RealisticDSLRCamera({
         3.5,
         delta
       );
-
-      // Animate mechanical iris blades based on apertureOpen
-      if (irisBladesRef.current.length > 0) {
-        const bladeAngle = THREE.MathUtils.lerp(0.12, 0.42, apertureOpen);
-        irisBladesRef.current.forEach((blade, i) => {
-          if (blade) {
-            blade.rotation.z = bladeAngle + (i * Math.PI) / 4;
-          }
-        });
-      }
     }
 
-    // Gentle ambient pulsing of the inner lens projection light
-    if (lensGlowRef.current) {
-      const pulse = Math.sin(time * 2.2) * 0.45;
-      lensGlowRef.current.intensity = (lensGlowIntensity || 2.5) + pulse;
+    // Mechanical Lens Component Assembly / Disassembly Animation along optical axis (+X)
+    const sep = Math.max(0, 1 - assemblyProgress);
+
+    if (lens.mount && lensBase.mount) {
+      lens.mount.position.x = lensBase.mount.pos.x + sep * 0.45;
+    }
+    if (lens.presetAperture && lensBase.presetAperture) {
+      lens.presetAperture.position.x = lensBase.presetAperture.pos.x + sep * 1.05;
+      lens.presetAperture.rotation.x = lensBase.presetAperture.rot.x + sep * 1.8;
+    }
+    if (lens.focusing && lensBase.focusing) {
+      lens.focusing.position.x = lensBase.focusing.pos.x + sep * 1.75;
+      lens.focusing.rotation.x = lensBase.focusing.rot.x - sep * 2.4;
+    }
+    if (lens.rubber && lensBase.rubber) {
+      lens.rubber.position.x = lensBase.rubber.pos.x + sep * 2.45;
+    }
+    if (lens.front && lensBase.front) {
+      lens.front.position.x = lensBase.front.pos.x + sep * 3.15;
+      lens.front.rotation.x = lensBase.front.rot.x + sep * 1.5;
+    }
+    if (lens.nameRing && lensBase.nameRing) {
+      lens.nameRing.position.x = lensBase.nameRing.pos.x + sep * 3.65;
+    }
+    if (lens.glass && lensBase.glass) {
+      lens.glass.position.x = lensBase.glass.pos.x + sep * 4.15;
+    }
+
+    // Animate mechanical iris blades based on apertureOpen
+    if (irisBladesRef.current.length > 0) {
+      const bladeAngle = THREE.MathUtils.lerp(0.12, 0.48, apertureOpen);
+      irisBladesRef.current.forEach((blade, i) => {
+        if (blade) {
+          blade.rotation.z = bladeAngle + (i * Math.PI) / 4;
+        }
+      });
+    }
+
+    // Dynamic lens core light pulse
+    if (coreLightRef.current) {
+      coreLightRef.current.intensity = lensGlowIntensity * 2.4;
     }
   });
 
   return (
-    <group ref={cameraGroupRef} position={[0, 0, 0]} rotation={[0.04, -0.12, 0.02]}>
-      
-      {/* =========================================================================
-          1. 3D HUMAN SUPPORTING HAND BENEATH CAMERA
-         ========================================================================= */}
+    <group ref={cameraGroupRef}>
+      {/* 
+        Centering offset: bounding box center of dslr_camera.glb is [1.11, 0.02, 0].
+        Applying [-1.11, -0.02, 0] centers the camera rotation axis perfectly.
+      */}
+      <group ref={innerModelRef} position={[-1.11, -0.02, 0]} scale={0.46}>
+        {/* Authentic DSLR Camera Model */}
+        <primitive object={clonedScene} />
+
+        {/* 
+          Internal Mechanical Aperture Iris Assembly
+          Positioned inside the lens barrel at native coordinates [1.94, -0.56, 0]
+          Rotated to face along the optical X axis
+        */}
+        <group position={[1.94, -0.56, 0]} rotation={[0, Math.PI / 2, 0]}>
+          {apertureBlades.map((b, i) => (
+            <group key={b.id} rotation={[0, 0, b.angle]}>
+              <mesh
+                ref={(el) => (irisBladesRef.current[i] = el)}
+                position={[0.34, 0, 0]}
+                geometry={b.geometry}
+                material={b.material}
+              />
+            </group>
+          ))}
+        </group>
+
+        {/* 
+          Warm Optical Core Emitter & Lens Projection Flare
+          Positioned right at the front center of the lens [3.15, -0.56, 0]
+        */}
+        <group position={[3.15, -0.56, 0]}>
+          {/* Core Point Light */}
+          <pointLight
+            ref={coreLightRef}
+            color="#FFA500"
+            intensity={lensGlowIntensity * 2.4}
+            distance={9}
+          />
+
+          {/* Optical Core Emitter Disc */}
+          <mesh rotation={[0, Math.PI / 2, 0]}>
+            <circleGeometry args={[0.55, 32]} />
+            <meshBasicMaterial
+              color="#FFA500"
+              transparent
+              opacity={0.88}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+
+          {/* Soft Amber Glow Halo Ring */}
+          <mesh rotation={[0, Math.PI / 2, 0]} position={[0.02, 0, 0]}>
+            <ringGeometry args={[0.55, 0.72, 32]} />
+            <meshBasicMaterial
+              color="#FF8C00"
+              transparent
+              opacity={0.45}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        </group>
+      </group>
+
+      {/* 
+        3D Human Supporting Hand
+        Positioned naturally beneath the DSLR camera body cradling the underside
+      */}
       {showHand && (
         <SupportingHand
-          position={[0.22, -1.05, -0.05]}
-          rotation={[0.28, -0.55, 0.32]}
-          scale={11.0}
+          position={[0.22, -0.92, -0.05]}
+          rotation={[0.38, -0.52, 0.28]}
+          scale={12.5}
           reducedMotion={reducedMotion}
         />
       )}
-
-      {/* =========================================================================
-          2. MAIN CAMERA BODY CORE
-         ========================================================================= */}
-      <group position={[0, 0, -0.35 * sep]}>
-        {/* Central Magnesium Alloy Chassis */}
-        <mesh material={materials.body} position={[0, 0, 0]} castShadow receiveShadow>
-          <boxGeometry args={[2.2, 1.42, 0.9]} />
-        </mesh>
-
-        {/* Right Hand Ergonomic Leatherette Grip */}
-        <mesh material={materials.grip} position={[0.95, -0.02, 0.22]} castShadow receiveShadow>
-          <boxGeometry args={[0.55, 1.38, 1.15]} />
-        </mesh>
-
-        {/* Grip Front Textured Curve */}
-        <mesh material={materials.grip} position={[1.12, -0.02, 0.65]}>
-          <cylinderGeometry args={[0.22, 0.24, 1.36, 16]} />
-        </mesh>
-
-        {/* Left Shoulder Bevel */}
-        <mesh material={materials.body} position={[-0.95, 0.05, 0]}>
-          <boxGeometry args={[0.4, 1.3, 0.85]} />
-        </mesh>
-
-        {/* Pentaprism Base */}
-        <mesh material={materials.body} position={[0, 0.88, 0.02]} castShadow>
-          <boxGeometry args={[1.05, 0.46, 0.88]} />
-        </mesh>
-
-        {/* Sloped Pentaprism Apex */}
-        <mesh material={materials.body} position={[0, 1.02, 0.18]} rotation={[-0.45, 0, 0]}>
-          <boxGeometry args={[0.9, 0.28, 0.4]} />
-        </mesh>
-
-        {/* Pentaprism Front Metal Brand Plate */}
-        <mesh material={materials.metal} position={[0, 1.02, 0.38]} rotation={[-0.45, 0, 0]}>
-          <boxGeometry args={[0.55, 0.08, 0.02]} />
-        </mesh>
-        <mesh material={materials.luxuryRing} position={[0, 0.99, 0.38]} rotation={[-0.45, 0, 0]}>
-          <boxGeometry args={[0.45, 0.015, 0.022]} />
-        </mesh>
-
-        {/* Flash Hot Shoe Rails */}
-        <mesh material={materials.metal} position={[0, 1.14, -0.02]}>
-          <boxGeometry args={[0.34, 0.06, 0.38]} />
-        </mesh>
-        <mesh material={materials.knurledDial} position={[0, 1.12, -0.02]}>
-          <boxGeometry args={[0.22, 0.08, 0.28]} />
-        </mesh>
-
-        {/* Rear Viewfinder Ocular */}
-        <mesh material={materials.rubberRing} position={[0, 0.88, -0.52]}>
-          <boxGeometry args={[0.52, 0.36, 0.16]} />
-        </mesh>
-        <mesh material={materials.metal} position={[0, 0.88, -0.57]}>
-          <boxGeometry args={[0.36, 0.24, 0.04]} />
-        </mesh>
-
-        {/* Rear LCD Screen */}
-        <mesh material={materials.knurledDial} position={[-0.15, -0.05, -0.46]}>
-          <boxGeometry args={[1.35, 0.95, 0.04]} />
-        </mesh>
-        <mesh material={materials.metal} position={[-0.15, -0.05, -0.47]}>
-          <boxGeometry args={[1.25, 0.85, 0.01]} />
-        </mesh>
-
-        {/* Top Mode Dial */}
-        <mesh material={materials.knurledDial} position={[-0.72, 0.82, -0.06]}>
-          <cylinderGeometry args={[0.24, 0.24, 0.15, 24]} />
-        </mesh>
-        <mesh material={materials.metal} position={[-0.72, 0.88, -0.06]}>
-          <cylinderGeometry args={[0.18, 0.18, 0.04, 24]} />
-        </mesh>
-
-        {/* Shutter Button & Chrome Ring */}
-        <group position={[0.98, 0.74, 0.48]} rotation={[0.25, 0, -0.15]}>
-          <mesh material={materials.metal}>
-            <cylinderGeometry args={[0.18, 0.18, 0.08, 24]} />
-          </mesh>
-          <mesh material={materials.body} position={[0, 0.03, 0]}>
-            <cylinderGeometry args={[0.13, 0.13, 0.06, 24]} />
-          </mesh>
-        </group>
-
-        {/* Front Command Dial */}
-        <mesh material={materials.knurledDial} position={[0.98, 0.55, 0.78]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.12, 0.12, 0.22, 16]} />
-        </mesh>
-
-        {/* AF Illuminator Amber Lamp */}
-        <mesh material={materials.luxuryRing} position={[0.55, 0.45, 0.52]}>
-          <cylinderGeometry args={[0.07, 0.07, 0.04, 16]} />
-        </mesh>
-
-        {/* Mount Align Red Dot */}
-        <mesh material={materials.accentRed} position={[-0.52, 0.48, 0.48]}>
-          <sphereGeometry args={[0.035, 12, 12]} />
-        </mesh>
-      </group>
-
-      {/* =========================================================================
-          3. ARTICULATED TELEPHOTO LENS ASSEMBLY (Extending along +Z)
-             Each component separates and locks with mechanical rotation
-         ========================================================================= */}
-      <group position={[0, 0, 0.45]} rotation={[-Math.PI / 2, 0, 0]}>
-        
-        {/* Component 1: Stainless Steel Bayonet Mount Flange */}
-        <group position={[0, -(0.04 + sep * 0.12), 0]}>
-          <mesh material={materials.metal}>
-            <cylinderGeometry args={[0.62, 0.62, 0.08, 32]} />
-          </mesh>
-        </group>
-
-        {/* Component 2: Mount Base Barrel Collar */}
-        <group
-          position={[0, -(0.18 + sep * 0.35), 0]}
-          rotation={[0, -0.3 * sep, 0]}
-        >
-          <mesh material={materials.lensBarrel}>
-            <cylinderGeometry args={[0.58, 0.60, 0.28, 32]} />
-          </mesh>
-        </group>
-
-        {/* Component 3: Distance Scale Indicator Window Housing */}
-        <group position={[0, -(0.42 + sep * 0.6), 0]}>
-          <mesh material={materials.body}>
-            <cylinderGeometry args={[0.58, 0.58, 0.22, 32]} />
-          </mesh>
-          <mesh material={materials.opticalGlass} position={[0, 0, 0.54]}>
-            <boxGeometry args={[0.32, 0.12, 0.1]} />
-          </mesh>
-        </group>
-
-        {/* Component 4: Knurled Zoom Ring */}
-        <group
-          position={[0, -(0.76 + sep * 0.95), 0]}
-          rotation={[0, 0.55 * sep, 0]}
-        >
-          <mesh material={materials.rubberRing}>
-            <cylinderGeometry args={[0.61, 0.59, 0.48, 32]} />
-          </mesh>
-        </group>
-
-        {/* Component 5: Mechanical Aperture Iris Assembly with 8 Blades */}
-        <group position={[0, -(1.02 + sep * 1.3), 0]}>
-          {/* Aperture Housing Ring */}
-          <mesh material={materials.bladeMetal}>
-            <cylinderGeometry args={[0.56, 0.56, 0.06, 32]} />
-          </mesh>
-          {/* 8 Articulated Aperture Blades */}
-          {[0, 1, 2, 3, 4, 5, 6, 7].map((b) => {
-            const angle = (b * Math.PI * 2) / 8;
-            const r = 0.28;
-            return (
-              <group
-                key={b}
-                ref={(el) => (irisBladesRef.current[b] = el)}
-                position={[Math.cos(angle) * r, 0, Math.sin(angle) * r]}
-                rotation={[0, angle, 0]}
-              >
-                <mesh material={materials.bladeMetal} position={[0.12, 0, 0]}>
-                  <boxGeometry args={[0.26, 0.015, 0.08]} />
-                </mesh>
-              </group>
-            );
-          })}
-        </group>
-
-        {/* Component 6: Internal Optical Glass Element (Biconcave) */}
-        <group position={[0, -(1.14 + sep * 1.55), 0]}>
-          <mesh
-            material={materials.innerGlass}
-            rotation={[Math.PI, 0, 0]}
-          >
-            <sphereGeometry args={[0.48, 24, 12, 0, Math.PI * 2, 0, Math.PI * 0.28]} />
-          </mesh>
-        </group>
-
-        {/* Component 7: Focus Ring with Fine Longitudinal Ridges */}
-        <group
-          position={[0, -(1.22 + sep * 1.9), 0]}
-          rotation={[0, -0.65 * sep, 0]}
-        >
-          <mesh material={materials.rubberRing}>
-            <cylinderGeometry args={[0.62, 0.61, 0.46, 32]} />
-          </mesh>
-        </group>
-
-        {/* Component 8: SIGNATURE LUXURY ORANGE / L-SERIES ACCENT RING */}
-        <group position={[0, -(1.48 + sep * 2.25), 0]}>
-          <mesh material={materials.luxuryRing}>
-            <cylinderGeometry args={[0.628, 0.628, 0.05, 32]} />
-          </mesh>
-        </group>
-
-        {/* Component 9: Flared Outer Front Barrel & Hood Mount */}
-        <group
-          position={[0, -(1.74 + sep * 2.65), 0]}
-          rotation={[0, 0.45 * sep, 0]}
-        >
-          <mesh material={materials.lensBarrel}>
-            <cylinderGeometry args={[0.70, 0.62, 0.48, 32]} />
-          </mesh>
-          <mesh material={materials.body} position={[0, -0.14, 0]}>
-            <cylinderGeometry args={[0.58, 0.52, 0.2, 32]} />
-          </mesh>
-        </group>
-
-        {/* Component 10: Front Convex Aspherical Optical Glass Element */}
-        <group position={[0, -(1.86 + sep * 3.0), 0]}>
-          <mesh
-            material={materials.opticalGlass}
-            rotation={[Math.PI, 0, 0]}
-          >
-            <sphereGeometry args={[0.55, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.32]} />
-          </mesh>
-        </group>
-
-        {/* Component 11: Front Filter Thread & Orange Retaining Ring */}
-        <group
-          position={[0, -(1.96 + sep * 3.35), 0]}
-          rotation={[0, -0.75 * sep, 0]}
-        >
-          <mesh material={materials.metal}>
-            <cylinderGeometry args={[0.68, 0.68, 0.04, 32]} />
-          </mesh>
-          <mesh material={materials.luxuryRing} position={[0, -0.02, 0]}>
-            <cylinderGeometry args={[0.672, 0.672, 0.02, 32]} />
-          </mesh>
-        </group>
-
-        {/* Component 12: Glowing Projection Emitter Disc (Where photos emerge) */}
-        <mesh
-          ref={emitterMeshRef}
-          material={materials.emitter}
-          position={[0, -(1.35 + sep * 1.8), 0]}
-          rotation={[Math.PI / 2, 0, 0]}
-        >
-          <circleGeometry args={[0.42, 32]} />
-        </mesh>
-
-        {/* Intense Internal Amber Point Light Inside the Lens */}
-        <pointLight
-          ref={lensGlowRef}
-          position={[0, -(1.8 + sep * 2.5), 0]}
-          color="#FF9800"
-          intensity={lensGlowIntensity}
-          distance={5.0}
-          decay={1.8}
-        />
-      </group>
-
-      {/* Dedicated Warm Orange Rim Silhouette Light behind camera body */}
-      <pointLight
-        position={[0, 0.4, -1.3]}
-        color="#FF9800"
-        intensity={5.5}
-        distance={4.8}
-        decay={1.8}
-      />
-
-      {/* Warm Top Edge Contour Light */}
-      <pointLight
-        position={[0, 2.2, 0.2]}
-        color="#FFE0B2"
-        intensity={2.6}
-        distance={4.2}
-        decay={2.0}
-      />
     </group>
   );
 }
+
+useGLTF.preload('/dslr_camera.glb');
