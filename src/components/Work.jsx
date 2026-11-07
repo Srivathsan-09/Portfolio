@@ -351,7 +351,7 @@ const getCoverImage = (catTitle, defaultFallback) => {
   return item ? item.src : defaultFallback;
 };
 
-export default function Work({ isMobile = false }) {
+export default function Work({ _isMobile = false }) {
   const [activeCategoryModal, setActiveCategoryModal] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [modalFilter, setModalFilter] = useState('ALL');
@@ -663,9 +663,7 @@ export default function Work({ isMobile = false }) {
       <section
         ref={sectionRef}
         id="work"
-        className={`relative py-20 lg:py-28 overflow-hidden bg-[#080808] z-10 ${
-          isMobile ? 'mt-0' : 'md:-mt-[100vh]'
-        }`}
+        className="relative py-20 lg:py-28 overflow-hidden bg-[#080808] z-10 mt-0"
       >
         {/* Smooth top blend from #080808 for completely seamless transition from About section */}
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#080808] via-[#080808]/90 to-transparent pointer-events-none z-0" />

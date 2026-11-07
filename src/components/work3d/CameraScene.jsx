@@ -282,11 +282,12 @@ function SceneContent({
 
     let st;
     if (triggerEl) {
+      // Cards emerge ONLY upon reaching the Work page; reverse back into camera when scrolling up to About
       st = ScrollTrigger.create({
         trigger: triggerEl,
-        start: 'top 80%',
-        end: 'center 45%',
-        scrub: 0.8,
+        start: isMobile ? 'top 45%' : 'top 35%',
+        end: 'bottom 10%',
+        toggleActions: 'play none none reverse',
         animation: tl,
         invalidateOnRefresh: true,
       });
@@ -301,7 +302,7 @@ function SceneContent({
       st?.kill();
       tl.kill();
     };
-  }, [cameraPos, collections, lensOrigin, reducedMotion, targetCoordinates]);
+  }, [cameraPos, collections, isMobile, lensOrigin, reducedMotion, targetCoordinates]);
 
   // Handle cinematic card selection transition into gallery modal
   const handleCardClick = (categoryTitle, idx) => {

@@ -189,17 +189,7 @@ const AboutDisintegration = forwardRef(function AboutDisintegration(
         );
       }
 
-      // 2. SIMULTANEOUS WORK EMERGENCE: Work smoothly appears behind scattering boxes without heavy DOM scaling
-      if (workEl) {
-        tl.fromTo(
-          workEl,
-          { opacity: 0.25 },
-          { opacity: 1.0, duration: 0.85, ease: 'power1.out' },
-          0
-        );
-      }
-
-      // 3. SIMULTANEOUS 3D BOX SCATTER:
+      // 2. 3D BOX SCATTER:
       validTileEls.forEach((tileEl, idx) => {
         const traj = tileTrajectories[idx];
         if (!tileEl || !traj) return;
