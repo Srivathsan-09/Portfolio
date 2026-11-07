@@ -171,7 +171,7 @@ export default function Hero({ scrollToSection }) {
       {/* =========================================================================
           HERO TEXT & INTERACTIVE CONTENT (Layered Directly Over the Photo)
          ========================================================================= */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-20 pt-28 pb-16 lg:pt-36 lg:pb-24">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:pl-20 sm:pr-8 md:pl-24 md:pr-10 lg:pl-28 lg:pr-12 xl:pl-32 xl:pr-16 pt-28 pb-16 lg:pt-36 lg:pb-24">
         <div className="max-w-xl xl:max-w-xl flex flex-col justify-center">
 
           {/* Label: Warm cinematic orange accent line + VISUAL STORYTELLER */}

@@ -76,7 +76,7 @@ export default function AboutContent({
       {/* =========================================================================
           ABOUT TEXT & NARRATIVE
          ========================================================================= */}
-      <div className="relative z-10 w-full max-w-[1560px] mx-auto px-6 sm:px-10 lg:px-16 xl:px-20 py-12 lg:py-24 flex lg:justify-start">
+      <div className="relative z-10 w-full max-w-[1560px] mx-auto px-6 sm:pl-20 sm:pr-8 md:pl-24 md:pr-10 lg:pl-28 lg:pr-12 xl:pl-32 xl:pr-16 py-12 lg:py-24 flex lg:justify-start">
         <div className="max-w-xl xl:max-w-xl flex flex-col justify-center lg:mr-auto lg:ml-2 xl:ml-6">
 
           {/* Label: Warm orange accent line + ABOUT ME */}

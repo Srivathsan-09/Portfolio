@@ -107,7 +107,7 @@ export default function PhotographyScrollRail({
          ========================================================================= */}
       <aside
         aria-label="Photography scroll progress & section navigation"
-        className="fixed left-3 sm:left-5 lg:left-7 top-1/2 -translate-y-1/2 z-40 hidden sm:flex flex-col items-center pointer-events-none select-none"
+        className="fixed left-2.5 sm:left-3.5 lg:left-4 top-1/2 -translate-y-1/2 z-40 hidden sm:flex flex-col items-center pointer-events-none select-none"
       >
         {/* Top Camera Aperture / Lens Header */}
         <div className="flex flex-col items-center gap-1 mb-2.5 opacity-70 hover:opacity-100 transition-opacity">
@@ -120,7 +120,7 @@ export default function PhotographyScrollRail({
         </div>
 
         {/* Central Filmstrip Gauge Rail Capsule */}
-        <div className="relative w-8 lg:w-9 h-[340px] lg:h-[390px] rounded-full bg-[#0c0d12]/75 backdrop-blur-xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.7)] flex flex-col items-center justify-between py-3 px-1">
+        <div className="relative w-7.5 lg:w-8 h-[330px] lg:h-[370px] rounded-full bg-[#0c0d12]/80 backdrop-blur-xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.7)] flex flex-col items-center justify-between py-3 px-1">
           {/* Subtle Film Perforation Sprocket Texture */}
           <div className="absolute inset-y-2 left-1.5 flex flex-col justify-between pointer-events-none opacity-20">
             {[...Array(12)].map((_, i) => (

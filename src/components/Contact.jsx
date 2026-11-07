@@ -94,7 +94,7 @@ export default function Contact() {
       <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#080808] via-[#080808]/90 to-transparent pointer-events-none z-0" />
       <div className="absolute top-1/2 right-10 w-[500px] h-[500px] bg-[#FF9800]/10 rounded-full blur-[160px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-16 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 sm:pl-20 sm:pr-8 md:pl-24 md:pr-10 lg:pl-28 lg:pr-12 xl:pl-32 xl:pr-16 relative z-10">
         
         {/* Section Header Tag */}
         <div ref={tagRef} className="flex items-center gap-4 mb-10">

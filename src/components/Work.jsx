@@ -673,7 +673,7 @@ export default function Work({ isMobile = false }) {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#080808] via-[#080808]/90 to-transparent pointer-events-none z-0" />
         <div className="absolute top-1/4 right-1/4 w-[450px] h-[450px] bg-[#FF9800]/8 rounded-full blur-[160px] pointer-events-none" />
 
-        <div className="max-w-[1560px] mx-auto px-6 lg:px-12 xl:px-16 relative z-10 w-full">
+        <div className="max-w-[1560px] mx-auto px-6 sm:pl-20 sm:pr-8 md:pl-24 md:pr-10 lg:pl-28 lg:pr-12 xl:pl-32 xl:pr-16 relative z-10 w-full">
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
