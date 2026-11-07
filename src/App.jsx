@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import CinematicBackground from './components/CinematicBackground';
 import CustomCursor from './components/CustomCursor';
 import Navbar from './components/Navbar';
+import PhotographyScrollRail from './components/PhotographyScrollRail';
 import Page3DTransition from './components/Page3DTransition';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -87,14 +88,14 @@ export default function App() {
 
   // Throttled Active section observer on scroll
   useEffect(() => {
-    const sections = ['work', 'contact'];
+    const sections = ['contact', 'story', 'work'];
     let ticking = false;
 
     const handleScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
           if (isMobile) {
-            const sections = ['contact', 'work', 'about', 'hero'];
+            const sections = ['contact', 'story', 'work', 'about', 'hero'];
             const scrollPos = window.scrollY + window.innerHeight / 3;
             for (const sectionId of sections) {
               const el = document.getElementById(sectionId);
@@ -231,6 +232,13 @@ export default function App() {
 
       {/* Fixed Sticky Header Navbar */}
       <Navbar activeSection={activeSection} scrollToSection={handleNavigation} />
+
+      {/* Photography-Themed Left Scroll Rail & Filmstrip Frame Indicator */}
+      <PhotographyScrollRail
+        activeSection={activeSection}
+        scrollToSection={handleNavigation}
+        isMobile={isMobile}
+      />
 
       {/* Main Page Content: Desktop Unified Transitions vs Clean Mobile Native Scroll */}
       <main className="relative z-10">

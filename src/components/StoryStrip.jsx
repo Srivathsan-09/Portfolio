@@ -384,7 +384,7 @@ export default function StoryStrip() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative h-[140vh] my-0 overflow-visible select-none bg-[#080808]">
+    <section ref={sectionRef} id="story" className="relative h-[140vh] my-0 overflow-visible select-none bg-[#080808]">
       {/* 
         PINNED VIEWPORT CONTAINER (Sticky 100vh)
         Scroll controls 3D animation timeline via GSAP ScrollTrigger scrub
