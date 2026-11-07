@@ -285,7 +285,7 @@ function SceneContent({
       // Cards emerge ONLY upon reaching the Work page; reverse back into camera when scrolling up to About
       st = ScrollTrigger.create({
         trigger: triggerEl,
-        start: isMobile ? 'top 45%' : 'top 35%',
+        start: isMobile ? 'top 55%' : 'top 80px',
         end: 'bottom 10%',
         toggleActions: 'play none none reverse',
         animation: tl,
@@ -383,9 +383,15 @@ function SceneContent({
  * Main 3D Canvas Container
  * Uses demand-based rendering when off-screen to preserve 100% GPU/CPU
  */
-export default function CameraScene({ collections, openGalleryModal }) {
+export default function CameraScene({ collections, openGalleryModal, isMobile: isMobileProp }) {
   const containerRef = useRef(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => (
+    isMobileProp !== undefined
+      ? isMobileProp
+      : typeof window !== 'undefined'
+      ? window.innerWidth < 768
+      : false
+  ));
   const [isTablet, setIsTablet] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isSectionInView, setIsSectionInView] = useState(false);
@@ -393,7 +399,7 @@ export default function CameraScene({ collections, openGalleryModal }) {
   useEffect(() => {
     const checkResponsive = () => {
       const width = window.innerWidth;
-      setIsMobile(width < 768);
+      setIsMobile(isMobileProp !== undefined ? isMobileProp : width < 768);
       setIsTablet(width >= 768 && width < 1024);
     };
 
@@ -404,7 +410,7 @@ export default function CameraScene({ collections, openGalleryModal }) {
     setReducedMotion(mql.matches);
 
     return () => window.removeEventListener('resize', checkResponsive);
-  }, []);
+  }, [isMobileProp]);
 
   // Demand-based rendering observer: Pauses Three.js render loop when offscreen
   useEffect(() => {

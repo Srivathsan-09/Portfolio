@@ -204,13 +204,24 @@ export default function App() {
       }
     } else {
       // id === 'work' or 'contact'
-      const el = document.getElementById(id);
-      if (el) {
-        if (lenisRef) {
-          lenisRef.scrollTo(el, { offset: -60 });
-        } else {
-          el.scrollIntoView({ behavior: 'smooth' });
+      const scrollToTarget = () => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (lenisRef) {
+            const offset = id === 'work' ? 0 : -60;
+            lenisRef.scrollTo(el, { offset });
+          } else {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }
         }
+      };
+
+      if (page3DTransitionRef.current?.currentView === 'home') {
+        page3DTransitionRef.current.transitionToAbout(() => {
+          scrollToTarget();
+        });
+      } else {
+        scrollToTarget();
       }
       setActiveSection(id);
     }
